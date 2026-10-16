@@ -1,7 +1,7 @@
 title: $:/plugins/mblackman/slipstream/ui/Layout
 tags: $:/tags/Layout
 name: Slipstream
-description: Generic 3-column centered reading workspace with configurable shortcuts and mobile Zoomin bottom bar
+description: Generic 3-column centered reading workspace with configurable shortcuts and mobile fade bottom bar
 type: text/vnd.tiddlywiki
 
 \whitespace trim
@@ -9,19 +9,9 @@ type: text/vnd.tiddlywiki
 
 \function .breakpoint() [{$:/config/slipstream/mobile-breakpoint}!is[blank]else[1024]]
 \function .is-mobile() [{$:/info/browser/window/system/main/client/width}!is[blank]compare:number:lt<.breakpoint>then[yes]else[no]]
-\function .active-storyview()
-[{$:/config/slipstream/storyview-override}!is[blank]!match[auto]]
-~[.is-mobile[]match[yes]then[zoomin]else[classic]]
-\end
-
-\function .container-classes()
-tc-page-container mn-app-shell
-[{$:/state/slipstream/left-panel}match[no]then[mn-left-collapsed]else[mn-left-open]]
-[{$:/state/slipstream/right-panel}match[no]then[mn-right-collapsed]else[mn-right-open]]
-[.is-mobile[]match[yes]then[mn-is-mobile]else[mn-is-desktop]]
-[[tc-page-view-]addsuffix<.active-storyview>]
-+[join[ ]]
-\end
+\function .is-left-open() [.is-mobile[]match[yes]] :then[{$:/state/slipstream/left-panel}match[yes]then[yes]else[no]] :else[{$:/state/slipstream/left-panel}match[no]then[no]else[yes]]
+\function .active-storyview() [{$:/config/slipstream/storyview-override}!is[blank]!match[auto]] ~[.is-mobile[]match[yes]then[fade]else[classic]]
+\function .container-classes() tc-page-container mn-app-shell [.is-left-open[]match[yes]then[mn-left-open]else[mn-left-collapsed]] [{$:/state/slipstream/right-panel}match[no]then[mn-right-collapsed]else[mn-right-open]] [.is-mobile[]match[yes]then[mn-is-mobile]else[mn-is-desktop]] [[tc-page-view-]addsuffix<.active-storyview>] +[join[ ]]
 
 \procedure redirected-navigate-actions()
 <$action-setfield $tiddler="$:/HistoryList" current-tiddler=<<event-navigateTo>> $timestamp="no"/>
@@ -61,12 +51,10 @@ tc-page-container mn-app-shell
 					</header>
 
 					<!-- Mobile Horizontal Open-Tiddler Switcher Strip (z-index: 410) -->
-					<%if [.is-mobile[]match[yes]] %>
-						{{$:/plugins/mblackman/slipstream/ui/MobilePillStrip}}
-					<%endif%>
+					{{$:/plugins/mblackman/slipstream/ui/MobilePillStrip}}
 
 					<!-- Mobile Drawer Backdrop when Left Nav is Open on Mobile -->
-					<%if [.is-mobile[]match[yes]] [{$:/state/slipstream/left-panel}!match[no]] +[count[]match[2]] %>
+					<%if [{$:/state/slipstream/left-panel}match[yes]] %>
 						<$button set="$:/state/slipstream/left-panel" setTo="no" class="mn-mobile-drawer-backdrop tc-btn-invisible" aria-label="Close navigation drawer"/>
 					<%endif%>
 
@@ -96,19 +84,15 @@ tc-page-container mn-app-shell
 							</section>
 						</main>
 
-						<%if [.is-mobile[]match[no]] %>
-							<aside class="mn-panel-right">
-								{{$:/plugins/mblackman/slipstream/ui/RightInspector}}
-							</aside>
-						<%endif%>
+						<aside class="mn-panel-right">
+							{{$:/plugins/mblackman/slipstream/ui/RightInspector}}
+						</aside>
 					</div>
 
 					{{$:/core/ui/PageTemplate/drafts}}
 
 					<!-- Fixed Mobile Bottom Bar & Zoomed Tiddler Options Sheet (z-index: 480/520) -->
-					<%if [.is-mobile[]match[yes]] %>
-						{{$:/plugins/mblackman/slipstream/ui/MobileBar}}
-					<%endif%>
+					{{$:/plugins/mblackman/slipstream/ui/MobileBar}}
 				</div>
 			</$dropzone>
 		</$messagecatcher>

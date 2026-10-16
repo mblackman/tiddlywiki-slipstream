@@ -44,6 +44,7 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
       "$:/plugins/mblackman/slipstream/ui/TopBar",
       "$:/plugins/mblackman/slipstream/ui/WideViewWrapper",
       "$:/plugins/mblackman/slipstream/widgets/ui-primitives",
+      "$:/plugins/mblackman/slipstream/storyviews/fade.js",
       "$:/config/ui/SideBar/More/horizontal",
     ];
 
@@ -133,7 +134,7 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     expect(html).toContain("mn-progress-track");
   });
 
-  test("switches to mobile zoomin mode with pill strip and bottom bar below 1024px", () => {
+  test("switches to mobile fade mode with pill strip and bottom bar below 1024px", () => {
     $tw.wiki.addTiddler({
       title: "$:/info/browser/window/system/main/client/width",
       text: "390",
@@ -149,10 +150,47 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     );
 
     expect(html).toContain("mn-is-mobile");
-    expect(html).toContain("tc-page-view-zoomin");
+    expect(html).toContain("tc-page-view-fade");
     expect(html).toContain("mn-mobile-pill-strip");
     expect(html).toContain("mn-mobile-bottombar");
     expect(html).toContain("mn-bottom-sheet");
+    expect(html).toContain("mn-backdrop-dismiss");
+    expect(html).toContain("mn-bottom-sheet-header");
+    // Ensure mobile navigation drawer is collapsed by default and overlay backdrop does not block screen
+    expect(html).toContain("mn-left-collapsed");
+    expect(html).not.toContain("mn-mobile-drawer-backdrop");
+
+    // When drawer is explicitly opened, backdrop appears
+    $tw.wiki.addTiddler({
+      title: "$:/state/slipstream/left-panel",
+      text: "yes",
+    });
+    const openHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/Layout"
+    );
+    expect(openHtml).toContain("mn-left-open");
+    expect(openHtml).toContain("mn-mobile-drawer-backdrop");
+    $tw.wiki.deleteTiddler("$:/state/slipstream/left-panel");
+  });
+
+  test("configures mobile bottom sheet with fixed height and full touch-target action buttons", () => {
+    const css = fs.readFileSync(path.join(PLUGIN_DIR, "styles/core.css"), "utf8");
+    // Ensure bottom sheet has fixed height (82dvh) so its top edge does not jump when switching tabs
+    expect(css).toMatch(/\.mn-bottom-sheet\s*\{[^}]*height:\s*82dvh/s);
+    expect(css).toMatch(/\.mn-bottom-sheet\s*\{[^}]*max-height:\s*82dvh/s);
+
+    // Ensure uniform 4-column grid layout on mobile
+    expect(css).toMatch(/\.mn-sheet-action-grid\s*\{[^}]*grid-template-columns:\s*repeat\(4,\s*1fr\)/s);
+    expect(css).toMatch(/\.mn-sheet-action-item\s*\{[^}]*height:\s*48px/s);
+
+    // Ensure hidden reveal spans are suppressed so they do not squish buttons
+    expect(css).toMatch(/\.mn-sheet-action-item \[hidden\][^}]*display:\s*none !important/s);
+
+    // Ensure action grid buttons fill entire item container as full clickable touch targets
+    expect(css).toMatch(/\.mn-sheet-action-item button\s*\{[^}]*width:\s*100%/s);
+    expect(css).toMatch(/\.mn-sheet-action-item button\s*\{[^}]*min-height:\s*44px/s);
+    expect(css).toMatch(/\.mn-sheet-action-item button svg\s*\{[^}]*pointer-events:\s*none/s);
   });
 
   test("renders WideViewWrapper cascade for tiddlers tagged Wide or with page-width=wide", () => {
@@ -162,5 +200,32 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
       { variables: { currentTiddler: "Journal Dashboard" } }
     );
     expect(wideHtml).toContain("mn-wide-view");
+  });
+
+  test("registers fade storyview module and suppresses zoom transforms in core.css", () => {
+    const views = {};
+    $tw.modules.applyMethods("storyview", views);
+    expect(typeof views.fade).toBe("function");
+
+    const css = fs.readFileSync(path.join(PLUGIN_DIR, "styles/core.css"), "utf8");
+    expect(css).toMatch(/\.mn-is-mobile \.tc-tiddler-frame\s*\{[^}]*transform:\s*none !important;/s);
+    expect(css).toContain("mn-tiddler-fading-out");
+    expect(css).toContain("mn-tiddler-fading-in");
+  });
+
+  test("styles floating drafts indicator as a modern pill on desktop and clears mobile bottom bar", () => {
+    const css = fs.readFileSync(path.join(PLUGIN_DIR, "styles/core.css"), "utf8");
+    // Ensure drafts container is fixed, centered, and above river content
+    expect(css).toMatch(/\.tc-drafts-list\s*\{[^}]*position:\s*fixed/s);
+    expect(css).toMatch(/\.tc-drafts-list\s*\{[^}]*left:\s*50%/s);
+    expect(css).toMatch(/\.tc-drafts-list\s*\{[^}]*transform:\s*translateX\(-50%\)/s);
+
+    // Ensure draft links have pill radius, minimum touch target, and theme tokens
+    expect(css).toMatch(/\.tc-drafts-list a\s*\{[^}]*border-radius:\s*var\(--mn-radius-pill\)/s);
+    expect(css).toMatch(/\.tc-drafts-list a\s*\{[^}]*min-height:\s*44px/s);
+    expect(css).toMatch(/\.tc-drafts-list a\s*\{[^}]*background:\s*var\(--mn-bg-surface\)/s);
+
+    // Ensure mobile rule floats above the mobile bottom bar
+    expect(css).toMatch(/\.tc-drafts-list\s*\{[^}]*bottom:\s*calc\(var\(--mn-bottombar-height\)/s);
   });
 });

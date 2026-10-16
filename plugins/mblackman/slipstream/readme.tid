@@ -3,7 +3,7 @@ type: text/vnd.tiddlywiki
 
 \whitespace trim
 <h3>Slipstream Theme & Layout (v0.1.0 for TiddlyWiki v5.4.0+)</h3>
-<p>A generic, configurable 3-column desktop reading workspace and mobile <code>zoomin</code> single-tiddler layout.</p>
+<p>A generic, configurable 3-column desktop reading workspace and mobile <code>fade</code> single-tiddler layout.</p>
 <ul>
 	<li><strong>Activate Layout:</strong> Press <kbd>Ctrl+Shift+L</kbd> (or go to <em>Control Panel → Appearance → Layout</em>) and select <strong>Slipstream</strong>.</li>
 	<li><strong>Pin Any Tiddler to Left Nav:</strong> Tag any tiddler with <code>$:/tags/Pinned</code> (or customize <code>$:/config/slipstream/pinned-filter</code> in Settings).</li>

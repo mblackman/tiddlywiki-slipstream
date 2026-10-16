@@ -28,8 +28,13 @@ function syncDebugWiki() {
       path.join(demoDir, "tiddlywiki.info"),
       path.join(debugDir, "tiddlywiki.info")
     );
+    const shouldIgnore = (f) =>
+      f.startsWith("$__UpgradeLibrary") ||
+      f.startsWith("$__info") ||
+      f.startsWith("$__currentTiddler");
+
     for (const file of fs.readdirSync(path.join(demoDir, "tiddlers"))) {
-      if (file.startsWith("$__UpgradeLibrary")) continue;
+      if (shouldIgnore(file)) continue;
       fs.copyFileSync(
         path.join(demoDir, "tiddlers", file),
         path.join(debugDir, "tiddlers", file)
@@ -38,7 +43,7 @@ function syncDebugWiki() {
   }
   if (fs.existsSync(path.join(debugDir, "tiddlers"))) {
     for (const file of fs.readdirSync(path.join(debugDir, "tiddlers"))) {
-      if (file.startsWith("$__UpgradeLibrary")) {
+      if (file.startsWith("$__UpgradeLibrary") || file.startsWith("$__info") || file.startsWith("$__currentTiddler")) {
         fs.rmSync(path.join(debugDir, "tiddlers", file), { force: true });
       }
     }

@@ -2,6 +2,10 @@ title: $:/plugins/mblackman/slipstream/ui/TopBar
 type: text/vnd.tiddlywiki
 
 \whitespace trim
+\function .breakpoint() [{$:/config/slipstream/mobile-breakpoint}!is[blank]else[1024]]
+\function .is-mobile() [{$:/info/browser/window/system/main/client/width}!is[blank]compare:number:lt<.breakpoint>then[yes]else[no]]
+\function .is-left-open() [.is-mobile[]match[yes]] :then[{$:/state/slipstream/left-panel}match[yes]then[yes]else[no]] :else[{$:/state/slipstream/left-panel}match[no]then[no]else[yes]]
+
 <%if [{$:/state/slipstream/mobile-search}match[open]] %>
 	<!-- Active Mobile Search Overlay in TopBar -->
 	<div class="mn-topbar-mobile-search">
@@ -47,8 +51,8 @@ type: text/vnd.tiddlywiki
 	<div class="mn-topbar-left">
 		<$button
 			set="$:/state/slipstream/left-panel"
-			setTo={{{ [{$:/state/slipstream/left-panel}match[no]then[yes]else[no]] }}}
-			class={{{ [[mn-pill-btn]] [{$:/state/slipstream/left-panel}!match[no]then[mn-pill-btn-subtle-active]] +[join[ ]] }}}
+			setTo={{{ [.is-left-open[]match[yes]then[no]else[yes]] }}}
+			class={{{ [[mn-pill-btn]] [.is-left-open[]match[yes]then[mn-pill-btn-subtle-active]] +[join[ ]] }}}
 			tooltip="Toggle Navigation"
 		>
 			☰

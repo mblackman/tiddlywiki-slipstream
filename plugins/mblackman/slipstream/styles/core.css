@@ -170,7 +170,6 @@ body.tc-body {
 
 .mn-workspace-grid {
 	position: relative;
-	z-index: 1;
 	display: grid;
 	grid-template-columns: var(--mn-left-width) minmax(0, 1fr) var(--mn-right-width);
 	flex: 1;
@@ -204,10 +203,12 @@ body.tc-body {
 
 .mn-panel-left {
 	border-right: 1px solid var(--mn-border-hairline);
+	box-shadow: none;
 }
 
 .mn-panel-right {
 	border-left: 1px solid var(--mn-border-hairline);
+	box-shadow: none;
 }
 
 .mn-left-collapsed .mn-panel-left,
@@ -727,10 +728,19 @@ body.tc-body {
 
 .mn-segmented-tabs .mn-pill-btn {
 	flex: 1;
-	padding: 0.3rem 0.5rem;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.4rem 0.6rem;
+	min-height: 36px;
 	border: none;
 	background: transparent;
 	font-size: 0.76rem;
+	font-weight: 500;
+	cursor: pointer;
+	border-radius: var(--mn-radius-pill);
+	color: var(--mn-text-muted);
+	transition: background var(--mn-transition), color var(--mn-transition);
 }
 
 .mn-nav-heading {
@@ -966,14 +976,96 @@ body.tc-body {
 }
 
 /*-----------------------------------------------------------------------------
+  Floating Saved Drafts Pill (Desktop & Mobile)
+-----------------------------------------------------------------------------*/
+.mn-app-shell .tc-drafts-list,
+.tc-drafts-list {
+	position: fixed;
+	z-index: 450;
+	bottom: 2rem;
+	left: 50%;
+	transform: translateX(-50%);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.5rem;
+	margin: 0;
+	padding: 0;
+	pointer-events: none;
+}
+
+.mn-app-shell .tc-drafts-list a,
+.tc-drafts-list a {
+	pointer-events: auto;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.6rem;
+	padding: 0.6rem 1.25rem;
+	min-height: 44px;
+	background: var(--mn-bg-surface);
+	color: var(--mn-text-main);
+	border: 1px solid var(--mn-border-subtle);
+	border-radius: var(--mn-radius-pill);
+	box-shadow: 0 10px 30px -4px rgba(15, 23, 42, 0.14), 0 3px 8px rgba(15, 23, 42, 0.06);
+	font-family: var(--mn-font-sans);
+	font-size: 0.88rem;
+	font-weight: 500;
+	letter-spacing: -0.01em;
+	text-decoration: none !important;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: min(88vw, 460px);
+	box-sizing: border-box;
+	cursor: pointer;
+	-webkit-tap-highlight-color: transparent;
+	transition: background var(--mn-transition), border-color var(--mn-transition), color var(--mn-transition), transform var(--mn-transition), box-shadow var(--mn-transition);
+}
+
+.mn-app-shell .tc-drafts-list a:hover,
+.mn-app-shell .tc-drafts-list a:focus-visible,
+.tc-drafts-list a:hover,
+.tc-drafts-list a:focus-visible {
+	background: var(--mn-bg-elevated);
+	border-color: var(--mn-accent);
+	color: var(--mn-accent);
+	fill: var(--mn-accent);
+	transform: translateY(-2px);
+	box-shadow: 0 14px 34px -4px rgba(15, 23, 42, 0.2), 0 4px 10px rgba(15, 23, 42, 0.08);
+	text-decoration: none !important;
+}
+
+.mn-app-shell .tc-drafts-list a:active,
+.tc-drafts-list a:active {
+	background: var(--mn-accent-soft);
+	transform: translateY(0) scale(0.98);
+}
+
+.mn-app-shell .tc-drafts-list a svg,
+.tc-drafts-list a svg {
+	width: 17px;
+	height: 17px;
+	fill: var(--mn-accent);
+	flex-shrink: 0;
+	pointer-events: none;
+	margin: 0;
+	transition: fill var(--mn-transition);
+}
+
+.mn-app-shell .tc-drafts-list a:hover svg,
+.tc-drafts-list a:hover svg {
+	fill: var(--mn-accent);
+}
+
+/*-----------------------------------------------------------------------------
   5. Mobile Zoomin Shell, Pill Switcher Strip & Bottom Action Sheet
 -----------------------------------------------------------------------------*/
 /* Open Tiddler Pill Switcher Strip on Mobile — pinned directly below topbar, above tiddlers */
 .mn-mobile-pill-strip {
+	display: none;
 	position: sticky;
 	top: var(--mn-topbar-height);
 	z-index: 410;
-	display: flex;
 	align-items: center;
 	gap: 0.45rem;
 	padding: 0.45rem 0.75rem;
@@ -1005,6 +1097,7 @@ body.tc-body {
 
 /* Fixed Thumb-Zone Bottom Bar — high z-index (480) so it NEVER renders under tiddlers */
 .mn-mobile-bottombar {
+	display: none;
 	position: fixed;
 	bottom: 0;
 	left: 0;
@@ -1015,7 +1108,6 @@ body.tc-body {
 	background: color-mix(in srgb, var(--mn-bg-surface) 96%, transparent);
 	backdrop-filter: blur(16px);
 	border-top: 1px solid var(--mn-border-hairline);
-	display: flex;
 	align-items: center;
 	justify-content: space-around;
 	box-shadow: 0 -2px 12px rgba(15, 23, 42, 0.06);
@@ -1037,11 +1129,16 @@ body.tc-body {
 	cursor: pointer;
 }
 
+.mn-mobile-nav-btn span {
+	pointer-events: none;
+}
+
 /* Mobile Left Drawer Backdrop & Overlay */
 .mn-mobile-drawer-backdrop {
+	display: none;
 	position: fixed;
 	inset: 0;
-	z-index: 460;
+	z-index: 400;
 	background: rgba(15, 23, 42, 0.4);
 }
 
@@ -1056,31 +1153,162 @@ body.tc-body {
 	justify-content: flex-end;
 }
 
+.mn-backdrop-dismiss {
+	flex: 1;
+	width: 100%;
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	padding: 0;
+	margin: 0;
+}
+
 .mn-bottom-sheet {
 	background: var(--mn-bg-surface);
 	border-radius: 20px 20px 0 0;
 	padding: 1.15rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
+	height: 82vh;
+	height: 82dvh;
 	max-height: 82dvh;
 	overflow-y: auto;
+	overscroll-behavior: contain;
 	box-shadow: var(--mn-shadow-sheet);
+	box-sizing: border-box;
+}
+
+.mn-bottom-sheet-header {
+	position: sticky;
+	top: -1.15rem;
+	padding-top: 1.15rem;
+	padding-bottom: 0.65rem;
+	margin-top: -1.15rem;
+	background: var(--mn-bg-surface);
+	z-index: 10;
+	border-bottom: 1px solid var(--mn-border-hairline);
 }
 
 .mn-sheet-action-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-	gap: 0.6rem;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 0.5rem;
 	margin: 1rem 0;
 }
 
+@media (min-width: 500px) {
+	.mn-sheet-action-grid {
+		grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+	}
+}
+
 .mn-sheet-action-item {
+	position: relative;
 	display: flex;
-	align-items: center;
-	justify-content: center;
+	align-items: stretch;
+	justify-content: stretch;
+	height: 48px;
+	padding: 0;
+	background: transparent;
+	border: none;
+	box-sizing: border-box;
+}
+
+.mn-sheet-action-item:empty,
+.mn-sheet-action-item:not(:has(button)) {
+	display: none !important;
+}
+
+.mn-sheet-action-item [hidden],
+.mn-sheet-action-item [hidden="true"],
+.mn-sheet-action-item .tc-reveal[hidden],
+.mn-sheet-action-item span[hidden] {
+	display: none !important;
+}
+
+.mn-sheet-action-item > span:not([hidden]):not(:has(.tc-drop-down)),
+.mn-sheet-action-item .tc-reveal:not([hidden]):not(:has(.tc-drop-down)),
+.mn-sheet-action-item .tc-popup-keep {
+	display: flex;
+	flex: 1 1 100%;
+	width: 100%;
+	height: 100%;
+	align-items: stretch;
+	justify-content: stretch;
+}
+
+.mn-sheet-action-item .tc-reveal:has(.tc-drop-down) {
+	position: absolute;
+	inset: 0;
+	display: block !important;
+	pointer-events: none;
+	z-index: 1000;
+}
+
+.mn-sheet-action-item .tc-drop-down {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	pointer-events: auto;
+}
+
+.mn-sheet-action-item button {
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	gap: 0;
+	width: 100% !important;
+	height: 100% !important;
 	min-height: 44px;
-	padding: 0.5rem;
+	padding: 0;
+	margin: 0;
+	font-size: 0;
 	background: var(--mn-bg-subtle);
 	border: 1px solid var(--mn-border-hairline);
 	border-radius: var(--mn-radius-sm);
+	color: var(--mn-text-muted);
+	cursor: pointer;
+	box-sizing: border-box;
+	text-decoration: none;
+	text-align: center !important;
+	-webkit-tap-highlight-color: transparent;
+	transition: background var(--mn-transition), border-color var(--mn-transition), color var(--mn-transition), transform var(--mn-transition);
+}
+
+.mn-sheet-action-item button:not(:has(svg)) {
+	font-size: 0.85rem;
+}
+
+.mn-sheet-action-item button:hover,
+.mn-sheet-action-item button:focus-visible {
+	background: var(--mn-bg-elevated);
+	border-color: var(--mn-border-strong);
+	color: var(--mn-text-main);
+}
+
+.mn-sheet-action-item button:active {
+	background: var(--mn-accent-soft);
+	border-color: var(--mn-accent);
+	color: var(--mn-accent);
+	transform: scale(0.98);
+}
+
+.mn-sheet-action-item button svg {
+	display: block;
+	width: 20px;
+	height: 20px;
+	margin: auto !important;
+	fill: currentColor;
+	pointer-events: none;
+	flex-shrink: 0;
+}
+
+.mn-sheet-action-item button .tc-btn-text,
+.mn-sheet-action-item button span {
+	pointer-events: none;
+}
+
+.mn-sheet-action-item button:has(svg) .tc-btn-text,
+.mn-sheet-action-item button:has(svg) > span:empty {
+	display: none !important;
 }
 
 @media (max-width: 1023px) {
@@ -1093,6 +1321,22 @@ body.tc-body {
 		display: inline-flex !important;
 	}
 
+	.mn-mobile-pill-strip {
+		display: flex !important;
+	}
+
+	.mn-mobile-bottombar {
+		display: flex !important;
+	}
+
+	.mn-panel-right {
+		display: none !important;
+	}
+
+	.mn-mobile-drawer-backdrop {
+		display: block !important;
+	}
+
 	.mn-breadcrumb-current,
 	.mn-breadcrumb-sep {
 		display: none !important;
@@ -1100,6 +1344,8 @@ body.tc-body {
 
 	.mn-workspace-grid {
 		grid-template-columns: minmax(0, 1fr) !important;
+		position: static !important;
+		z-index: auto !important;
 	}
 
 	.mn-panel-left {
@@ -1110,7 +1356,9 @@ body.tc-body {
 		height: auto !important;
 		z-index: 470 !important;
 		width: min(86vw, 320px) !important;
-		box-shadow: 8px 0 24px rgba(15, 23, 42, 0.22);
+		background: var(--mn-bg-surface) !important;
+		border-right: 1px solid var(--mn-border-hairline) !important;
+		box-shadow: none !important;
 		transition: transform var(--mn-transition), opacity var(--mn-transition);
 	}
 
@@ -1118,6 +1366,12 @@ body.tc-body {
 		transform: translateX(-105%);
 		opacity: 0;
 		pointer-events: none;
+	}
+
+	.mn-left-open .mn-panel-left {
+		transform: translateX(0);
+		opacity: 1;
+		pointer-events: auto;
 	}
 
 	.mn-app-shell .mn-story-container,
@@ -1141,5 +1395,46 @@ body.tc-body {
 	/* Hide top-right toolbar clutter on mobile; use Bottom Sheet (•••) instead */
 	.mn-story-container .tc-tiddler-controls {
 		display: none;
+	}
+
+	/* Suppress any zooming or scaling on mobile tiddlers */
+	.mn-is-mobile .tc-tiddler-frame {
+		transform: none !important;
+	}
+
+	/* Outgoing tiddler during single-tiddler cross-fade */
+	.mn-is-mobile .tc-tiddler-frame.mn-tiddler-fading-out {
+		position: absolute !important;
+		top: 0.75rem !important;
+		left: 0.75rem !important;
+		right: 0.75rem !important;
+		width: calc(100% - 1.5rem) !important;
+		max-width: none !important;
+		margin: 0 !important;
+		pointer-events: none !important;
+		z-index: 10 !important;
+	}
+
+	/* Incoming tiddler during single-tiddler cross-fade */
+	.mn-is-mobile .tc-tiddler-frame.mn-tiddler-fading-in {
+		z-index: 20 !important;
+	}
+
+	/* Floating Drafts Pill on Mobile — sits right above the bottom navigation bar */
+	.mn-app-shell .tc-drafts-list,
+	.tc-drafts-list {
+		bottom: calc(var(--mn-bottombar-height) + env(safe-area-inset-bottom, 0px) + 0.85rem) !important;
+		left: 50% !important;
+		transform: translateX(-50%) !important;
+		width: max-content;
+		max-width: calc(100vw - 2rem);
+	}
+
+	.mn-app-shell .tc-drafts-list a,
+	.tc-drafts-list a {
+		max-width: calc(100vw - 2.5rem);
+		padding: 0.65rem 1.15rem;
+		min-height: 44px;
+		font-size: 0.85rem;
 	}
 }

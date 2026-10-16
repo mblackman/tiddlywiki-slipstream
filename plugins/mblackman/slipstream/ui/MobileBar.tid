@@ -2,19 +2,10 @@ title: $:/plugins/mblackman/slipstream/ui/MobileBar
 type: text/vnd.tiddlywiki
 
 \whitespace trim
-<nav class="mn-mobile-bottombar" aria-label="Mobile Primary Controls">
-	<!-- 1. Left Drawer Menu Toggle -->
-	<$button
-		set="$:/state/slipstream/left-panel"
-		setTo={{{ [{$:/state/slipstream/left-panel}match[no]then[yes]else[no]] }}}
-		class="mn-mobile-nav-btn"
-	>
-		<span>☰</span>
-		<span>Menu</span>
-	</$button>
 
-	<!-- 2. User-Configurable Middle Shortcut Slots (configured via $:/config/slipstream/mobile-shortcuts or $:/tags/Slipstream/BottomBar) -->
-	<$list filter="[enlist{$:/config/slipstream/mobile-shortcuts}] [all[shadows+tiddlers]tag[$:/tags/Slipstream/BottomBar]!has[draft.of]] [all[shadows+tiddlers]tag[$:/tags/ModernNotebook/BottomBar]!has[draft.of]] +[unique[]limit[2]]" variable="shortcutItem">
+<nav class="mn-mobile-bottombar" aria-label="Mobile Primary Controls">
+	<!-- 1. User-Configurable Shortcut Slots (configured via $:/config/slipstream/mobile-shortcuts or $:/tags/Slipstream/BottomBar) -->
+	<$list filter="[enlist{$:/config/slipstream/mobile-shortcuts}] [all[shadows+tiddlers]tag[$:/tags/Slipstream/BottomBar]!has[draft.of]] [all[shadows+tiddlers]tag[$:/tags/ModernNotebook/BottomBar]!has[draft.of]] +[unique[]limit[3]]" variable="shortcutItem">
 		<$button to=<<shortcutItem>> class="mn-mobile-nav-btn">
 			<span>
 				<%if [<shortcutItem>get[ss-icon]!is[blank]] %>
@@ -47,26 +38,28 @@ type: text/vnd.tiddlywiki
 <!-- Slide-Up Bottom Sheet for Zoomed Tiddler Options & Inspector -->
 <%if [{$:/state/slipstream/mobile-action-sheet}match[open]] %>
 	<div class="mn-backdrop">
+		<$button set="$:/state/slipstream/mobile-action-sheet" setTo="closed" class="mn-backdrop-dismiss tc-btn-invisible" aria-label="Close options sheet"/>
 		<section class="mn-bottom-sheet">
 			<$let zoomedTiddler={{{ [{$:/HistoryList!!current-tiddler}!is[blank]] ~[list[$:/StoryList]first[]] }}}>
 				<$tiddler tiddler=<<zoomedTiddler>>>
-					<header class="mn-card-header">
+					<header class="mn-card-header mn-bottom-sheet-header">
 						<div>
-							<div class="mn-nav-heading">Zoomed Tiddler Options</div>
+							<div class="mn-nav-heading">Active Note Options</div>
 							<div class="mn-card-title"><$view field="caption"><$view field="title"/></$view></div>
 						</div>
-						<div style="display:flex;align-items:center;gap:0.4rem;">
-							<$button to="$:/ControlPanel" class="mn-pill-btn" tooltip="Open Control Panel">⚙ Settings</$button>
+						<div>
 							<$button set="$:/state/slipstream/mobile-action-sheet" setTo="closed" class="mn-pill-btn">Done ✕</$button>
 						</div>
 					</header>
 
 					<!-- All ViewToolbar Buttons Rendered as Touch Grid -->
 					<div class="mn-sheet-action-grid">
-						<$list filter="[all[shadows+tiddlers]tag[$:/tags/ViewToolbar]!has[draft.of]]" variable="toolbarItem">
-							<div class="mn-sheet-action-item">
-								<$transclude $tiddler=<<toolbarItem>>/>
-							</div>
+						<$list filter="[all[shadows+tiddlers]tag[$:/tags/ViewToolbar]!has[draft.of]] -[[$:/core/ui/Buttons/fold-bar]] -[[$:/core/ui/Buttons/more-tiddler-actions]]" variable="toolbarItem">
+							<$let condition={{{ [<toolbarItem>get[condition]] }}}>
+								<%if [<condition>!is[blank]] :and[<currentTiddler>subfilter<condition>limit[1]] :else[<condition>is[blank]then[true]] %>
+									<div class="mn-sheet-action-item"><$transclude $tiddler=<<toolbarItem>> mode="inline"/></div>
+								<%endif%>
+							</$let>
 						</$list>
 					</div>
 

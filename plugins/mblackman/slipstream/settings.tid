@@ -38,8 +38,12 @@ type: text/vnd.tiddlywiki
 		<$edit-text tiddler="$:/config/slipstream/wide-width" field="text" default="1120px" tag="input" class="mn-search-input"/>
 	</div>
 	<div class="mn-object-prop-bar">
-		<label class="mn-prop-label" style="min-width:240px;">Mobile Zoomin Breakpoint (px):</label>
+		<label class="mn-prop-label" style="min-width:240px;">Mobile View Breakpoint (px):</label>
 		<$edit-text tiddler="$:/config/slipstream/mobile-breakpoint" field="text" default="1024" tag="input" class="mn-search-input"/>
+	</div>
+	<div class="mn-object-prop-bar">
+		<label class="mn-prop-label" style="min-width:240px;">Storyview Override (auto/fade/classic):</label>
+		<$edit-text tiddler="$:/config/slipstream/storyview-override" field="text" default="auto" placeholder="auto" tag="input" class="mn-search-input"/>
 	</div>
 </div>
 
