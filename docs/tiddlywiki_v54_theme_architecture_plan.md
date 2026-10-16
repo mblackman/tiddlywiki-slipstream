@@ -1,10 +1,10 @@
 # TiddlyWiki v5.4+ Custom Theme & Layout Architecture Plan
 
-This blueprint defines a complete architecture and implementation plan for a custom [TiddlyWiki v5.4.0+](https://tiddlywiki.com/static/Release%25205.4.0.html) theme and [Alternative Page Layout](https://tiddlywiki.com/static/Alternative%2520page%2520layouts.html) (`$:/plugins/mblackman/modern-notebook`). It evolves the minimalist foundation of Nicolas Petton's [Notebook Theme](https://tiddlywiki.com/static/%2522Notebook%2520theme%2522%2520by%2520Nicolas%2520Petton.html) into a three-zone desktop workspace inspired by [Capacities](https://capacities.io/), [Craft](https://www.craft.do/), and [Obsidian](https://obsidian.md/), paired with a single-tiddler mobile `zoomin` experience and dedicated view cascades for your **Journal Dashboard**, **Project Dashboard**, and **Media Search Widget** ([tiddlywiki-media-importer](https://github.com/mblackman/tiddlywiki-media-importer/actions/runs/28805698963)).
+This blueprint defines the architecture and implementation design for [TiddlyWiki v5.4.0+](https://tiddlywiki.com/static/Release%25205.4.0.html) theme and [Alternative Page Layout](https://tiddlywiki.com/static/Alternative%2520page%2520layouts.html) (`$:/plugins/mblackman/slipstream`). It evolves the minimalist foundation of Nicolas Petton's [Notebook Theme](https://tiddlywiki.com/static/%2522Notebook%2520theme%2522%2520by%2520Nicolas%2520Petton.html) into a three-zone desktop workspace inspired by [Capacities](https://capacities.io/), [Craft](https://www.craft.do/), and [Obsidian](https://obsidian.md/), paired with a single-tiddler mobile `zoomin` experience and dedicated view cascades.
 
 ## 1. Plugin & Namespace Architecture Enforces Clean State Encapsulation
 
-Following the conventions in standard TiddlyWiki plugin development best practices, package the theme as a hybrid layout plugin rather than a CSS-only theme so that custom page templates, cascades, and global custom widgets load together as shadow tiddlers.
+Following standard TiddlyWiki plugin development best practices, package the theme as a hybrid layout plugin rather than a CSS-only theme so that custom page templates, cascades, and global custom widgets load together as shadow tiddlers.
 
 | Tiddler / Namespace Path | System Tag / Type | Architectural Role |
 | :--- | :--- | :--- |

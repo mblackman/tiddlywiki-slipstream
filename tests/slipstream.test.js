@@ -83,7 +83,7 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     }
   });
 
-  test("enforces Theme Invariant 2 & 3: native v5.4.0 --tpc-* / --tp-* variables and strict z-index hierarchy", () => {
+  test("enforces Theme Invariants 2 & 3: native v5.4.0 --tpc-* / --tp-* variables and strict z-index hierarchy", () => {
     const css = fs.readFileSync(path.join(PLUGIN_DIR, "styles/core.css"), "utf8");
     expect(css).toContain("--tpc-page-background");
     expect(css).toContain("--tpc-background");
