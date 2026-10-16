@@ -104,22 +104,37 @@ type: text/vnd.tiddlywiki
 		<$button
 			set="$:/state/slipstream/right-panel"
 			setTo={{{ [{$:/state/slipstream/right-panel}match[no]then[yes]else[no]] }}}
-			class={{{ [[mn-pill-btn mn-desktop-only]] [{$:/state/slipstream/right-panel}!match[no]then[mn-pill-btn-subtle-active]] +[join[ ]] }}}
-			tooltip="Toggle Right Context Inspector"
+			class={{{ [[mn-pill-btn mn-desktop-only mn-topbar-context-btn]] [{$:/state/slipstream/right-panel}!match[no]then[mn-pill-btn-subtle-active]] +[join[ ]] }}}
+			tooltip="Toggle Right Context Inspector (Backlinks, Outline, Fields)"
+			aria-label="Toggle Context Inspector"
 		>
-			◨
+			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;">
+				<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+				<line x1="15" y1="3" x2="15" y2="21"/>
+			</svg>
+			<span>Context</span>
+			<%if [.active-tiddler[]backlinks[]!is[system]count[]compare:number:gt[0]] %>
+				<span class="mn-topbar-badge"><$text text={{{ [.active-tiddler[]backlinks[]!is[system]count[]] }}}/></span>
+			<%endif%>
 		</$button>
 
-		<!-- Mobile-Only: Clean Search Button -->
-		<%if [.is-mobile[]match[yes]] %>
-			<$button
-				set="$:/state/slipstream/mobile-search"
-				setTo="open"
-				class="mn-pill-btn mn-mobile-only"
-				tooltip="Search notes"
-			>
-				🔍
-			</$button>
+		<!-- Mobile-Only: Pin / Favorite Active Note Button -->
+		<%if [.is-mobile[]match[yes]] :and[.active-tiddler[]!is[blank]] %>
+			<$let activeTid=<<.active-tiddler>>>
+				<$button
+					class={{{ [[mn-pill-btn mn-mobile-only mn-pin-btn]] [<activeTid>tag[$:/tags/Pinned]then[mn-pill-btn-subtle-active]] +[join[ ]] }}}
+					tooltip={{{ [<activeTid>tag[$:/tags/Pinned]then[Unpin note from shortcuts]else[Pin note to shortcuts]] }}}
+					aria-label="Pin note"
+				>
+					<%if [<activeTid>tag[$:/tags/Pinned]] %>
+						<$action-listops $tiddler=<<activeTid>> $tags="-[[$:/tags/Pinned]]"/>
+						<span class="mn-pin-active-star" style="color:var(--mn-accent);font-size:1.05rem;line-height:1;">★</span>
+					<%else%>
+						<$action-listops $tiddler=<<activeTid>> $tags="[[$:/tags/Pinned]]"/>
+						<span class="mn-pin-inactive-star" style="color:var(--mn-text-muted);font-size:1.05rem;line-height:1;">☆</span>
+					<%endif%>
+				</$button>
+			</$let>
 		<%endif%>
 	</div>
 <%endif%>

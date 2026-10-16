@@ -3,40 +3,124 @@ type: text/vnd.tiddlywiki
 
 \whitespace trim
 \function .active-tiddler() [list[$:/StoryList]match{$:/HistoryList!!current-tiddler}] ~[list[$:/StoryList]first[]]
+\function .is-draft() [.active-tiddler[]has[draft.of]then[yes]else[no]]
+\function .has-active() [.active-tiddler[]!is[blank]then[yes]else[no]]
+\function .backlinks-count() [.active-tiddler[]backlinks[]!is[system]count[]]
 
-<nav class="mn-mobile-bottombar" aria-label="Mobile Primary Controls">
-	<!-- 1. User-Configurable Shortcut Slots (configured via $:/config/slipstream/mobile-shortcuts or $:/tags/Slipstream/BottomBar) -->
-	<$list filter="[enlist{$:/config/slipstream/mobile-shortcuts}] [all[shadows+tiddlers]tag[$:/tags/Slipstream/BottomBar]!has[draft.of]] [all[shadows+tiddlers]tag[$:/tags/ModernNotebook/BottomBar]!has[draft.of]] +[unique[]limit[3]]" variable="shortcutItem">
-		<$button to=<<shortcutItem>> class="mn-mobile-nav-btn">
-			<span>
-				<%if [<shortcutItem>get[ss-icon]!is[blank]] %>
-					<$text text={{{ [<shortcutItem>get[ss-icon]] }}}/>
-				<%else%>
-					<$view tiddler=<<shortcutItem>> field="mn-icon">★</$view>
+<nav class="mn-mobile-bottombar" aria-label="Mobile Controls">
+	<%if [.is-draft[]match[yes]] %>
+		<!-- Draft / Edit Mode Controls -->
+		<$button message="tm-cancel-tiddler" param=<<.active-tiddler>> class="mn-mobile-nav-btn mn-mobile-nav-btn-cancel" tooltip="Cancel changes">
+			<span class="mn-mobile-nav-icon-wrap"><span class="mn-nav-icon">✕</span></span>
+			<span class="mn-nav-label">Cancel</span>
+		</$button>
+
+		<$button message="tm-save-tiddler" param=<<.active-tiddler>> class="mn-mobile-nav-btn mn-mobile-nav-btn-save" tooltip="Save note changes">
+			<span class="mn-mobile-nav-icon-wrap"><span class="mn-nav-icon">✓</span></span>
+			<span class="mn-nav-label">Save</span>
+		</$button>
+
+		<$button message="tm-delete-tiddler" param=<<.active-tiddler>> class="mn-mobile-nav-btn mn-mobile-nav-btn-danger" tooltip="Discard draft">
+			<span class="mn-mobile-nav-icon-wrap"><span class="mn-nav-icon">🗑</span></span>
+			<span class="mn-nav-label">Discard</span>
+		</$button>
+	<%elseif [.has-active[]match[yes]] %>
+		<!-- Active Note Reading Controls -->
+		<!-- 1. Instant 1-Tap Edit -->
+		<$button message="tm-edit-tiddler" param=<<.active-tiddler>> class="mn-mobile-nav-btn" tooltip="Edit this note">
+			<span class="mn-mobile-nav-icon-wrap"><span class="mn-nav-icon">✎</span></span>
+			<span class="mn-nav-label">Edit</span>
+		</$button>
+
+		<!-- 2. Active Note Context / Inspector (Backlinks, Outline, Fields) -->
+		<$button
+			set="$:/state/slipstream/mobile-context-sheet"
+			setTo={{{ [{$:/state/slipstream/mobile-context-sheet}match[open]then[closed]else[open]] }}}
+			class={{{ [[mn-mobile-nav-btn]] [{$:/state/slipstream/mobile-context-sheet}match[open]then[mn-mobile-nav-btn-active]] +[join[ ]] }}}
+			tooltip="Note Context (Backlinks, Outline, Fields)"
+		>
+			<span class="mn-mobile-nav-icon-wrap">
+				<span class="mn-nav-icon">🔗</span>
+				<%if [.backlinks-count[]compare:number:gt[0]] %>
+					<span class="mn-mobile-badge"><$text text=<<.backlinks-count>>/></span>
 				<%endif%>
 			</span>
-			<span><$view tiddler=<<shortcutItem>> field="caption"><$text text=<<shortcutItem>>/></$view></span>
+			<span class="mn-nav-label">Context</span>
 		</$button>
-	</$list>
 
-	<!-- 3. Generic New Tiddler / Quick Capture Button -->
-	<$button message="tm-new-tiddler" class="mn-mobile-nav-btn">
-		<span>＋</span>
-		<span>New</span>
-	</$button>
+		<!-- 3. Primary Center Quick Capture -->
+		<$button message="tm-new-tiddler" class="mn-mobile-nav-btn mn-mobile-nav-btn-primary" tooltip="New note">
+			<span class="mn-mobile-nav-icon-wrap"><span class="mn-nav-icon">＋</span></span>
+			<span class="mn-nav-label">New</span>
+		</$button>
 
-	<!-- 4. Zoomed Tiddler Options Sheet Trigger -->
-	<$button
-		set="$:/state/slipstream/mobile-action-sheet"
-		setTo={{{ [{$:/state/slipstream/mobile-action-sheet}match[open]then[closed]else[open]] }}}
-		class="mn-mobile-nav-btn"
-	>
-		<span>•••</span>
-		<span>Options</span>
-	</$button>
+		<!-- 4. Global Quick Search Trigger -->
+		<$button
+			set="$:/state/slipstream/mobile-search"
+			setTo={{{ [{$:/state/slipstream/mobile-search}match[open]then[closed]else[open]] }}}
+			class={{{ [[mn-mobile-nav-btn]] [{$:/state/slipstream/mobile-search}match[open]then[mn-mobile-nav-btn-active]] +[join[ ]] }}}
+			tooltip="Search notes"
+		>
+			<span class="mn-mobile-nav-icon-wrap"><span class="mn-nav-icon">🔍</span></span>
+			<span class="mn-nav-label">Search</span>
+		</$button>
+
+		<!-- 5. Secondary Actions Sheet Trigger (•••) -->
+		<$button
+			set="$:/state/slipstream/mobile-action-sheet"
+			setTo={{{ [{$:/state/slipstream/mobile-action-sheet}match[open]then[closed]else[open]] }}}
+			class={{{ [[mn-mobile-nav-btn]] [{$:/state/slipstream/mobile-action-sheet}match[open]then[mn-mobile-nav-btn-active]] +[join[ ]] }}}
+			tooltip="More note actions"
+		>
+			<span class="mn-mobile-nav-icon-wrap"><span class="mn-nav-icon">•••</span></span>
+			<span class="mn-nav-label">More</span>
+		</$button>
+	<%else%>
+		<!-- Empty Story River Fallback Controls -->
+		<$button set="$:/state/slipstream/left-panel" setTo="yes" class="mn-mobile-nav-btn" tooltip="Open navigation">
+			<span class="mn-mobile-nav-icon-wrap"><span class="mn-nav-icon">☰</span></span>
+			<span class="mn-nav-label">Navigate</span>
+		</$button>
+
+		<$button message="tm-new-tiddler" class="mn-mobile-nav-btn mn-mobile-nav-btn-primary" tooltip="New note">
+			<span class="mn-mobile-nav-icon-wrap"><span class="mn-nav-icon">＋</span></span>
+			<span class="mn-nav-label">New</span>
+		</$button>
+
+		<$button set="$:/state/slipstream/mobile-search" setTo="open" class="mn-mobile-nav-btn" tooltip="Search notes">
+			<span class="mn-mobile-nav-icon-wrap"><span class="mn-nav-icon">🔍</span></span>
+			<span class="mn-nav-label">Search</span>
+		</$button>
+	<%endif%>
 </nav>
 
-<!-- Slide-Up Bottom Sheet for Zoomed Tiddler Options & Inspector -->
+<!-- Context Inspector Sheet (Backlinks, Outline, Fields) -->
+<%if [{$:/state/slipstream/mobile-context-sheet}match[open]] %>
+	<div class="mn-backdrop">
+		<$button set="$:/state/slipstream/mobile-context-sheet" setTo="closed" class="mn-backdrop-dismiss tc-btn-invisible" aria-label="Close context sheet"/>
+		<section class="mn-bottom-sheet">
+			<$let zoomedTiddler=<<.active-tiddler>>>
+				<$tiddler tiddler=<<zoomedTiddler>>>
+					<header class="mn-card-header mn-bottom-sheet-header">
+						<div>
+							<div class="mn-nav-heading">Note Context</div>
+							<div class="mn-card-title"><$view field="caption"><$view field="title"/></$view></div>
+						</div>
+						<div>
+							<$button set="$:/state/slipstream/mobile-context-sheet" setTo="closed" class="mn-pill-btn">Done ✕</$button>
+						</div>
+					</header>
+
+					<div class="mn-sheet-context">
+						{{$:/plugins/mblackman/slipstream/ui/RightInspector}}
+					</div>
+				</$tiddler>
+			</$let>
+		</section>
+	</div>
+<%endif%>
+
+<!-- Slide-Up Bottom Sheet for Secondary Tiddler Actions (•••) -->
 <%if [{$:/state/slipstream/mobile-action-sheet}match[open]] %>
 	<div class="mn-backdrop">
 		<$button set="$:/state/slipstream/mobile-action-sheet" setTo="closed" class="mn-backdrop-dismiss tc-btn-invisible" aria-label="Close options sheet"/>
@@ -45,7 +129,7 @@ type: text/vnd.tiddlywiki
 				<$tiddler tiddler=<<zoomedTiddler>>>
 					<header class="mn-card-header mn-bottom-sheet-header">
 						<div>
-							<div class="mn-nav-heading">Active Note Options</div>
+							<div class="mn-nav-heading">Note Actions</div>
 							<div class="mn-card-title"><$view field="caption"><$view field="title"/></$view></div>
 						</div>
 						<div>
@@ -53,20 +137,17 @@ type: text/vnd.tiddlywiki
 						</div>
 					</header>
 
-					<!-- All ViewToolbar Buttons Rendered as Touch Grid -->
+					<!-- Secondary ViewToolbar Buttons Rendered as Touch Grid -->
 					<div class="mn-sheet-action-grid">
-						<$list filter="[all[shadows+tiddlers]tag[$:/tags/ViewToolbar]!has[draft.of]] -[[$:/core/ui/Buttons/fold-bar]] -[[$:/core/ui/Buttons/more-tiddler-actions]]" variable="toolbarItem">
-							<$let condition={{{ [<toolbarItem>get[condition]] }}}>
-								<%if [<condition>!is[blank]] :and[<currentTiddler>subfilter<condition>limit[1]] :else[<condition>is[blank]then[true]] %>
-									<div class="mn-sheet-action-item"><$transclude $tiddler=<<toolbarItem>> mode="inline"/></div>
-								<%endif%>
-							</$let>
-						</$list>
-					</div>
-
-					<!-- Quick Switcher & Inspector Inside Mobile Sheet -->
-					<div class="mn-sheet-context">
-						{{$:/plugins/mblackman/slipstream/ui/RightInspector}}
+						<$let tv-config-toolbar-icons="yes" tv-config-toolbar-text="yes">
+							<$list filter="[all[shadows+tiddlers]tag[$:/tags/ViewToolbar]!has[draft.of]] -[[$:/core/ui/Buttons/fold-bar]] -[[$:/core/ui/Buttons/more-tiddler-actions]]" variable="toolbarItem">
+								<$let condition={{{ [<toolbarItem>get[condition]] }}}>
+									<%if [<condition>!is[blank]] :and[<currentTiddler>subfilter<condition>limit[1]] :else[<condition>is[blank]then[true]] %>
+										<div class="mn-sheet-action-item"><$transclude $tiddler=<<toolbarItem>> mode="inline"/></div>
+									<%endif%>
+								</$let>
+							</$list>
+						</$let>
 					</div>
 				</$tiddler>
 			</$let>

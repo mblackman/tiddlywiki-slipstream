@@ -18,6 +18,8 @@ type: text/vnd.tiddlywiki
 <$action-setfield $tiddler="$:/HistoryList" current-tiddler=<<event-navigateTo>> $timestamp="no"/>
 <$action-setfield $tiddler="$:/temp/volatile/slipstream/global-search" text="" $timestamp="no"/>
 <$action-setfield $tiddler="$:/state/slipstream/mobile-search" text="" $timestamp="no"/>
+<$action-setfield $tiddler="$:/state/slipstream/mobile-action-sheet" text="closed" $timestamp="no"/>
+<$action-setfield $tiddler="$:/state/slipstream/mobile-context-sheet" text="closed" $timestamp="no"/>
 <%if [.is-mobile[]match[yes]] %>
 	<$action-setfield $tiddler="$:/state/slipstream/left-panel" text="no" $timestamp="no"/>
 <%endif%>

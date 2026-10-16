@@ -639,7 +639,14 @@ body:has(.mn-app-shell).tc-body {
 	flex-shrink: 0;
 	position: relative;
 	overflow: visible !important;
-	z-index: 100;
+	z-index: 50;
+}
+
+.mn-panel-left .mn-panel-left-header:has(.tc-drop-down:not([hidden])),
+.mn-panel-left .mn-panel-left-header:has(.tc-popup:not([hidden])),
+.mn-panel-left .mn-panel-left-header:has(.tc-reveal.tc-popup:not([hidden])),
+.mn-panel-left .mn-panel-left-header:has(.tc-selected) {
+	z-index: 100 !important;
 }
 
 /* Sidebar Scrollable Body */
@@ -649,6 +656,8 @@ body:has(.mn-app-shell).tc-body {
 	overflow-y: auto;
 	overflow-x: hidden;
 	scrollbar-width: thin;
+	position: relative;
+	z-index: 1;
 }
 
 .mn-panel-left .mn-panel-left-body .mn-nav-section:last-child {
@@ -710,6 +719,11 @@ body:has(.mn-app-shell).tc-body {
 }
 
 /* Dropdown Menus inside LeftNav Sidebar (.mn-panel-left) */
+.mn-panel-left .tc-reveal.tc-popup:not([hidden]),
+.mn-panel-left .tc-reveal:has(.tc-drop-down:not([hidden])) {
+	z-index: 1000 !important;
+}
+
 .mn-panel-left .tc-drop-down:not([hidden]) {
 	min-width: 240px !important;
 	max-width: 320px !important;
@@ -718,6 +732,7 @@ body:has(.mn-app-shell).tc-body {
 	overflow-y: auto !important;
 	overflow-x: hidden !important;
 	box-sizing: border-box !important;
+	position: relative !important;
 	z-index: 1000 !important;
 	padding: 0.4rem !important;
 	background: var(--mn-bg-surface) !important;
@@ -1337,6 +1352,112 @@ body:has(.mn-app-shell).tc-body {
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
+
+/* Fields & Properties in Context Inspector */
+.mn-fields-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.6rem;
+	margin-top: 0.5rem;
+}
+
+.mn-field-row {
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+	padding: 0.55rem 0.75rem;
+	background: var(--mn-bg-subtle);
+	border: 1px solid var(--mn-border-hairline);
+	border-radius: var(--mn-radius-md);
+	transition: border-color var(--mn-transition), background var(--mn-transition);
+}
+
+.mn-field-row:focus-within {
+	border-color: var(--mn-border-strong);
+	background: var(--mn-bg-elevated);
+}
+
+.mn-field-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.mn-field-name {
+	font-family: var(--mn-font-mono, monospace);
+	font-size: 0.75rem;
+	font-weight: 700;
+	color: var(--mn-accent);
+}
+
+.mn-field-remove-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	border-radius: var(--mn-radius-sm);
+	color: var(--mn-text-muted);
+	font-size: 0.8rem;
+	cursor: pointer;
+	line-height: 1;
+	transition: background var(--mn-transition), color var(--mn-transition);
+}
+
+.mn-field-remove-btn:hover {
+	background: color-mix(in srgb, var(--mn-danger, #ef4444) 15%, transparent);
+	color: var(--mn-danger, #ef4444);
+}
+
+.mn-field-value-input {
+	width: 100%;
+	font-size: 0.82rem;
+	padding: 0.35rem 0.6rem;
+	background: var(--mn-bg-surface);
+	border: 1px solid var(--mn-border-hairline);
+	border-radius: var(--mn-radius-sm);
+	color: var(--mn-text-main);
+	box-sizing: border-box;
+}
+
+.mn-field-value-input:focus {
+	border-color: var(--mn-accent);
+	outline: none;
+}
+
+.mn-field-add-section {
+	margin-top: 1.15rem;
+	padding-top: 0.85rem;
+	border-top: 1px dashed var(--mn-border-hairline);
+}
+
+.mn-field-add-form {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	margin-top: 0.5rem;
+}
+
+.mn-field-add-inputs {
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+}
+
+.mn-field-add-inputs input {
+	width: 100%;
+	font-size: 0.82rem;
+	padding: 0.35rem 0.6rem;
+	box-sizing: border-box;
+}
+
+.mn-field-add-btn {
+	align-self: flex-start;
+	padding: 0.35rem 0.85rem;
+	font-size: 0.8rem;
+	font-weight: 600;
+}
+
 .mn-card {
 	background: var(--mn-bg-subtle);
 	border: 1px solid var(--mn-border-hairline);
@@ -1481,10 +1602,40 @@ body:has(.mn-app-shell).tc-body {
 	border-color: color-mix(in srgb, var(--mn-accent) 25%, transparent);
 }
 
+.mn-topbar-badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 17px;
+	height: 17px;
+	padding: 0 4px;
+	border-radius: var(--mn-radius-pill);
+	background: var(--mn-accent-soft);
+	color: var(--mn-accent);
+	font-size: 0.68rem;
+	font-weight: 700;
+	line-height: 1;
+}
+
+.mn-pill-btn-subtle-active .mn-topbar-badge {
+	background: var(--mn-accent);
+	color: var(--mn-bg-surface);
+}
+
 .mn-pill-active {
 	background: var(--mn-accent) !important;
 	color: #ffffff !important;
 	border-color: var(--mn-accent) !important;
+}
+
+.mn-pin-btn {
+	padding: 0.32rem 0.65rem;
+	font-size: 1.05rem;
+	line-height: 1;
+}
+
+.mn-pin-btn:hover {
+	color: var(--mn-accent);
 }
 
 /* Generic Hero, Auto-Grid, Poster Grid & Progress Primitives */
@@ -1656,12 +1807,13 @@ body:has(.mn-app-shell).tc-body {
 }
 
 .mn-mobile-nav-btn {
+	position: relative;
 	flex: 1;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	gap: 0.15rem;
+	gap: 0.2rem;
 	height: 100%;
 	background: transparent;
 	border: none;
@@ -1669,10 +1821,100 @@ body:has(.mn-app-shell).tc-body {
 	font-size: 0.68rem;
 	font-weight: 600;
 	cursor: pointer;
+	-webkit-tap-highlight-color: transparent;
+	transition: color var(--mn-transition), transform var(--mn-transition);
+}
+
+.mn-mobile-nav-btn:hover,
+.mn-mobile-nav-btn:focus-visible,
+.mn-mobile-nav-btn-active {
+	color: var(--mn-accent);
+}
+
+.mn-mobile-nav-btn:active {
+	transform: scale(0.94);
 }
 
 .mn-mobile-nav-btn span {
 	pointer-events: none;
+}
+
+.mn-mobile-nav-icon-wrap {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	line-height: 1;
+}
+
+.mn-mobile-nav-icon-wrap .mn-nav-icon {
+	font-size: 1.15rem;
+	line-height: 1;
+}
+
+.mn-mobile-nav-btn-primary .mn-mobile-nav-icon-wrap {
+	width: 32px;
+	height: 32px;
+	border-radius: var(--mn-radius-pill);
+	background: var(--mn-accent);
+	color: var(--mn-bg-surface);
+	box-shadow: 0 2px 8px color-mix(in srgb, var(--mn-accent) 40%, transparent);
+}
+
+.mn-mobile-nav-btn-primary .mn-mobile-nav-icon-wrap .mn-nav-icon {
+	font-size: 1.25rem;
+	font-weight: 400;
+	color: var(--mn-bg-surface);
+}
+
+.mn-mobile-nav-btn-save {
+	color: var(--mn-accent) !important;
+	font-weight: 700 !important;
+}
+
+.mn-mobile-nav-btn-save .mn-mobile-nav-icon-wrap {
+	width: 34px;
+	height: 34px;
+	border-radius: var(--mn-radius-pill);
+	background: var(--mn-accent);
+	color: var(--mn-bg-surface);
+	box-shadow: 0 2px 8px color-mix(in srgb, var(--mn-accent) 40%, transparent);
+}
+
+.mn-mobile-nav-btn-save .mn-mobile-nav-icon-wrap .mn-nav-icon {
+	font-size: 1.2rem;
+	font-weight: 800;
+	color: var(--mn-bg-surface);
+}
+
+.mn-mobile-nav-btn-cancel {
+	color: var(--mn-text-muted);
+}
+
+.mn-mobile-nav-btn-danger {
+	color: var(--mn-text-muted);
+}
+
+.mn-mobile-nav-btn-danger:hover,
+.mn-mobile-nav-btn-danger:active {
+	color: var(--mn-danger, #ef4444);
+}
+
+.mn-mobile-badge {
+	position: absolute;
+	top: -4px;
+	right: -8px;
+	min-width: 15px;
+	height: 15px;
+	padding: 0 3px;
+	border-radius: var(--mn-radius-pill);
+	background: var(--mn-accent);
+	color: var(--mn-bg-surface);
+	font-size: 0.62rem;
+	font-weight: 700;
+	line-height: 15px;
+	text-align: center;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
 /* Mobile Left Drawer Backdrop & Overlay */
@@ -1731,14 +1973,14 @@ body:has(.mn-app-shell).tc-body {
 
 .mn-sheet-action-grid {
 	display: grid;
-	grid-template-columns: repeat(4, 1fr);
-	gap: 0.5rem;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 0.6rem;
 	margin: 1rem 0;
 }
 
-@media (min-width: 500px) {
+@media (max-width: 380px) {
 	.mn-sheet-action-grid {
-		grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+		grid-template-columns: 1fr;
 	}
 }
 
@@ -1747,7 +1989,7 @@ body:has(.mn-app-shell).tc-body {
 	display: flex;
 	align-items: stretch;
 	justify-content: stretch;
-	height: 48px;
+	min-height: 48px;
 	padding: 0;
 	background: transparent;
 	border: none;
@@ -1794,29 +2036,27 @@ body:has(.mn-app-shell).tc-body {
 
 .mn-sheet-action-item button {
 	display: flex !important;
+	flex-direction: row !important;
 	align-items: center !important;
-	justify-content: center !important;
-	gap: 0;
+	justify-content: flex-start !important;
+	gap: 0.65rem !important;
 	width: 100% !important;
 	height: 100% !important;
-	min-height: 44px;
-	padding: 0;
+	min-height: 48px;
+	padding: 0.65rem 0.85rem !important;
 	margin: 0;
-	font-size: 0;
+	font-size: 0.84rem !important;
+	font-weight: 500 !important;
 	background: var(--mn-bg-subtle);
 	border: 1px solid var(--mn-border-hairline);
-	border-radius: var(--mn-radius-sm);
-	color: var(--mn-text-muted);
+	border-radius: var(--mn-radius-md);
+	color: var(--mn-text-main);
 	cursor: pointer;
 	box-sizing: border-box;
 	text-decoration: none;
-	text-align: center !important;
+	text-align: left !important;
 	-webkit-tap-highlight-color: transparent;
 	transition: background var(--mn-transition), border-color var(--mn-transition), color var(--mn-transition), transform var(--mn-transition);
-}
-
-.mn-sheet-action-item button:not(:has(svg)) {
-	font-size: 0.85rem;
 }
 
 .mn-sheet-action-item button:hover,
@@ -1834,23 +2074,36 @@ body:has(.mn-app-shell).tc-body {
 }
 
 .mn-sheet-action-item button svg {
-	display: block;
-	width: 20px;
-	height: 20px;
-	margin: auto !important;
+	display: inline-block !important;
+	width: 18px !important;
+	height: 18px !important;
+	margin: 0 !important;
 	fill: currentColor;
 	pointer-events: none;
 	flex-shrink: 0;
+	color: var(--mn-text-muted);
 }
 
-.mn-sheet-action-item button .tc-btn-text,
-.mn-sheet-action-item button span {
+.mn-sheet-action-item button .tc-btn-text {
+	display: inline-block !important;
+	font-size: 0.84rem !important;
+	font-weight: 500 !important;
+	color: var(--mn-text-main) !important;
+	text-transform: capitalize !important;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 	pointer-events: none;
 }
 
-.mn-sheet-action-item button:has(svg) .tc-btn-text,
-.mn-sheet-action-item button:has(svg) > span:empty {
-	display: none !important;
+.mn-sheet-action-item:has(button[aria-label*="delete" i]) button,
+.mn-sheet-action-item:has(button[title*="delete" i]) button {
+	color: var(--mn-danger, #ef4444);
+}
+
+.mn-sheet-action-item:has(button[aria-label*="delete" i]) button svg,
+.mn-sheet-action-item:has(button[title*="delete" i]) button svg {
+	color: var(--mn-danger, #ef4444);
 }
 
 @media (max-width: 1023px) {
@@ -1945,9 +2198,14 @@ body:has(.mn-app-shell).tc-body {
 		font-size: 1.45rem;
 	}
 
-	/* Hide top-right toolbar clutter on mobile; use Bottom Sheet (•••) instead */
-	.mn-story-container .tc-tiddler-controls {
+	/* Hide top-right toolbar clutter in mobile reading mode (use thumb-zone bottom bar instead) */
+	.mn-story-container .tc-tiddler-frame:not(.tc-tiddler-edit-frame) .tc-tiddler-controls {
 		display: none;
+	}
+
+	/* In mobile edit mode, show controls inside draft frame as well */
+	.mn-story-container .tc-tiddler-edit-frame .tc-tiddler-controls {
+		display: inline-flex;
 	}
 
 	/* Suppress any zooming or scaling on mobile tiddlers */

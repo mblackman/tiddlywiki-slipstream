@@ -4,6 +4,16 @@ type: text/vnd.tiddlywiki
 \whitespace trim
 \function .active-tiddler() [list[$:/StoryList]match{$:/HistoryList!!current-tiddler}] ~[list[$:/StoryList]first[]]
 
+\procedure add-field-actions()
+<$let newName={{{ [{$:/temp/slipstream/new-field-name}trim[]] }}} newValue={{{ [{$:/temp/slipstream/new-field-value}trim[]] }}}>
+	<%if [<newName>!is[blank]] %>
+		<$action-setfield $tiddler=<<activeTiddler>> $field=<<newName>> $value=<<newValue>>/>
+		<$action-setfield $tiddler="$:/temp/slipstream/new-field-name" text="" $timestamp="no"/>
+		<$action-setfield $tiddler="$:/temp/slipstream/new-field-value" text="" $timestamp="no"/>
+	<%endif%>
+</$let>
+\end
+
 <$let activeTiddler=<<.active-tiddler>>>
 	<$tiddler tiddler=<<activeTiddler>>>
 		<section class="mn-nav-section">
@@ -48,12 +58,73 @@ type: text/vnd.tiddlywiki
 			<!-- Tab 3: Inline Fields & Properties -->
 			<%if [{$:/state/slipstream/inspector-tab}match[Fields]] %>
 				<h4 class="mn-nav-heading">Tiddler Fields</h4>
-				<$list filter="[<activeTiddler>fields[]!match[text]!match[title]!match[created]!match[modified]!match[bag]!match[revision]sort[title]]" variable="fieldName">
-					<div class="mn-object-prop-bar">
-						<span class="mn-prop-label"><$text text=<<fieldName>>/>:</span>
-						<$edit-text tiddler=<<activeTiddler>> field=<<fieldName>> tag="input" class="mn-search-input"/>
-					</div>
-				</$list>
+				
+				<div class="mn-fields-list">
+					<$list
+						filter="[<activeTiddler>fields[]!match[text]!match[title]!match[created]!match[modified]!match[bag]!match[revision]sort[title]]"
+						variable="fieldName"
+						emptyMessage="<p class='mn-prop-label'>No custom fields on this note.</p>"
+					>
+						<div class="mn-field-row">
+							<div class="mn-field-header">
+								<span class="mn-field-name"><$text text=<<fieldName>>/></span>
+								<$button
+									class="mn-field-remove-btn tc-btn-invisible"
+									tooltip=`Remove field '${fieldName}'`
+									aria-label=`Remove field ${fieldName}`
+								>
+									<$action-deletefield $tiddler=<<activeTiddler>> $field=<<fieldName>>/>
+									✕
+								</$button>
+							</div>
+							<div class="mn-field-value-wrapper">
+								<$edit-text
+									tiddler=<<activeTiddler>>
+									field=<<fieldName>>
+									tag="input"
+									class="mn-search-input mn-field-value-input"
+									placeholder="Field value..."
+								/>
+							</div>
+						</div>
+					</$list>
+				</div>
+
+				<!-- Add Field Form -->
+				<div class="mn-field-add-section">
+					<h5 class="mn-nav-heading">Add Field</h5>
+					<$keyboard key="Enter" actions=<<add-field-actions>>>
+						<div class="mn-field-add-form">
+							<div class="mn-field-add-inputs">
+								<$edit-text
+									tiddler="$:/temp/slipstream/new-field-name"
+									field="text"
+									tag="input"
+									type="text"
+									placeholder="Field name (e.g. status)..."
+									class="mn-search-input mn-field-input-name"
+									default=""
+								/>
+								<$edit-text
+									tiddler="$:/temp/slipstream/new-field-value"
+									field="text"
+									tag="input"
+									type="text"
+									placeholder="Value (optional)..."
+									class="mn-search-input mn-field-input-value"
+									default=""
+								/>
+							</div>
+							<$button
+								actions=<<add-field-actions>>
+								class="mn-pill-btn mn-btn-primary mn-field-add-btn"
+								tooltip="Add field to note"
+							>
+								＋ Add Field
+							</$button>
+						</div>
+					</$keyboard>
+				</div>
 			<%endif%>
 
 			<!-- Extensible Custom Inspector Tabs ($:/tags/Slipstream/InspectorTab) -->

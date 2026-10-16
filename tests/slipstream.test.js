@@ -205,17 +205,18 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     expect(css).toMatch(/\.mn-bottom-sheet\s*\{[^}]*height:\s*82dvh/s);
     expect(css).toMatch(/\.mn-bottom-sheet\s*\{[^}]*max-height:\s*82dvh/s);
 
-    // Ensure uniform 4-column grid layout on mobile
-    expect(css).toMatch(/\.mn-sheet-action-grid\s*\{[^}]*grid-template-columns:\s*repeat\(4,\s*1fr\)/s);
-    expect(css).toMatch(/\.mn-sheet-action-item\s*\{[^}]*height:\s*48px/s);
+    // Ensure uniform 2-column labeled layout on mobile
+    expect(css).toMatch(/\.mn-sheet-action-grid\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*1fr\)/s);
+    expect(css).toMatch(/\.mn-sheet-action-item\s*\{[^}]*min-height:\s*48px/s);
 
     // Ensure hidden reveal spans are suppressed so they do not squish buttons
     expect(css).toMatch(/\.mn-sheet-action-item \[hidden\][^}]*display:\s*none !important/s);
 
     // Ensure action grid buttons fill entire item container as full clickable touch targets
     expect(css).toMatch(/\.mn-sheet-action-item button\s*\{[^}]*width:\s*100%/s);
-    expect(css).toMatch(/\.mn-sheet-action-item button\s*\{[^}]*min-height:\s*44px/s);
+    expect(css).toMatch(/\.mn-sheet-action-item button\s*\{[^}]*min-height:\s*48px/s);
     expect(css).toMatch(/\.mn-sheet-action-item button svg\s*\{[^}]*pointer-events:\s*none/s);
+    expect(css).toMatch(/\.mn-sheet-action-item button \.tc-btn-text/s);
   });
 
   test("renders WideViewWrapper cascade for tiddlers tagged Wide or with page-width=wide", () => {
@@ -366,6 +367,11 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
 
     // Ensure dropdown items inside LeftNav have full-width alignment
     expect(css).toMatch(/\.mn-panel-left \.tc-drop-down button[^{]*\{[^}]*width:\s*100% !important/s);
+
+    // Ensure LeftNav header and floating dropdowns are strictly elevated above LeftNav body
+    expect(css).toMatch(/\.mn-panel-left \.mn-panel-left-header:has\(\.tc-drop-down:not\(\[hidden\]\)\)[^}]*z-index:\s*100 !important/s);
+    expect(css).toMatch(/\.mn-panel-left \.mn-panel-left-body\s*\{[^}]*position:\s*relative;\s*z-index:\s*1;/s);
+    expect(css).toMatch(/\.mn-panel-left \.tc-reveal\.tc-popup:not\(\[hidden\]\)[^}]*z-index:\s*1000 !important/s);
 
     // Ensure Tools tab items are styled as clean horizontal rows
     expect(css).toMatch(/\.mn-sidebar-tabs-section \.tc-sidebar-tools-item\s*\{[^}]*display:\s*flex !important/s);
@@ -579,6 +585,171 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
       FadeStoryView.clearSavedPositions();
     }
   });
+
+  test("renders Concept 1 contextual mobile bottom bar controls and context sheet", () => {
+    // 1. Mobile reading mode
+    $tw.wiki.addTiddler({
+      title: "$:/info/browser/window/system/main/client/width",
+      text: "390",
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/StoryList",
+      list: ["Welcome to Slipstream"],
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/HistoryList",
+      "current-tiddler": "Welcome to Slipstream",
+    });
+
+    let barHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/MobileBar"
+    );
+
+    // Reading mode has 1-tap Edit, Context, New, Search, and More
+    expect(barHtml).toContain("Edit");
+    expect(barHtml).toContain("Context");
+    expect(barHtml).toContain("New");
+    expect(barHtml).toContain("Search");
+    expect(barHtml).toContain("More");
+    expect(barHtml).toContain('title="Edit this note"');
+    expect(barHtml).toContain('title="New note"');
+    expect(barHtml).toContain('title="Search notes"');
+
+    // 2. Open context sheet
+    $tw.wiki.addTiddler({
+      title: "$:/state/slipstream/mobile-context-sheet",
+      text: "open",
+    });
+    barHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/MobileBar"
+    );
+    expect(barHtml).toContain("Note Context");
+    expect(barHtml).toContain("mn-sheet-context");
+    expect(barHtml).toContain("Active Context Inspector");
+    $tw.wiki.deleteTiddler("$:/state/slipstream/mobile-context-sheet");
+
+    // 3. Draft / Edit Mode
+    $tw.wiki.addTiddler({
+      title: "Draft of 'Welcome to Slipstream'",
+      "draft.of": "Welcome to Slipstream",
+      "draft.title": "Welcome to Slipstream",
+      text: "Draft content...",
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/StoryList",
+      list: ["Draft of 'Welcome to Slipstream'"],
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/HistoryList",
+      "current-tiddler": "Draft of 'Welcome to Slipstream'",
+    });
+
+    const draftBarHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/MobileBar"
+    );
+
+    // Draft mode displays Cancel, Save, and Discard
+    expect(draftBarHtml).toContain("Cancel");
+    expect(draftBarHtml).toContain("Save");
+    expect(draftBarHtml).toContain("Discard");
+    expect(draftBarHtml).toContain('title="Cancel changes"');
+    expect(draftBarHtml).toContain('title="Save note changes"');
+    expect(draftBarHtml).toContain('title="Discard draft"');
+
+    // Cleanup
+    $tw.wiki.deleteTiddler("Draft of 'Welcome to Slipstream'");
+  });
+
+  test("allows adding, editing, and removing fields in the Context Inspector Fields tab", () => {
+    $tw.wiki.addTiddler({
+      title: "FieldTestNote",
+      "test-status": "active",
+      priority: "high",
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/StoryList",
+      list: ["FieldTestNote"],
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/HistoryList",
+      "current-tiddler": "FieldTestNote",
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/state/slipstream/inspector-tab",
+      text: "Fields",
+    });
+
+    const inspectorHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/RightInspector"
+    );
+
+    // Verify fields list and existing custom fields
+    expect(inspectorHtml).toContain("mn-fields-list");
+    expect(inspectorHtml).toContain("mn-field-row");
+    expect(inspectorHtml).toContain("test-status");
+    expect(inspectorHtml).toContain("priority");
+    expect(inspectorHtml).toContain("mn-field-remove-btn");
+    expect(inspectorHtml).toContain("mn-field-add-form");
+    expect(inspectorHtml).toContain("mn-field-add-btn");
+    expect(inspectorHtml).toContain("Add Field");
+
+    // Cleanup
+    $tw.wiki.deleteTiddler("FieldTestNote");
+    $tw.wiki.deleteTiddler("$:/state/slipstream/inspector-tab");
+  });
+
+  test("renders mobile pin/favorite button in TopBar and toggles $:/tags/Pinned", () => {
+    $tw.wiki.addTiddler({
+      title: "$:/info/browser/window/system/main/client/width",
+      text: "390",
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/StoryList",
+      list: ["PinTestNote"],
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/HistoryList",
+      "current-tiddler": "PinTestNote",
+    });
+    $tw.wiki.addTiddler({
+      title: "PinTestNote",
+      text: "Testing pin button...",
+    });
+
+    let topHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/TopBar"
+    );
+
+    expect(topHtml).toContain("mn-pin-btn");
+    expect(topHtml).toContain("Pin note to shortcuts");
+    expect(topHtml).toContain("☆");
+
+    // When tagged $:/tags/Pinned
+    $tw.wiki.addTiddler({
+      title: "PinTestNote",
+      tags: ["$:/tags/Pinned"],
+      text: "Testing pin button...",
+    });
+
+    topHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/TopBar"
+    );
+
+    expect(topHtml).toContain("Unpin note from shortcuts");
+    expect(topHtml).toContain("★");
+
+    // Cleanup
+    $tw.wiki.deleteTiddler("PinTestNote");
+  });
 });
+
+
+
 
 
