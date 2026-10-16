@@ -2,9 +2,11 @@ title: $:/plugins/mblackman/slipstream/ui/MobilePillStrip
 type: text/vnd.tiddlywiki
 
 \whitespace trim
+\function .active-tiddler() [list[$:/StoryList]match{$:/HistoryList!!current-tiddler}] ~[list[$:/StoryList]first[]]
+
 <nav class="mn-mobile-pill-strip" aria-label="Open Tiddlers Switcher">
 	<$list filter="[list[$:/StoryList]]" variable="storyItem">
-		<span class={{{ [[mn-mobile-tab-chip]] [{$:/HistoryList!!current-tiddler}match<storyItem>then[mn-mobile-tab-chip-active]] +[join[ ]] }}}>
+		<span class={{{ [[mn-mobile-tab-chip]] [<storyItem>match<.active-tiddler>then[mn-mobile-tab-chip-active]] +[join[ ]] }}}>
 			<$button to=<<storyItem>> class="tc-btn-invisible">
 				<$view tiddler=<<storyItem>> field="caption"><$text text=<<storyItem>>/></$view>
 			</$button>

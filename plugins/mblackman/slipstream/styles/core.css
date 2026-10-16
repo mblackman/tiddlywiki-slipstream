@@ -46,7 +46,7 @@
 }
 
 .mn-mobile-only {
-	display: none;
+	display: none !important;
 }
 
 /*-----------------------------------------------------------------------------
@@ -264,6 +264,14 @@ body.tc-body {
 	border-color: color-mix(in srgb, var(--mn-border-subtle) 70%, var(--mn-border-strong) 30%);
 }
 
+/* Elevate tiddler frame stacking context when a dropdown or popup is open so it floats over subsequent tiddlers */
+.mn-app-shell .mn-story-container .tc-tiddler-frame:has(.tc-drop-down:not([hidden])),
+.mn-app-shell .mn-story-container .tc-tiddler-frame:has(.tc-popup:not([hidden])),
+.mn-app-shell .mn-story-container .tc-tiddler-frame:has(.tc-reveal.tc-popup:not([hidden])),
+.mn-app-shell .mn-story-container .tc-tiddler-frame:has(.tc-selected) {
+	z-index: 50;
+}
+
 /* Generic Wide Mode: triggered by .mn-wide-view or user-configured wide tag/field */
 .mn-app-shell .mn-story-container .tc-tiddler-frame:has(.mn-wide-view),
 .mn-app-shell .mn-story-container .tc-tiddler-frame.mn-tiddler-wide {
@@ -302,11 +310,13 @@ body.tc-body {
 }
 
 .mn-story-container .tc-tiddler-frame:hover .tc-tiddler-controls,
-.mn-story-container .tc-tiddler-controls:focus-within {
+.mn-story-container .tc-tiddler-controls:focus-within,
+.mn-story-container .tc-tiddler-controls:has(.tc-selected),
+.mn-story-container .tc-tiddler-controls:has(.tc-drop-down) {
 	opacity: 1;
 }
 
-.mn-story-container .tc-tiddler-controls button {
+.mn-story-container .tc-tiddler-controls button:not(.tc-drop-down button) {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -319,15 +329,134 @@ body.tc-body {
 	transition: background var(--mn-transition), color var(--mn-transition);
 }
 
-.mn-story-container .tc-tiddler-controls button:hover {
+.mn-story-container .tc-tiddler-controls button:not(.tc-drop-down button):hover,
+.mn-story-container .tc-tiddler-controls button:not(.tc-drop-down button).tc-selected {
 	background: var(--mn-bg-elevated);
 	color: var(--mn-text-main);
 }
 
-.mn-story-container .tc-tiddler-controls button svg {
+.mn-story-container .tc-tiddler-controls button:not(.tc-drop-down button) svg {
 	width: 15px !important;
 	height: 15px !important;
 	fill: currentColor !important;
+}
+
+/* Suppress any hidden dropdown or reveal element from rendering ghost surfaces */
+.tc-drop-down[hidden],
+.tc-drop-down[hidden="true"],
+.tc-reveal[hidden],
+.tc-reveal[hidden="true"],
+.tc-drop-down [hidden],
+.tc-drop-down [hidden="true"],
+.tc-tags-wrapper [hidden] {
+	display: none !important;
+}
+
+/* Modern Dropdown & Popup Menus (.tc-drop-down) */
+.tc-drop-down:not([hidden]) {
+	min-width: 220px;
+	max-width: 320px;
+	margin: 6px 0 0 0;
+	padding: 0.35rem;
+	background: var(--mn-bg-surface);
+	border: 1px solid var(--mn-border-subtle);
+	border-radius: var(--mn-radius-card);
+	box-shadow: 0 16px 40px -8px rgba(15, 23, 42, 0.16), 0 4px 12px -2px rgba(15, 23, 42, 0.08);
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	z-index: 1000;
+	font-size: 0.84rem;
+	line-height: 1.4;
+	white-space: nowrap;
+	text-shadow: none;
+	backdrop-filter: blur(8px);
+}
+
+.tc-drop-down .tc-reveal:not([hidden]) {
+	display: block;
+	width: 100%;
+}
+
+.tc-drop-down button,
+.tc-drop-down a {
+	display: flex !important;
+	align-items: center !important;
+	justify-content: flex-start !important;
+	gap: 0.55rem !important;
+	width: 100% !important;
+	height: auto !important;
+	min-height: 32px !important;
+	max-height: none !important;
+	padding: 0.4rem 0.65rem !important;
+	margin: 0 !important;
+	border: none !important;
+	border-radius: var(--mn-radius-sm) !important;
+	background: transparent !important;
+	color: var(--mn-text-main) !important;
+	font-size: 0.82rem !important;
+	font-weight: 500 !important;
+	text-align: left !important;
+	text-decoration: none !important;
+	cursor: pointer !important;
+	box-sizing: border-box !important;
+	transition: background var(--mn-transition), color var(--mn-transition) !important;
+}
+
+.tc-drop-down button:hover,
+.tc-drop-down a:hover {
+	background: var(--mn-bg-subtle) !important;
+	color: var(--mn-accent) !important;
+	text-decoration: none !important;
+}
+
+.tc-drop-down button svg,
+.tc-drop-down a svg {
+	width: 15px !important;
+	height: 15px !important;
+	fill: currentColor !important;
+	flex-shrink: 0 !important;
+}
+
+.tc-drop-down .tc-btn-text {
+	display: inline !important;
+	font-size: 0.82rem !important;
+	font-weight: 500 !important;
+	color: inherit !important;
+	white-space: nowrap !important;
+}
+
+.tc-drop-down input[type="text"],
+.tc-drop-down input[type="search"] {
+	width: 100%;
+	padding: 0.35rem 0.5rem;
+	margin: 0.2rem 0;
+	background: var(--mn-bg-subtle);
+	border: 1px solid var(--mn-border-hairline);
+	border-radius: var(--mn-radius-sm);
+	color: var(--mn-text-main);
+	font-size: 0.82rem;
+	box-sizing: border-box;
+}
+
+.tc-drop-down input[type="text"]:focus,
+.tc-drop-down input[type="search"]:focus {
+	outline: none;
+	border-color: var(--mn-accent);
+}
+
+.tc-drop-down .tc-dropdown-item,
+.tc-drop-down .tc-dropdown-item-plain,
+.tc-drop-down .tc-drop-down-info {
+	padding: 0.35rem 0.65rem;
+	font-size: 0.78rem;
+	color: var(--mn-text-muted);
+}
+
+.tc-drop-down hr {
+	margin: 0.3rem 0;
+	border: none;
+	border-top: 1px solid var(--mn-border-hairline);
 }
 
 /* Clean Subtitle & Metadata Line */

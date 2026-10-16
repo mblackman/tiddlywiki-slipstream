@@ -1,0 +1,137 @@
+title: $:/plugins/mblackman/slipstream/docs/primitives
+caption: UI Primitives
+tags: $:/tags/Slipstream/Docs
+order: 1
+type: text/vnd.tiddlywiki
+
+Slipstream includes a toolkit of lightweight, responsive UI primitives built with modern TiddlyWiki v5.4.0+ custom widgets (`\widget`). They adapt automatically to mobile, tablet, and desktop screens without requiring custom CSS.
+
+---
+
+! 1. Hero Banner (`<$ss.hero>`)
+
+Renders a prominent header banner for dashboards, hubs, or project spaces.
+
+| !Attribute | !Type | !Default | !Description |
+| `title` | string | `""` | Primary heading text |
+| `subtitle` | string | `""` | Secondary descriptive text |
+
+!! Live Example
+
+<$ss.hero title="Knowledge Base" subtitle="A structured index demonstrating wide-mode breakout and responsive cards."/>
+
+!! Wikitext Syntax
+
+```wikitext
+<$ss.hero
+  title="Knowledge Base"
+  subtitle="A structured index demonstrating wide-mode breakout and responsive cards."
+/>
+```
+
+---
+
+! 2. Responsive Grid (`<$ss.grid>`)
+
+Creates a CSS Grid container that automatically wraps child elements based on available container width (`repeat(auto-fit, minmax(min, 1fr))`).
+
+| !Attribute | !Type | !Default | !Description |
+| `min` | string | `240px` | Minimum width per column before wrapping |
+| `gap` | string | `16px` | Gap spacing between grid cells |
+
+!! Live Example
+
+<$ss.grid min="200px">
+  <$ss.card badge="Alpha" accent="#3b82f6">
+    <h4>Column 1</h4>
+    <p>Auto-fits to container width.</p>
+  </$ss.card>
+  <$ss.card badge="Beta" accent="#10b981">
+    <h4>Column 2</h4>
+    <p>Maintains consistent gap spacing.</p>
+  </$ss.card>
+  <$ss.card badge="Gamma" accent="#f59e0b">
+    <h4>Column 3</h4>
+    <p>Wraps cleanly on mobile.</p>
+  </$ss.card>
+</$ss.grid>
+
+!! Wikitext Syntax
+
+```wikitext
+<$ss.grid min="200px">
+  <$ss.card badge="Alpha" accent="#3b82f6">
+    <h4>Column 1</h4>
+    <p>Auto-fits to container width.</p>
+  </$ss.card>
+  ...
+</$ss.grid>
+```
+
+---
+
+! 3. Content Card (`<$ss.card>`)
+
+An elevated container card with rounded corners, subtle border, optional accent edge, and hover states.
+
+| !Attribute | !Type | !Default | !Description |
+| `badge` | string | `""` | Text shown in upper-right pill badge |
+| `accent` | string | `""` | CSS color for accent border (e.g. `var(--tpc-primary)`) |
+
+!! Live Example
+
+<$ss.card badge="Featured" accent="var(--tpc-primary)">
+  <h3>Interactive Content Card</h3>
+  <p>Cards accept any valid wikitext, including links, lists, or custom widgets.</p>
+  <$ss.progress value="85" total="100" label="Resource Health"/>
+</$ss.card>
+
+---
+
+! 4. Property Pill (`<$ss.prop-pill>`)
+
+A two-segment key/value chip. Used automatically by Slipstream beneath tiddler titles, but also available anywhere in your notes.
+
+| !Attribute | !Type | !Default | !Description |
+| `name` | string | Required | Label for the property key |
+| `value` | string | Required | Property value text |
+
+!! Live Example
+
+<$ss.prop-pill name="Status" value="Active"/>
+<$ss.prop-pill name="Priority" value="High"/>
+<$ss.prop-pill name="Version" value="0.1.0"/>
+
+!! Wikitext Syntax
+
+```wikitext
+<$ss.prop-pill name="Status" value="Active"/>
+<$ss.prop-pill name="Priority" value="High"/>
+<$ss.prop-pill name="Version" value="0.1.0"/>
+```
+
+---
+
+! 5. Progress Bar (`<$ss.progress>`)
+
+A smooth progress bar with automatic percentage calculation and optional label.
+
+| !Attribute | !Type | !Default | !Description |
+| `value` | number | Required | Current numeric progress |
+| `total` | number | `100` | Maximum numeric progress |
+| `label` | string | `""` | Label displayed above progress bar |
+
+!! Live Example
+
+<$ss.progress value="7" total="10" label="Project Milestones (7 / 10)"/>
+
+<div style="height: 10px;"></div>
+
+<$ss.progress value="92" total="100" label="Overall Completion"/>
+
+!! Wikitext Syntax
+
+```wikitext
+<$ss.progress value="7" total="10" label="Project Milestones (7 / 10)"/>
+<$ss.progress value="92" total="100" label="Overall Completion"/>
+```

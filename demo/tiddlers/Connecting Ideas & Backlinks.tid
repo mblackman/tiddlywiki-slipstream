@@ -1,0 +1,52 @@
+title: Connecting Ideas & Backlinks
+tags: Guide
+caption: Connections
+ss-icon: 🔗
+workflow: Zettelkasten
+category: Method
+description: How bidirectional links, tags, and the Right Context Inspector power knowledge discovery.
+modified: 20261016160000000
+created: 20261016120000000
+
+One of TiddlyWiki's most powerful capabilities is its non-linear, bidirectional linking system. Slipstream enhances this architecture with a dedicated **Right Context Inspector** that stays dynamically synchronized with whatever note you are actively reading.
+
+---
+
+! The Power of Bidirectional Links
+
+When you write notes in Slipstream, you link concepts together using double square brackets: `[[Note Name]]`.
+
+Unlike traditional static web pages or file-tree editors, links in TiddlyWiki are two-way connections:
+1. **Outbound links**: Direct paths to other notes in your wiki.
+2. **Inbound backlinks**: References from other notes pointing back to this one.
+
+---
+
+! Inspecting Connections
+
+Look at the **Right Context Inspector** panel on the right side of your desktop screen:
+
+* **Outline Tab**: Displays the heading hierarchy of this active note.
+* **Backlinks Tab**: Shows every note in your wiki that links here! For example, you should see [[Welcome to Slipstream]] and [[Knowledge Base]] listed as backlinks right now.
+* **Details Tab**: Shows creation timestamp, modification date, active tags, and raw custom fields.
+
+> [!TIP]
+> **Mobile Viewing**: On mobile screens (under `1024px`), access the inspector by tapping the `•••` action button in the bottom navigation bar or using the pill strip at the top.
+
+---
+
+! Workflows You Can Build
+
+Because Slipstream relies purely on standard TiddlyWiki tagging and linking, you can build any personal workflow without locking yourself into proprietary plugins:
+
+# **Zettelkasten / Digital Garden**: Interlink atomic ideas and use the inspector's backlinks to discover unexpected connections.
+# **Topic Indexes & MOCs (Maps of Content)**: Use [[Knowledge Base]] as an entry point to cluster related subjects.
+# **Project Notes & Reference Sheets**: Track documentation, meetings, and ideas with inline property pills.
+
+---
+
+!! Explore More
+
+* [[Knowledge Base]] — Browse the central index
+* [[Writing & Typography]] — Practice drafting structured notes
+* [[Customizing Slipstream]] — Learn how to add custom tabs to the Right Inspector

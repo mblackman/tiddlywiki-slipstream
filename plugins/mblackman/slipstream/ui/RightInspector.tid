@@ -2,7 +2,9 @@ title: $:/plugins/mblackman/slipstream/ui/RightInspector
 type: text/vnd.tiddlywiki
 
 \whitespace trim
-<$let activeTiddler={{{ [{$:/HistoryList!!current-tiddler}!is[blank]is[tiddler]] ~[{$:/HistoryList!!current-tiddler}!is[blank]is[shadow]] ~[list[$:/StoryList]first[]] }}}>
+\function .active-tiddler() [list[$:/StoryList]match{$:/HistoryList!!current-tiddler}] ~[list[$:/StoryList]first[]]
+
+<$let activeTiddler=<<.active-tiddler>>>
 	<$tiddler tiddler=<<activeTiddler>>>
 		<section class="mn-nav-section">
 			<h3 class="mn-nav-heading">Active Context Inspector</h3>

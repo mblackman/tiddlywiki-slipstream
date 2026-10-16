@@ -4,6 +4,7 @@ type: text/vnd.tiddlywiki
 \whitespace trim
 \procedure default-pinned-filter() [all[shadows+tiddlers]tag[$:/tags/Pinned]!has[draft.of]]
 \function .pinned-filter() [{$:/config/slipstream/pinned-filter}!is[blank]else<default-pinned-filter>]
+\function .active-tiddler() [list[$:/StoryList]match{$:/HistoryList!!current-tiddler}] ~[list[$:/StoryList]first[]]
 
 <!-- Section 0: Standard TiddlyWiki Page Controls Toolbar (like Notebook Theme) -->
 <section class="mn-nav-section mn-page-controls">
@@ -17,12 +18,17 @@ type: text/vnd.tiddlywiki
 <section class="mn-nav-section">
 	<h3 class="mn-nav-heading">
 		<span><$text text={{{ [{$:/config/slipstream/pinned-heading}!is[blank]else[Pinned Shortcuts]] }}}/></span>
-		<$button to="$:/ControlPanel" class="tc-btn-invisible" tooltip="Customize pinned shortcuts in Settings">⚙</$button>
+		<$button class="tc-btn-invisible" tooltip="Customize pinned shortcuts in Slipstream Settings">
+			<$action-setfield $tiddler="$:/state/tab-1749438307" text="$:/core/ui/ControlPanel/Settings"/>
+			<$action-setfield $tiddler="$:/state/tab--697582678" text="$:/plugins/mblackman/slipstream/settings"/>
+			<$action-navigate $to="$:/ControlPanel"/>
+			⚙
+		</$button>
 	</h3>
 	<$list filter="[subfilter<.pinned-filter>]" variable="pinItem" emptyMessage="<p class='mn-prop-label'>Tag any tiddler <code>$:/tags/Pinned</code> to pin it here.</p>">
 		<$button
 			to=<<pinItem>>
-			class={{{ [[mn-nav-item tc-btn-invisible]] [{$:/HistoryList!!current-tiddler}match<pinItem>then[mn-nav-item-active]] +[join[ ]] }}}
+			class={{{ [[mn-nav-item tc-btn-invisible]] [<pinItem>match<.active-tiddler>then[mn-nav-item-active]] +[join[ ]] }}}
 		>
 			<span style="display:inline-flex;align-items:center;gap:0.45rem;">
 				<%if [<pinItem>get[ss-icon]!is[blank]] %>
@@ -45,7 +51,7 @@ type: text/vnd.tiddlywiki
 		<$button message="tm-close-all-tiddlers" class="tc-btn-invisible" tooltip="Close all open tiddlers">Clear</$button>
 	</h3>
 	<$list filter="[list[$:/StoryList]]" variable="openItem">
-		<div class={{{ [[mn-nav-item]] [{$:/HistoryList!!current-tiddler}match<openItem>then[mn-nav-item-active]] +[join[ ]] }}}>
+		<div class={{{ [[mn-nav-item]] [<openItem>match<.active-tiddler>then[mn-nav-item-active]] +[join[ ]] }}}>
 			<$link to=<<openItem>> class="mn-card-title">
 				<$view tiddler=<<openItem>> field="caption"><$text text=<<openItem>>/></$view>
 			</$link>

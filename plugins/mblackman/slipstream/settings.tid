@@ -7,6 +7,16 @@ type: text/vnd.tiddlywiki
 <h3>Slipstream Layout & Navigation Settings</h3>
 <p class="mn-prop-label">Customize your pinned shortcuts, mobile bottom bar slots, reading widths, and property pills without modifying theme code.</p>
 
+<div class="mn-card" style="margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+	<div>
+		<strong>Need reference guides or widget examples?</strong>
+		<div class="mn-prop-label">Learn how to customize shortcuts, inspector tabs, and responsive UI primitives.</div>
+	</div>
+	<$button class="mn-pill-btn" to="$:/plugins/mblackman/slipstream/docs">
+		📚 Open Knowledge Base & Reference
+	</$button>
+</div>
+
 <div class="mn-card" style="margin-bottom:1rem;">
 	<h4 class="mn-nav-heading">1. Navigation & Shortcut Customization</h4>
 	<div class="mn-object-prop-bar">
@@ -15,10 +25,10 @@ type: text/vnd.tiddlywiki
 	</div>
 	<div class="mn-object-prop-bar">
 		<label class="mn-prop-label" style="min-width:240px;">Mobile Bottom Bar Shortcuts (Title List):</label>
-		<$edit-text tiddler="$:/config/slipstream/mobile-shortcuts" field="text" default="" placeholder="e.g. [[Journal Dashboard]] [[Media Hub]]" tag="input" class="mn-search-input"/>
+		<$edit-text tiddler="$:/config/slipstream/mobile-shortcuts" field="text" default="" placeholder="e.g. [[Knowledge Base]] [[Slipstream UI Primitives]]" tag="input" class="mn-search-input"/>
 	</div>
 	<div class="mn-object-prop-bar">
-		<label class="mn-prop-label" style="min-width:240px;">Wide Tiddler Filter (<code>1180px</code>):</label>
+		<label class="mn-prop-label" style="min-width:240px;">Wide Tiddler Filter (<code>1120px</code>):</label>
 		<$edit-text tiddler="$:/config/slipstream/wide-filter" field="text" default="[tag[Wide]] [field:page-width[wide]]" tag="input" class="mn-search-input"/>
 	</div>
 	<div class="mn-object-prop-bar">

@@ -42,6 +42,22 @@ def parse_meta_file(css_path, meta_path):
     return headers
 
 
+def parse_js_file(js_path):
+    with open(js_path, "r", encoding="utf-8") as f:
+        js_text = f.read()
+    headers = {}
+    if js_text.startswith("/*\\"):
+        end_idx = js_text.find("\\*/")
+        if end_idx != -1:
+            header_block = js_text[3:end_idx].strip()
+            for line in header_block.splitlines():
+                if ":" in line:
+                    k, v = line.split(":", 1)
+                    headers[k.strip()] = v.strip()
+    headers["text"] = js_text
+    return headers
+
+
 def main():
     with open(os.path.join(PLUGIN_SRC, "plugin.info"), "r", encoding="utf-8") as f:
         plugin_info = json.load(f)
@@ -58,6 +74,10 @@ def main():
             elif file.endswith(".css") and os.path.exists(full_path + ".meta"):
                 t_obj = parse_meta_file(full_path, full_path + ".meta")
                 tiddlers[t_obj["title"]] = t_obj
+            elif file.endswith(".js"):
+                t_obj = parse_js_file(full_path)
+                if "title" in t_obj:
+                    tiddlers[t_obj["title"]] = t_obj
 
     packaged = [
         {

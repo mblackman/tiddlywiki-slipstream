@@ -1,0 +1,66 @@
+title: $:/plugins/mblackman/slipstream/docs
+caption: Documentation
+page-width: wide
+tags: $:/tags/Slipstream/Docs
+type: text/vnd.tiddlywiki
+
+<$ss.hero
+  title="Slipstream Knowledge Base & Reference"
+  subtitle="Complete documentation, widget reference, and workflow patterns included with Slipstream."
+/>
+
+<div class="mn-card" style="margin-bottom: 1.5rem; background: var(--mn-bg-card);">
+	<div style="display: flex; gap: 1rem; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+		<div>
+			<strong>Installed Version:</strong> {{$:/plugins/mblackman/slipstream!!version}} &bull;
+			<strong>Core Requirement:</strong> {{$:/plugins/mblackman/slipstream!!core-version}} &bull;
+			<strong>Author:</strong> {{$:/plugins/mblackman/slipstream!!author}}
+		</div>
+		<div>
+			<$button class="mn-pill-btn" to="$:/plugins/mblackman/slipstream/settings">
+				⚙ Open Slipstream Settings
+			</$button>
+		</div>
+	</div>
+</div>
+
+!! Reference Guides
+
+<$ss.grid min="260px">
+
+<$ss.card badge="Widgets" accent="var(--tpc-primary)">
+<h3>[[$:/plugins/mblackman/slipstream/docs/primitives|UI Primitives Reference]]</h3>
+<p>Hero banners, responsive auto-fitting grids, content cards, property pills, and progress bars.</p>
+<$button class="mn-pill-btn" to="$:/plugins/mblackman/slipstream/docs/primitives">View Widgets &rarr;</$button>
+</$ss.card>
+
+<$ss.card badge="Ergonomics" accent="var(--tpc-accent, #3b82f6)">
+<h3>[[$:/plugins/mblackman/slipstream/docs/writing|Writing & Typography]]</h3>
+<p>72ch reading column, outline extraction in the Right Inspector, fluid typography, and palettes.</p>
+<$button class="mn-pill-btn" to="$:/plugins/mblackman/slipstream/docs/writing">View Guide &rarr;</$button>
+</$ss.card>
+
+<$ss.card badge="Discovery" accent="var(--tpc-secondary, #10b981)">
+<h3>[[$:/plugins/mblackman/slipstream/docs/connections|Connections & Inspector]]</h3>
+<p>Dynamic backlink discovery, document outline navigation, and mobile zoomin action sheet.</p>
+<$button class="mn-pill-btn" to="$:/plugins/mblackman/slipstream/docs/connections">View Guide &rarr;</$button>
+</$ss.card>
+
+<$ss.card badge="Extensibility" accent="var(--tpc-warning, #f59e0b)">
+<h3>[[$:/plugins/mblackman/slipstream/docs/customization|Customization Guide]]</h3>
+<p>Pinned left nav shortcuts, custom inspector tabs, wide breakout mode, and mobile bottom bar.</p>
+<$button class="mn-pill-btn" to="$:/plugins/mblackman/slipstream/docs/customization">View Guide &rarr;</$button>
+</$ss.card>
+
+</$ss.grid>
+
+---
+
+!! Browse Documentation
+
+<$macrocall
+  $name="tabs"
+  tabsList="$:/plugins/mblackman/slipstream/docs/primitives $:/plugins/mblackman/slipstream/docs/writing $:/plugins/mblackman/slipstream/docs/connections $:/plugins/mblackman/slipstream/docs/customization"
+  default="$:/plugins/mblackman/slipstream/docs/primitives"
+  state="$:/state/tab/slipstream-docs"
+/>

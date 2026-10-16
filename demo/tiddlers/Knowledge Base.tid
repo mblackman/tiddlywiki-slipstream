@@ -1,0 +1,66 @@
+title: Knowledge Base
+tags: $:/tags/Pinned Wide
+caption: Index
+ss-icon: 🗂️
+page-width: wide
+status: Published
+type: text/vnd.tiddlywiki
+modified: 20261016160000000
+created: 20261016120000000
+
+<$ss.hero title="Wiki Knowledge Base" subtitle="A structured index demonstrating wide-mode breakout (1120px) and responsive card grids for knowledge management."/>
+
+!! Explore Sections
+
+<$ss.grid min="280px">
+
+<$ss.card badge="Overview" accent="var(--tpc-primary)">
+<h3>[[Welcome to Slipstream]]</h3>
+<p>Introduction to the Slipstream 3-column workspace, responsive views, and design philosophy.</p>
+</$ss.card>
+
+<$ss.card badge="Reading" accent="var(--tpc-accent, #3b82f6)">
+<h3>[[Writing & Typography]]</h3>
+<p>Prose comfort at 72ch width, formatting examples, and live outline extraction in the inspector.</p>
+</$ss.card>
+
+<$ss.card badge="Toolkit" accent="var(--tpc-secondary, #10b981)">
+<h3>[[Slipstream UI Primitives]]</h3>
+<p>Interactive reference for hero banners, responsive grids, cards, property pills, and progress bars.</p>
+</$ss.card>
+
+<$ss.card badge="Structure" accent="var(--tpc-warning, #f59e0b)">
+<h3>[[Connecting Ideas & Backlinks]]</h3>
+<p>How bidirectional linking and the Right Context Inspector power discovery and knowledge graphs.</p>
+</$ss.card>
+
+<$ss.card badge="Config" accent="var(--tpc-muted, #64748b)">
+<h3>[[Customizing Slipstream]]</h3>
+<p>Learn how to pin your favorite notes, create inspector tabs, and configure widths and palettes.</p>
+</$ss.card>
+
+<$ss.card badge="Plugin" accent="var(--tpc-primary)">
+<h3>[[$:/plugins/mblackman/slipstream/docs|Bundled Plugin Docs]]</h3>
+<p>Complete reference manual packaged inside the plugin and available in all installs.</p>
+</$ss.card>
+
+</$ss.grid>
+
+---
+
+!! All Guides & Notes
+
+Below is a dynamic query using `<$list>` and `<$ss.grid>` displaying all notes tagged `Guide`:
+
+<$ss.grid min="260px">
+<$list filter="[tag[Guide]sort[title]]">
+<$ss.card badge={{!!caption}}>
+<div style="font-weight: 600; font-size: 1.05rem; margin-bottom: 0.35rem;">
+<$link to={{!!title}}><$text text={{!!title}}/></$link>
+</div>
+<div style="font-size: 0.88rem; color: var(--tpc-muted-foreground, #6b7280); line-height: 1.4;">
+<$text text={{!!description}}/>
+</div>
+</$ss.card>
+</$list>
+</$ss.grid>

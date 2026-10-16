@@ -1,0 +1,54 @@
+title: $:/plugins/mblackman/slipstream/docs/writing
+caption: Writing & Typography
+tags: $:/tags/Slipstream/Docs
+order: 2
+type: text/vnd.tiddlywiki
+
+Slipstream is designed for serious writing and distraction-free reading. Standard prose notes are constrained to an optimal reading measure of `72ch` (`840px`), preventing excessive line lengths that cause eye fatigue.
+
+---
+
+! 1. The Ergonomic Reading Column
+
+Long lines on wide desktop monitors make reading difficult because the reader's eye must track a great distance to find the beginning of the next line. Typographic research suggests that `65ch` to `75ch` is optimal for continuous prose.
+
+In Slipstream:
+* Standard notes stay centered at `var(--mn-reading-width, 840px)`.
+* Full-bleed dashboards and data tables break out to `var(--mn-wide-width, 1120px)` using the `Wide` tag or `page-width: wide` field.
+* Reading width can be customized anytime in [[$:/plugins/mblackman/slipstream/settings]].
+
+---
+
+! 2. Live Heading Outline Extraction
+
+Any headings you write in your document are automatically extracted into a clickable, hierarchical table of contents:
+
+* Look at the **Right Context Inspector** on desktop (or tap `•••` on mobile).
+* Switch to the **Outline** tab.
+* Headings (`!`, `!!`, `!!!`) are rendered dynamically as links. Clicking any heading jumps directly to that section.
+
+---
+
+! 3. Native Design Tokens & Palette Independence
+
+Slipstream never hardcodes palette colors in its core components. Instead, it relies on TiddlyWiki v5.4.0+ native palette variables:
+
+| !Variable | !Role |
+| `--tpc-page-background` | Background behind the story river and navigation rails |
+| `--tpc-background` | Background for tiddler cards, sheets, and popups |
+| `--tpc-foreground` | Primary text color |
+| `--tpc-primary` | Accent color for active items, buttons, and links |
+| `--tpc-muted-foreground` | Secondary subtitles, timestamps, and labels |
+
+When you switch between light, dark, Solarized, or Nord palettes in [[$:/ControlPanel]], Slipstream updates instantly without needing theme overrides.
+
+---
+
+! 4. Typography Elements
+
+Standard wikitext formatting works seamlessly in Slipstream:
+
+* ''Bold'' (`''bold''`) and //Italic// (`//italic//`)
+* `Inline code` (`` `code` ``) and code blocks (```` ```javascript ````)
+* Blockquotes (`> quote text`) with accent borders
+* Tables with header highlighting and zebra striping

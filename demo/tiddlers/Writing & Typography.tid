@@ -1,0 +1,67 @@
+title: Writing & Typography
+tags: Guide
+caption: Writing
+ss-icon: ✍️
+reading-time: 3 min
+status: Draft
+description: Longform reading comfort, typographic hierarchy, and automated heading outline generation.
+modified: 20261016160000000
+created: 20261016120000000
+
+Slipstream is designed for serious writing and deep reading. In standard mode, notes are constrained to an optimal reading width of `72ch` (max `840px`), preventing long lines that fatigue the eyes during extended research or drafting.
+
+> [!TIP]
+> **Check the Outline Tab**: Look over at the **Right Context Inspector** (or click `◨` in the top bar if it's closed). The **Outline** tab automatically analyzes this document's headings and renders a clickable, hierarchical table of contents!
+
+---
+
+! Level 1 Heading: The Foundation
+
+Typography in Slipstream uses modern, fluid typography tokens and native TiddlyWiki palette variables (`--tpc-*` and `--tp-*`). This ensures that regardless of whether you choose a light theme, dark theme, or custom palette, contrast ratios and readability remain pristine.
+
+!! Level 2 Heading: Formatting Elements
+
+You can format your writing with standard wikitext and markdown:
+
+* ''Bold text'' and //italic text// for emphasis
+* ~~Strikethrough~~ and `inline code fragments`
+* Mathematical symbols and technical terms: $E = mc^2$ or `Array.prototype.map()`
+* External links and internal wiki links: [[Welcome to Slipstream]] and [[Knowledge Base]]
+
+!!! Level 3 Heading: Quotes & Callouts
+
+> "Simplicity is prerequisite for reliability."
+> — Edsger W. Dijkstra
+
+Blockquotes are styled with a clean accent border and subtle background tint that harmonizes with your active palette.
+
+!! Tables & Structured Data
+
+Tables in Slipstream adapt cleanly to the content area with clear column alignments and bordered cells:
+
+| !Feature | !Standard View | !Wide View |
+| Reading Width | `840px` (72ch optimal) | `1120px` (Expanded) |
+| Best For | Prose, Essays, Research Notes | Dashboards, Databases, Large Tables |
+| Trigger | Default behavior | Tagged `Wide` or `page-width: wide` |
+| Inspector Integration | Fully responsive | Supported |
+
+!! Code Blocks
+
+Slipstream renders fenced code blocks with clean padding and monospaced typography:
+
+```javascript
+// Filter helper example
+function getActiveNotes(wiki, tag) {
+  return wiki.filterTiddlers(`[tag[${tag}]!has[draft.of]sort[title]]`);
+}
+```
+
+---
+
+!! Connected Topics
+
+Continue exploring the wiki layout and tools:
+
+* [[Knowledge Base]] — The wide-mode index organizing all wiki notes
+* [[Connecting Ideas & Backlinks]] — Explore how backlinks link this guide to the rest of the wiki
+* [[Slipstream UI Primitives]] — Discover widgets for building your own layouts

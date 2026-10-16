@@ -11,6 +11,7 @@ type: text/vnd.tiddlywiki
 \function .is-mobile() [{$:/info/browser/window/system/main/client/width}!is[blank]compare:number:lt<.breakpoint>then[yes]else[no]]
 \function .is-left-open() [.is-mobile[]match[yes]] :then[{$:/state/slipstream/left-panel}match[yes]then[yes]else[no]] :else[{$:/state/slipstream/left-panel}match[no]then[no]else[yes]]
 \function .active-storyview() [{$:/config/slipstream/storyview-override}!is[blank]!match[auto]] ~[.is-mobile[]match[yes]then[fade]else[classic]]
+\function .active-tiddler() [list[$:/StoryList]match{$:/HistoryList!!current-tiddler}] ~[list[$:/StoryList]first[]]
 \function .container-classes() tc-page-container mn-app-shell [.is-left-open[]match[yes]then[mn-left-open]else[mn-left-collapsed]] [{$:/state/slipstream/right-panel}match[no]then[mn-right-collapsed]else[mn-right-open]] [.is-mobile[]match[yes]then[mn-is-mobile]else[mn-is-desktop]] [[tc-page-view-]addsuffix<.active-storyview>] +[join[ ]]
 
 \procedure redirected-navigate-actions()

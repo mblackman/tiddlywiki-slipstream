@@ -5,6 +5,7 @@ type: text/vnd.tiddlywiki
 \function .breakpoint() [{$:/config/slipstream/mobile-breakpoint}!is[blank]else[1024]]
 \function .is-mobile() [{$:/info/browser/window/system/main/client/width}!is[blank]compare:number:lt<.breakpoint>then[yes]else[no]]
 \function .is-left-open() [.is-mobile[]match[yes]] :then[{$:/state/slipstream/left-panel}match[yes]then[yes]else[no]] :else[{$:/state/slipstream/left-panel}match[no]then[no]else[yes]]
+\function .active-tiddler() [list[$:/StoryList]match{$:/HistoryList!!current-tiddler}] ~[list[$:/StoryList]first[]]
 
 <%if [{$:/state/slipstream/mobile-search}match[open]] %>
 	<!-- Active Mobile Search Overlay in TopBar -->
@@ -58,12 +59,12 @@ type: text/vnd.tiddlywiki
 			☰
 		</$button>
 		<span class="mn-site-brand">
-			<$link to={{{ [{$:/HistoryList!!current-tiddler}!is[blank]] ~[list[$:/StoryList]first[]] }}} class="mn-brand-title">
+			<$link to=<<.active-tiddler>> class="mn-brand-title">
 				<$text text={{{ [{$:/SiteTitle}!is[blank]else[Slipstream]] }}}/>
 			</$link>
-			<%if [{$:/HistoryList!!current-tiddler}!is[blank]] %>
+			<%if [.active-tiddler[]!is[blank]] %>
 				<span class="mn-breadcrumb-sep mn-desktop-only">/</span>
-				<span class="mn-breadcrumb-current mn-desktop-only"><$text text={{$:/HistoryList!!current-tiddler}}/></span>
+				<span class="mn-breadcrumb-current mn-desktop-only"><$text text=<<.active-tiddler>>/></span>
 			<%endif%>
 		</span>
 	</div>
@@ -97,15 +98,9 @@ type: text/vnd.tiddlywiki
 		<%endif%>
 	</div>
 
-	<!-- TopBar Right Controls: Desktop Actions vs Mobile Single Search Button -->
+	<!-- TopBar Right Controls: Desktop Right Inspector Toggle vs Mobile Search Button -->
 	<div class="mn-topbar-right">
-		<!-- Desktop-Only: New Note, Settings Cog, Right Inspector Toggle -->
-		<$button message="tm-new-tiddler" class="mn-btn-primary mn-desktop-only" tooltip="Create New Tiddler">
-			+ New Note
-		</$button>
-		<$button to="$:/ControlPanel" class="mn-pill-btn mn-desktop-only" tooltip="Open Control Panel">
-			⚙
-		</$button>
+		<!-- Desktop-Only: Right Context Inspector Toggle -->
 		<$button
 			set="$:/state/slipstream/right-panel"
 			setTo={{{ [{$:/state/slipstream/right-panel}match[no]then[yes]else[no]] }}}
@@ -115,14 +110,16 @@ type: text/vnd.tiddlywiki
 			◨
 		</$button>
 
-		<!-- Mobile-Only: Clean Search Button (Eliminates redundant New Note and Options buttons) -->
-		<$button
-			set="$:/state/slipstream/mobile-search"
-			setTo="open"
-			class="mn-pill-btn mn-mobile-only"
-			tooltip="Search notes"
-		>
-			🔍
-		</$button>
+		<!-- Mobile-Only: Clean Search Button -->
+		<%if [.is-mobile[]match[yes]] %>
+			<$button
+				set="$:/state/slipstream/mobile-search"
+				setTo="open"
+				class="mn-pill-btn mn-mobile-only"
+				tooltip="Search notes"
+			>
+				🔍
+			</$button>
+		<%endif%>
 	</div>
 <%endif%>

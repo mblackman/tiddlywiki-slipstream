@@ -1,26 +1,26 @@
 [
   {
-    "title": "Journal Dashboard",
+    "title": "Knowledge Index",
     "tags": "$:/tags/Pinned $:/tags/Slipstream/BottomBar Wide",
-    "caption": "Journal",
-    "ss-icon": "\ud83d\udcd3",
+    "caption": "Index",
+    "ss-icon": "🗂️",
     "page-width": "wide",
-    "text": "<$ss.hero title=\"Daily Journal\" subtitle=\"User-space dashboard using generic $ss.hero and $ss.grid widgets\"/>\n<$ss.grid min=\"300px\">\n<$list filter=\"[all[tiddlers]tag[Journal]!sort[created]limit[12]]\">\n<$ss.card badge={{!!mood}}><$transclude mode=\"block\"/></$ss.card>\n</$list>\n</$ss.grid>"
+    "text": "<$ss.hero title=\"Knowledge Index\" subtitle=\"A central hub organizing topics with responsive cards\"/>\n<$ss.grid min=\"260px\">\n<$list filter=\"[all[tiddlers]tag[Topic]!has[draft.of]sort[title]]\">\n<$ss.card badge={{!!category}} accent=\"var(--tpc-primary)\">\n<h3><$link to={{!!title}}><$text text={{!!title}}/></$link></h3>\n<p><$transclude field=\"description\" mode=\"inline\"/></p>\n</$ss.card>\n</$list>\n</$ss.grid>"
   },
   {
-    "title": "Project Dashboard",
+    "title": "Reading & Research Hub",
     "tags": "$:/tags/Pinned Wide",
-    "caption": "Projects",
-    "ss-icon": "\ud83d\udccb",
+    "caption": "Reading",
+    "ss-icon": "📚",
     "page-width": "wide",
-    "text": "<$ss.hero title=\"Projects\" subtitle=\"User-space dashboard using generic $ss.card and $ss.progress widgets\"/>\n<$ss.grid min=\"280px\">\n<$list filter=\"[all[tiddlers]tag[Project]sort[priority]]\">\n<$ss.card badge={{!!status}} accent={{!!color}}><$transclude mode=\"block\"/></$ss.card>\n</$list>\n</$ss.grid>"
+    "text": "<$ss.hero title=\"Reading & Research\" subtitle=\"Track articles, books, and reference material\"/>\n<$ss.grid min=\"280px\">\n<$list filter=\"[all[tiddlers]tag[Reading]!has[draft.of]!sort[modified]]\">\n<$ss.card badge={{!!status}} accent={{!!color}}>\n<h4><$link to={{!!title}}><$text text={{!!title}}/></$link></h4>\n<$ss.progress value={{!!progress}} total=\"100\" label={{!!status}}/>\n</$ss.card>\n</$list>\n</$ss.grid>"
   },
   {
-    "title": "Media Hub",
+    "title": "Task & Project Tracker",
     "tags": "$:/tags/Pinned $:/tags/Slipstream/BottomBar Wide",
-    "caption": "Media",
-    "ss-icon": "\ud83c\udfac",
+    "caption": "Tasks",
+    "ss-icon": "✅",
     "page-width": "wide",
-    "text": "<$ss.hero title=\"Media Library\" subtitle=\"User-space media hub using generic $ss.grid and $ss.card widgets\"/>\n<$ss.grid min=\"160px\">\n<$list filter=\"[all[tiddlers]tag[Media]!sort[modified]limit[24]]\">\n<$ss.card badge={{!!media-type}}><$transclude mode=\"block\"/></$ss.card>\n</$list>\n</$ss.grid>"
+    "text": "<$ss.hero title=\"Task Overview\" subtitle=\"A lightweight task tracker built with standard tags and cards\"/>\n<$ss.grid min=\"240px\">\n<$list filter=\"[all[tiddlers]tag[Task]!tag[Done]sort[priority]]\">\n<$ss.card badge={{!!priority}} accent={{!!accent}}>\n<$checkbox tag=\"Done\"> ''<$link to={{!!title}}><$text text={{!!title}}/></$link>''</$checkbox>\n<div style=\"margin-top: 6px;\"><$text text={{!!description}}/></div>\n</$ss.card>\n</$list>\n</$ss.grid>"
   }
 ]

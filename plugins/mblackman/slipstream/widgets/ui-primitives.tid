@@ -4,6 +4,9 @@ type: text/vnd.tiddlywiki
 
 \whitespace trim
 
+<!-- Global Active Tiddler Function: evaluates focused open tiddler in StoryList, falling back to first open note -->
+\function .active-tiddler() [list[$:/StoryList]match{$:/HistoryList!!current-tiddler}] ~[list[$:/StoryList]first[]]
+
 <!-- Generic Hero Banner Widget ($ss.hero & $mn.hero) -->
 \widget $ss.hero(title:"", subtitle:"")
 <section class="mn-hero">

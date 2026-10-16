@@ -1,7 +1,0 @@
-title: Design 3-Column Grid
-tags: [[Slipstream v1 Launch]] Task Done
-status: Done
-created: 20261016120000000
-modified: 20261016133000000
-
-Implemented the CSS Grid layout in `$:/plugins/mblackman/slipstream/styles/core.css`.

@@ -2,6 +2,7 @@ title: $:/plugins/mblackman/slipstream/ui/MobileBar
 type: text/vnd.tiddlywiki
 
 \whitespace trim
+\function .active-tiddler() [list[$:/StoryList]match{$:/HistoryList!!current-tiddler}] ~[list[$:/StoryList]first[]]
 
 <nav class="mn-mobile-bottombar" aria-label="Mobile Primary Controls">
 	<!-- 1. User-Configurable Shortcut Slots (configured via $:/config/slipstream/mobile-shortcuts or $:/tags/Slipstream/BottomBar) -->
@@ -40,7 +41,7 @@ type: text/vnd.tiddlywiki
 	<div class="mn-backdrop">
 		<$button set="$:/state/slipstream/mobile-action-sheet" setTo="closed" class="mn-backdrop-dismiss tc-btn-invisible" aria-label="Close options sheet"/>
 		<section class="mn-bottom-sheet">
-			<$let zoomedTiddler={{{ [{$:/HistoryList!!current-tiddler}!is[blank]] ~[list[$:/StoryList]first[]] }}}>
+			<$let zoomedTiddler=<<.active-tiddler>>>
 				<$tiddler tiddler=<<zoomedTiddler>>>
 					<header class="mn-card-header mn-bottom-sheet-header">
 						<div>

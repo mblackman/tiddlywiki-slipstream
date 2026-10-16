@@ -1,0 +1,141 @@
+title: Slipstream UI Primitives
+tags: $:/tags/Pinned Reference Wide
+caption: Components
+ss-icon: 🧩
+page-width: wide
+status: Stable
+version: 1.0
+description: Reference guide and live interactive examples for Slipstream's custom wikitext widgets.
+modified: 20261016160000000
+created: 20261016120000000
+
+<$ss.hero title="Slipstream UI Primitives" subtitle="Reusable wikitext widgets for building responsive dashboards, hubs, and interactive layouts."/>
+
+Slipstream ships with a suite of lightweight, responsive UI primitives implemented in `$:/plugins/mblackman/slipstream/widgets/ui-primitives`. These widgets follow modern TiddlyWiki v5.4.0+ custom widget standards and render cleanly across desktop, tablet, and mobile screens.
+
+---
+
+! 1. Hero Banner (`<$ss.hero>`)
+
+The hero widget renders a visually prominent header block with an optional title, subtitle, and action buttons.
+
+!! Live Example
+
+<$ss.hero title="Project Workspace" subtitle="Organize ideas, capture notes, and track your creative projects."/>
+
+!! Wikitext Syntax
+
+```wikitext
+<$ss.hero
+  title="Project Workspace"
+  subtitle="Organize ideas, capture notes, and track your creative projects."
+/>
+```
+
+---
+
+! 2. Responsive Card Grid (`<$ss.grid>`)
+
+The grid widget arranges cards or content blocks into a CSS Grid with automatic wrapping (`repeat(auto-fit, minmax(min, 1fr))`).
+
+* ''`min`'' (default `240px`): The minimum width of each column before wrapping.
+* ''`gap`'' (default `16px`): The gap spacing between grid items.
+
+!! Live Example
+
+<$ss.grid min="220px">
+  <$ss.card badge="Alpha" accent="#3b82f6">
+    <h4>Component 1</h4>
+    <p>Adaptive layout sizing.</p>
+  </$ss.card>
+  <$ss.card badge="Beta" accent="#10b981">
+    <h4>Component 2</h4>
+    <p>Flexible column flow.</p>
+  </$ss.card>
+  <$ss.card badge="Gamma" accent="#f59e0b">
+    <h4>Component 3</h4>
+    <p>Mobile-ready auto-wrap.</p>
+  </$ss.card>
+</$ss.grid>
+
+!! Wikitext Syntax
+
+```wikitext
+<$ss.grid min="220px">
+  <$ss.card badge="Alpha" accent="#3b82f6">
+    <h4>Component 1</h4>
+    <p>Adaptive layout sizing.</p>
+  </$ss.card>
+  ...
+</$ss.grid>
+```
+
+---
+
+! 3. Content Card (`<$ss.card>`)
+
+Cards provide a container with subtle border, background tint, rounded corners, and hover elevation.
+
+* ''`badge`'' (optional): Text displayed in an upper-right badge pill.
+* ''`accent`'' (optional): CSS color applied to the card's accent border.
+
+!! Live Example
+
+<$ss.card badge="Interactive" accent="var(--tpc-primary)">
+<h3>Custom Information Card</h3>
+<p>Cards accept any valid wikitext inside, including links, lists, or transcluded content.</p>
+<$ss.progress value="80" total="100" label="Resource Utilization"/>
+</$ss.card>
+
+---
+
+! 4. Property Pill (`<$ss.prop-pill>`)
+
+Renders a two-part key/value badge. Used automatically by the `ObjectPropertyHeader` beneath tiddler titles, but can also be used anywhere in your notes.
+
+!! Live Example
+
+<$ss.prop-pill name="Status" value="In Progress"/>
+<$ss.prop-pill name="Priority" value="High"/>
+<$ss.prop-pill name="Version" value="v1.2.0"/>
+
+!! Wikitext Syntax
+
+```wikitext
+<$ss.prop-pill name="Status" value="In Progress"/>
+<$ss.prop-pill name="Priority" value="High"/>
+<$ss.prop-pill name="Version" value="v1.2.0"/>
+```
+
+---
+
+! 5. Progress Bar (`<$ss.progress>`)
+
+Renders a smooth progress bar with percentage computation and optional label.
+
+* ''`value`'': Current numeric value (e.g. `12`).
+* ''`total`'' (default `100`): Maximum numeric value (e.g. `15`).
+* ''`label`'' (optional): Descriptive label displayed above the bar.
+
+!! Live Example
+
+<$ss.progress value="6" total="10" label="Milestone Completion (6 / 10)"/>
+
+<div style="height: 12px;"></div>
+
+<$ss.progress value="95" total="100" label="Code Coverage"/>
+
+!! Wikitext Syntax
+
+```wikitext
+<$ss.progress value="6" total="10" label="Milestone Completion (6 / 10)"/>
+<$ss.progress value="95" total="100" label="Code Coverage"/>
+```
+
+---
+
+!! Explore More
+
+* [[Knowledge Base]] — See these primitives combined in a real-world index
+* [[Writing & Typography]] — Compare wide dashboards with standard prose
+* [[Customizing Slipstream]] — Learn how to customize theme tokens and layout behavior

@@ -3,33 +3,36 @@ tags: $:/tags/Pinned Guide
 caption: Welcome
 ss-icon: 🌊
 status: Active
-priority: P0
-modified: 20261016153000000
+version: 0.1.0
+modified: 20261016160000000
 created: 20261016120000000
 
-''Slipstream'' (`$:/plugins/mblackman/slipstream`) is a modern, cross-device layout and UI primitive plugin for ''TiddlyWiki v5.4.0+''. It combines an uncluttered `72ch` centered reading column with a collapsible ''Left Navigation Rail'', a context-aware ''Right Inspector'', and a thumb-friendly ''Mobile `zoomin` Experience'' below `1024px`.
+''Slipstream'' (`$:/plugins/mblackman/slipstream`) is a modern, responsive layout theme and UI primitive toolkit for ''TiddlyWiki v5.4.0+''. Designed to stay as close to vanilla TiddlyWiki as possible, Slipstream introduces a clean 3-column workspace, native CSS design tokens, and flexible widgets that power your own custom knowledge workflows without imposing opinions on your data.
 
 ---
 
 !! Key Features You Can Test Right Now
 
 # ''Three-Column Desktop Workspace (`>= 1024px`)'':
-#* Click `☰` (top-left) to collapse or expand the ''Left Navigation Rail''.
-#* Click `◨` (top-right) to collapse or expand the ''Right Context Inspector'' (bound to `{$:/HistoryList!!current-tiddler}`).
-# ''Wide Mode Breakout (`1120px`)'':
-#* Standard prose notes stay centered at `840px`, while dashboards tagged `Wide` (or with field `page-width: wide`) such as [[Journal Dashboard]], [[Project Dashboard]], and [[Media Hub]] automatically expand to `1120px`.
+#* Click `☰` (top-left) to toggle the ''Left Navigation Rail'' (with your pinned notes, recent history, and core tools).
+#* Click `◨` (top-right) to toggle the ''Right Context Inspector'', which updates dynamically to show the active tiddler's outline, backlinks, and metadata.
+# ''Comfortable Reading Measure with Wide Mode Breakout'':
+#* Standard prose notes (like [[Writing & Typography]]) stay centered at an ergonomic `72ch` (`840px`), keeping text distraction-free.
+#* Hubs, tables, and dashboards tagged `Wide` (like [[Knowledge Base]] and [[Slipstream UI Primitives]]) automatically expand to `1120px` to fit rich content.
 # ''Inline Object Property Pills'':
-#* Notice the `status: Active` and `priority: P0` pills directly beneath this tiddler's subtitle! Any tiddler with fields listed in `$:/config/slipstream/default-property-fields` (or a per-tiddler `ss-fields` field) renders interactive property pills automatically.
+#* Notice the `status: Active` and `version: 0.1.0` pills right below this tiddler's title! You can configure which fields become pills in [[$:/ControlPanel]] → ''Settings'' → ''Slipstream'', or specify them per-tiddler with the `ss-fields` field.
 # ''Mobile Single-Tiddler (`zoomin`) Mode (`< 1024px`)'':
-#* Resize your browser window narrower than `1024px` (or open DevTools device emulation) to see the story river automatically switch from `classic` to `zoomin`, revealing the ''Open Tiddler Pill Strip'', ''Fixed Bottom Navigation Bar'', and slide-up ''Zoomed Tiddler Options Sheet (`•••`)''.
-# ''100% Generic & Configurable'':
-#* Open [[$:/ControlPanel]] → ''Settings'' → ''Slipstream'' to customize pinned filters, mobile bottom bar shortcuts, reading widths, and breakpoints.
+#* Resize your browser window narrower than `1024px` (or open browser device emulation) to experience the mobile zoomin view: an open tiddler pill strip, bottom navigation bar, and slide-up action sheet (`•••`).
+# ''Extensible & Native'':
+#* Built entirely with TiddlyWiki v5.4.0+ features: `\function`, `\procedure`, `\widget`, `@media`, and `--tpc-*` / `--tp-*` native palette variables.
 
 ---
 
-!! Explore Sample Content
+!! Explore the Showcase Notes
 
-* [[Journal Dashboard]] — Daily logs rendered in a responsive grid.
-* [[Project Dashboard]] — Tasks and project progress indicators with custom color accents.
-* [[Media Hub]] — Media library tracking books like [[The Pragmatic Programmer]].
-* [[Slipstream v1 Launch]] — Active roadmap item tracking project tasks.
+* [[Knowledge Base]] — A wide-layout index demonstrating how `<$ss.hero>`, `<$ss.grid>`, and `<$ss.card>` organize topics.
+* [[Writing & Typography]] — Longform writing comfort, typographic hierarchy, callouts, and live outline extraction in the inspector.
+* [[Slipstream UI Primitives]] — Interactive reference and code snippets for Slipstream's built-in widgets.
+* [[Connecting Ideas & Backlinks]] — Harnessing bidirectional linking and inspecting incoming references.
+* [[Customizing Slipstream]] — How to customize pinned shortcuts, inspector tabs, breakout widths, and palettes.
+* [[$:/plugins/mblackman/slipstream/docs|Slipstream Reference & Knowledge Base (Bundled)]] — Complete documentation bundled in the plugin package for all installs.

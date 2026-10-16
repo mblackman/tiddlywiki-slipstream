@@ -1,0 +1,43 @@
+title: $:/plugins/mblackman/slipstream/docs/connections
+caption: Connections & Inspector
+tags: $:/tags/Slipstream/Docs
+order: 3
+type: text/vnd.tiddlywiki
+
+Slipstream connects your notes through TiddlyWiki's non-linear linking architecture, augmented by a context-aware **Right Inspector** on desktop and a thumb-friendly **Mobile Zoomin Experience** below `1024px`.
+
+---
+
+! 1. Bidirectional Linking
+
+In TiddlyWiki, links between notes are established with `[[Target Note]]`.
+
+* **Outbound links**: Directly embedded inside your note prose.
+* **Inbound backlinks**: References from other notes pointing to the current note.
+
+Slipstream surfaces backlinks in real time, making serendipitous discovery and knowledge gardening effortless.
+
+---
+
+! 2. The Right Context Inspector
+
+On screens `>= 1024px`, the Right Inspector provides contextual awareness for the active note:
+
+* **Synchronized State**: Bound to `{$:/HistoryList!!current-tiddler}`. If a note is closed or deleted, the inspector automatically falls back to the top of `$:/StoryList`.
+* **Toggle Shortcut**: Click the `◨` icon in the desktop Top Bar to show or hide the inspector.
+
+!! Built-in Inspector Tabs
+
+# **Outline Tab**: Lists all headings (`!`, `!!`, `!!!`) in the note as clickable jump links.
+# **Backlinks Tab**: Evaluates `[all[tiddlers]!has[draft.of]backlinks<currentTiddler>]` to reveal every incoming reference.
+# **Details Tab**: Shows creation date, modification timestamp, tags, and custom fields.
+
+---
+
+! 3. Mobile Zoomin Experience (`< 1024px`)
+
+When viewed on mobile phones or tablets, Slipstream transitions from the 3-column desktop layout to an optimized single-tiddler reading experience:
+
+* **Top Pill Strip**: Horizontally scrollable chips representing all open tiddlers, with active indicators and one-tap close buttons.
+* **Bottom Navigation Bar**: Fixed at the bottom of the screen with quick access to Home, Search, New Note, and the Action Sheet.
+* **Slide-Up Action Sheet (`•••`)**: A fixed-height (82dvh) sheet containing full touch-target action buttons and tabbed access to the Inspector.

@@ -27,11 +27,17 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     expect(pluginTiddler.fields.name).toBe("Slipstream");
     expect(pluginTiddler.fields["core-version"]).toBe(">=5.4.0");
     expect(pluginTiddler.fields["plugin-type"]).toBe("plugin");
+    expect(pluginTiddler.fields.list).toEqual(["readme", "docs", "settings"]);
   });
 
   test("registers all expected shadow tiddlers", () => {
     const expectedShadows = [
       "$:/plugins/mblackman/slipstream/readme",
+      "$:/plugins/mblackman/slipstream/docs",
+      "$:/plugins/mblackman/slipstream/docs/primitives",
+      "$:/plugins/mblackman/slipstream/docs/writing",
+      "$:/plugins/mblackman/slipstream/docs/connections",
+      "$:/plugins/mblackman/slipstream/docs/customization",
       "$:/plugins/mblackman/slipstream/settings",
       "$:/plugins/mblackman/slipstream/styles/core.css",
       "$:/plugins/mblackman/slipstream/templates/wide-body",
@@ -45,6 +51,7 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
       "$:/plugins/mblackman/slipstream/ui/WideViewWrapper",
       "$:/plugins/mblackman/slipstream/widgets/ui-primitives",
       "$:/plugins/mblackman/slipstream/storyviews/fade.js",
+      "$:/plugins/mblackman/slipstream/startup/sync-history.js",
       "$:/config/ui/SideBar/More/horizontal",
     ];
 
@@ -98,7 +105,7 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     // Open DefaultTiddlers into $:/StoryList as TiddlyWiki startup does
     $tw.wiki.addTiddler({
       title: "$:/StoryList",
-      list: "[[Welcome to Slipstream]] [[Journal Dashboard]] [[Project Dashboard]]",
+      list: "[[Welcome to Slipstream]] [[Knowledge Base]] [[Slipstream UI Primitives]]",
     });
     $tw.wiki.addTiddler({
       title: "$:/info/browser/window/system/main/client/width",
@@ -120,11 +127,10 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     expect(html).toContain("mn-story-container");
     expect(html).toContain("mn-panel-right");
 
-    // Verify Pinned Shortcuts in LeftNav rendered demo dashboards
+    // Verify Pinned Shortcuts in LeftNav rendered demo showcase notes
     expect(html).toContain("Welcome");
-    expect(html).toContain("Journal");
-    expect(html).toContain("Projects");
-    expect(html).toContain("Media");
+    expect(html).toContain("Index");
+    expect(html).toContain("Components");
 
     // Verify custom widgets rendered inside the story river
     expect(html).toContain("mn-hero");
@@ -132,6 +138,23 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     expect(html).toContain("mn-card");
     expect(html).toContain("mn-prop-pill");
     expect(html).toContain("mn-progress-track");
+
+    // Verify clean desktop TopBar: center search & right inspector toggle present,
+    // but no redundant New Note, settings cog, or mobile search button
+    const topBarHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/TopBar"
+    );
+    expect(topBarHtml).toContain("mn-search-input");
+    expect(topBarHtml).toContain("Toggle Right Context Inspector");
+    expect(topBarHtml).not.toContain("+ New Note");
+    expect(topBarHtml).not.toContain("Open Control Panel");
+    expect(topBarHtml).not.toContain("Search notes");
+
+    // Verify LeftNav pinned shortcuts settings button targets Slipstream settings tab in ControlPanel
+    const leftNavText = $tw.wiki.getTiddlerText("$:/plugins/mblackman/slipstream/ui/LeftNav");
+    expect(leftNavText).toContain("$:/core/ui/ControlPanel/Settings");
+    expect(leftNavText).toContain("$:/plugins/mblackman/slipstream/settings");
   });
 
   test("switches to mobile fade mode with pill strip and bottom bar below 1024px", () => {
@@ -197,7 +220,7 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     const wideHtml = $tw.wiki.renderTiddler(
       "text/html",
       "$:/core/ui/StoryTiddlerTemplate",
-      { variables: { currentTiddler: "Journal Dashboard" } }
+      { variables: { currentTiddler: "Knowledge Base" } }
     );
     expect(wideHtml).toContain("mn-wide-view");
   });
@@ -228,4 +251,101 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     // Ensure mobile rule floats above the mobile bottom bar
     expect(css).toMatch(/\.tc-drafts-list\s*\{[^}]*bottom:\s*calc\(var\(--mn-bottombar-height\)/s);
   });
+
+  test("updates desktop open tiddler title when deleting or closing the focused note", () => {
+    // Set up StoryList with Note A and Note B, with Note A focused
+    $tw.wiki.addTiddler({
+      title: "$:/StoryList",
+      list: "[[Note A]] [[Note B]]",
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/HistoryList",
+      "current-tiddler": "Note A",
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/info/browser/window/system/main/client/width",
+      text: "1440",
+    });
+
+    // Helper function to evaluate .active-tiddler in widget context
+    const getActiveTiddler = () =>
+      $tw.wiki
+        .renderText(
+          "text/plain",
+          "text/vnd.tiddlywiki",
+          "\\import [[$:/plugins/mblackman/slipstream/ui/TopBar]]\n<<.active-tiddler>>"
+        )
+        .trim();
+
+    // Verify .active-tiddler() returns Note A
+    expect(getActiveTiddler()).toBe("Note A");
+
+    let topBarHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/TopBar"
+    );
+    expect(topBarHtml).toContain("Note A");
+
+    // Simulate deleting Note A (Note A is removed from wiki & StoryList, but HistoryList is stale)
+    $tw.wiki.addTiddler({
+      title: "$:/StoryList",
+      list: "[[Note B]]",
+    });
+    $tw.wiki.deleteTiddler("Note A");
+
+    // .active-tiddler() falls back to the next open note in StoryList (Note B)
+    expect(getActiveTiddler()).toBe("Note B");
+
+    topBarHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/TopBar"
+    );
+    expect(topBarHtml).not.toContain("Note A");
+    expect(topBarHtml).toContain("Note B");
+
+    // Simulate closing all tiddlers (empty StoryList)
+    $tw.wiki.addTiddler({
+      title: "$:/StoryList",
+      list: "",
+    });
+    expect(getActiveTiddler()).toBe("");
+
+    topBarHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/TopBar"
+    );
+    expect(topBarHtml).not.toContain("mn-breadcrumb-current");
+  });
+
+  test("renders tiddler dropdown menu (.tc-drop-down) as a clean vertical list without squished buttons", () => {
+    const css = fs.readFileSync(path.join(PLUGIN_DIR, "styles/core.css"), "utf8");
+
+    // Ensure icon button 30px constraint excludes dropdown buttons
+    expect(css).toMatch(/\.mn-story-container \.tc-tiddler-controls button:not\(\.tc-drop-down button\)/);
+
+    // Ensure hidden dropdown elements are strictly suppressed
+    expect(css).toMatch(/\.tc-drop-down\[hidden\][^}]*display:\s*none !important/s);
+
+    // Ensure .tc-drop-down is flex column with elevated card radius and shadow
+    expect(css).toMatch(/\.tc-drop-down:not\(\[hidden\]\)\s*\{[^}]*display:\s*flex/s);
+    expect(css).toMatch(/\.tc-drop-down:not\(\[hidden\]\)\s*\{[^}]*flex-direction:\s*column/s);
+    expect(css).toMatch(/\.tc-drop-down:not\(\[hidden\]\)\s*\{[^}]*min-width:\s*220px/s);
+    expect(css).toMatch(/\.tc-drop-down:not\(\[hidden\]\)\s*\{[^}]*border-radius:\s*var\(--mn-radius-card\)/s);
+
+    // Ensure dropdown buttons have 100% width, full touch target, and inline alignment
+    expect(css).toMatch(/\.tc-drop-down button,\s*\.tc-drop-down a\s*\{[^}]*width:\s*100% !important/s);
+    expect(css).toMatch(/\.tc-drop-down button,\s*\.tc-drop-down a\s*\{[^}]*min-height:\s*32px !important/s);
+    expect(css).toMatch(/\.tc-drop-down button,\s*\.tc-drop-down a\s*\{[^}]*display:\s*flex !important/s);
+
+    // Ensure dropdown button icons and text are properly dimensioned and inline
+    expect(css).toMatch(/\.tc-drop-down button svg,\s*\.tc-drop-down a svg\s*\{[^}]*width:\s*15px !important/s);
+    expect(css).toMatch(/\.tc-drop-down \.tc-btn-text\s*\{[^}]*display:\s*inline !important/s);
+
+    // Ensure reveal containers inside dropdown expand to full width
+    expect(css).toMatch(/\.tc-drop-down \.tc-reveal:not\(\[hidden\]\)\s*\{[^}]*display:\s*block/s);
+
+    // Ensure tiddler frame with open dropdown is elevated above sibling tiddler frames
+    expect(css).toMatch(/\.tc-tiddler-frame:has\(\.tc-drop-down:not\(\[hidden\]\)\)[^}]*z-index:\s*50/s);
+  });
 });
+

@@ -1,0 +1,63 @@
+title: $:/plugins/mblackman/slipstream/docs/customization
+caption: Customization
+tags: $:/tags/Slipstream/Docs
+order: 4
+type: text/vnd.tiddlywiki
+
+Slipstream is designed to be shaped around your workflow using standard TiddlyWiki tagging conventions and configuration tiddlers. You never need to modify theme core code.
+
+---
+
+! 1. Pinned Navigation Shortcuts
+
+You can pin notes, hubs, and frequently visited topics to the **Left Navigation Rail**:
+
+* Tag any note with `[[$:/tags/Pinned]]`.
+* (Optional) Add a `caption` field (e.g. `Index`, `Writing`, `Projects`).
+* (Optional) Add an `ss-icon` field (e.g. `🗂️`, `✍️`, `🌊`) or standard `icon` field.
+* Reorder pinned shortcuts by editing the tag list in [[$:/tags/Pinned]] or using drag-and-drop in [[$:/ControlPanel]].
+
+To customize the filter used for pinned shortcuts, edit `$:/config/slipstream/pinned-filter` in [[$:/plugins/mblackman/slipstream/settings]].
+
+---
+
+! 2. Wide Layout Breakout (`1120px`)
+
+By default, Slipstream centers notes at `840px` for reading comfort.
+
+When you want a tiddler to expand to full dashboard width (`1120px`):
+* Tag the note `Wide`, OR
+* Add the field `page-width: wide`.
+
+You can customize the breakout filter (`$:/config/slipstream/wide-filter`) or container width (`$:/config/slipstream/wide-width`) in Settings.
+
+---
+
+! 3. Mobile Bottom Bar Shortcuts
+
+The fixed mobile bottom bar can host up to 4 quick-action shortcuts:
+* Tag any tiddler with `[[$:/tags/Slipstream/BottomBar]]`.
+* Alternatively, list tiddler titles in `$:/config/slipstream/mobile-shortcuts`.
+
+---
+
+! 4. Extensible Context Inspector Tabs
+
+The Right Context Inspector can be extended with your own custom tabs:
+
+1. Create a new tiddler.
+2. Tag it with `[[$:/tags/Slipstream/InspectorTab]]`.
+3. Add a `caption` field (e.g. `Graph`, `Tasks`, or `Citations`).
+4. Add an `order` field (e.g. `40`) to control tab placement.
+5. In the body, write any wikitext or filter you wish.
+
+Your custom tab will automatically render in both the desktop Right Inspector and the mobile bottom sheet!
+
+---
+
+! 5. Inline Property Header Pills
+
+Slipstream can render metadata fields as sleek pills directly underneath the tiddler title:
+
+* **Global Defaults**: Listed in `$:/config/slipstream/default-property-fields` (default: `status priority mood rating media-type creator due-date`).
+* **Per-Note Override**: Add an `ss-fields` field to any tiddler with a space-separated list of field names (e.g. `ss-fields: version author license`).

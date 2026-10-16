@@ -1,0 +1,73 @@
+title: Customizing Slipstream
+tags: Guide
+caption: Customization
+ss-icon: ⚙️
+topic: Configuration
+difficulty: Beginner
+description: Tailoring pinned shortcuts, inspector tabs, color palettes, and breakout widths.
+modified: 20261016160000000
+created: 20261016120000000
+
+Slipstream is designed to be deeply customizable using vanilla TiddlyWiki conventions. You do not need to edit theme code or write JavaScript to shape your workspace.
+
+---
+
+! 1. Pinned Navigation Shortcuts
+
+You can pin your most important dashboards, indexes, or frequent notes directly to the **Left Navigation Rail**:
+
+# Open any note you want to pin.
+# Add the tag `[[$:/tags/Pinned]]`.
+# (Optional) Add a `caption` field (for display text) and an `ss-icon` field (e.g. `🗂️`, `✍️`, `🌊`).
+# (Optional) Reorder your pinned list by modifying `$:/tags/Pinned` or dragging items in [[$:/ControlPanel]].
+
+Currently pinned in this wiki: [[Welcome to Slipstream]], [[Knowledge Base]], and [[Slipstream UI Primitives]].
+
+---
+
+! 2. Wide Layout Breakout (`1120px`)
+
+By default, Slipstream centers tiddlers at `840px` (`72ch`) for reading comfort.
+
+When you need extra screen space for wide data tables, kanban columns, or card grids:
+* Add the tag `Wide` to the note, OR
+* Set the field `page-width: wide`.
+
+The tiddler will immediately expand to `1120px` (controlled by `--mn-wide-width`).
+
+---
+
+! 3. Inline Object Property Pills
+
+Notice the `topic: Configuration` and `difficulty: Beginner` pills at the top of this note!
+
+* **Global Defaults**: Defined in [[$:/config/slipstream/default-property-fields]].
+* **Per-Note Override**: Add an `ss-fields` field containing a space-separated list of field names (e.g. `status priority due assignee`) to render those specific properties as pills on that note.
+
+---
+
+! 4. Custom Inspector Tabs
+
+The Right Context Inspector is fully extensible via TiddlyWiki tags:
+
+# Create a new tiddler.
+# Tag it with `[[$:/tags/Slipstream/InspectorTab]]`.
+# Add a `caption` field (e.g. `Notes`, `Tasks`, or `Graph`).
+# Add an `order` field (e.g. `40`) to specify tab position.
+# Write your custom filter, list, or transclusion in the tiddler body.
+
+It will immediately appear as a new tab in the Right Inspector!
+
+---
+
+! 5. Native Palettes & Dark Mode
+
+Slipstream uses standard TiddlyWiki v5.4.0+ CSS design tokens (`--tpc-*` and `--tp-*`). When you switch palettes in [[$:/ControlPanel]] → **Palette** (such as Vanilla, Solarized, Gruvbox, or Nord), Slipstream seamlessly adapts its background, borders, buttons, and text colors.
+
+---
+
+!! Further Exploration
+
+* [[Welcome to Slipstream]] — Overview of core workspace features
+* [[Knowledge Base]] — See pinned shortcuts and breakout layouts in action
+* [[Slipstream UI Primitives]] — Reference for building custom dashboards
