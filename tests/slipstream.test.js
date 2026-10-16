@@ -472,7 +472,7 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     expect(unscopedSelectors).toEqual([]);
   });
 
-  test("extracts document headings in RightInspector Outline tab and handles empty story river cleanly", () => {
+  test("extracts document headings in RightInspector Outline tab, excludes numbered lists, normalizes hierarchy depth, and handles empty story river", () => {
     $tw.wiki.addTiddler({
       title: "$:/StoryList",
       list: ["Writing & Typography"],
@@ -496,9 +496,29 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     expect(outlineHtml).toContain("Level 1 Heading: The Foundation");
     expect(outlineHtml).toContain("Level 2 Heading: Formatting Elements");
     expect(outlineHtml).toContain("Level 3 Heading: Quotes &amp; Callouts");
-    expect(outlineHtml).toContain("mn-outline-level-1");
-    expect(outlineHtml).toContain("mn-outline-level-2");
-    expect(outlineHtml).toContain("mn-outline-level-3");
+    expect(outlineHtml).toContain("mn-outline-depth-1");
+    expect(outlineHtml).toContain("mn-outline-depth-2");
+    expect(outlineHtml).toContain("mn-outline-depth-3");
+
+    // Verify Welcome to Slipstream (which starts with !! h2 headings and has # numbered lists)
+    // normalizes !! headings to depth 1 and does NOT include # numbered list items!
+    $tw.wiki.addTiddler({
+      title: "$:/StoryList",
+      list: ["Welcome to Slipstream"],
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/HistoryList",
+      "current-tiddler": "Welcome to Slipstream",
+    });
+    const welcomeOutlineHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/RightInspector"
+    );
+    expect(welcomeOutlineHtml).toContain("Key Features You Can Test Right Now");
+    expect(welcomeOutlineHtml).toContain("Explore the Showcase Notes");
+    expect(welcomeOutlineHtml).toContain("mn-outline-depth-1");
+    expect(welcomeOutlineHtml).not.toContain("Three-Column Desktop Workspace");
+    expect(welcomeOutlineHtml).not.toContain("Inline Object Property Pills");
 
     // Empty story river renders clean fallback without empty focus card
     $tw.wiki.addTiddler({

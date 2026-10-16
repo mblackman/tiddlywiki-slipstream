@@ -53,28 +53,40 @@ type: text/vnd.tiddlywiki
 				<!-- Tab 2: Document Headings Outline -->
 				<%if [{$:/state/slipstream/inspector-tab}match[Outline]] %>
 					<h4 class="mn-nav-heading">Document Outline</h4>
-					<div class="mn-outline-list">
-						<$list
-							filter="[<activeTiddler>get[text]splitregexp[\n]trim[]regexp[^(!{1,4}|#{1,4})\s+]]"
-							variable="headingLine"
-							emptyMessage="<p class='mn-prop-label'>No headings in this note.</p>"
-						>
-							<$let
-								marker={{{ [<headingLine>split[ ]first[]] }}}
-								level={{{ [<marker>length[]] }}}
-								cleanText={{{ [<headingLine>search-replace:g:regexp[^(!{1,4}|#{1,4})\s+],[]search-replace:g[''],[]search-replace:g[//],[]search-replace:g[`],[]trim[]] }}}
+					<$let
+						minLevel={{{ [<activeTiddler>get[text]splitregexp[\n]trim[]regexp[^!+\s+]] :map[split[ ]first[]length[]] +[minall[]] ~[[1]] }}}
+					>
+						<div class="mn-outline-list">
+							<$list
+								filter="[<activeTiddler>get[text]splitregexp[\n]trim[]regexp[^!+\s+]]"
+								variable="headingLine"
+								counter="headingCounter"
+								emptyMessage="<p class='mn-prop-label'>No headings in this note.</p>"
 							>
-								<$button
-									to=<<activeTiddler>>
-									class={{{ [[mn-nav-item mn-outline-item tc-btn-invisible]] [[mn-outline-level-]addsuffix<level>] +[join[ ]] }}}
-									tooltip=<<cleanText>>
+								<$let
+									marker={{{ [<headingLine>split[ ]first[]] }}}
+									rawLevel={{{ [<marker>length[]] }}}
+									relDepth={{{ [<rawLevel>subtract<minLevel>add[1]max[1]min[4]] }}}
+									headingIdx={{{ [<headingCounter>subtract[1]] }}}
+									cleanText={{{ [<headingLine>search-replace:g:regexp[^!{1,6}\s*],[]search-replace:g[''],[]search-replace:g[//],[]search-replace:g[`],[]search-replace:g[~~],[]trim[]] }}}
 								>
-									<span class="mn-outline-bullet">•</span>
-									<span class="mn-outline-text"><$text text=<<cleanText>>/></span>
-								</$button>
-							</$let>
-						</$list>
-					</div>
+									<$button
+										class={{{ [[mn-nav-item mn-outline-item tc-btn-invisible]] [[mn-outline-depth-]addsuffix<relDepth>] [[mn-outline-level-]addsuffix<rawLevel>] +[join[ ]] }}}
+										tooltip=<<cleanText>>
+									>
+										<$action-sendmessage
+											$message="tm-slipstream-scroll-heading"
+											tiddler=<<activeTiddler>>
+											index=<<headingIdx>>
+											heading=<<cleanText>>
+										/>
+										<span class="mn-outline-marker"/>
+										<span class="mn-outline-text"><$text text=<<cleanText>>/></span>
+									</$button>
+								</$let>
+							</$list>
+						</div>
+					</$let>
 				<%endif%>
 
 				<!-- Tab 3: Inline Fields & Properties -->
