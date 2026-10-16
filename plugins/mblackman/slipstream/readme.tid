@@ -2,7 +2,7 @@ title: $:/plugins/mblackman/slipstream/readme
 type: text/vnd.tiddlywiki
 
 \whitespace trim
-<h3>Slipstream Theme & Layout (v0.1.0 for TiddlyWiki v5.4.0+)</h3>
+<h3>Slipstream Theme & Layout (<$text text={{{ [[$:/plugins/mblackman/slipstream]get[version]addprefix[v]] }}}/> for TiddlyWiki v5.4.0+)</h3>
 <p>A modern, generic 3-column desktop reading workspace and mobile <code>fade</code> single-tiddler layout with native UI primitives.</p>
 <ul>
 	<li><strong>Activate Layout:</strong> Press <kbd>Ctrl+Shift+L</kbd> (or go to <em>Control Panel → Appearance → Layout</em>) and select <strong>Slipstream</strong>.</li>

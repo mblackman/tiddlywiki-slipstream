@@ -376,10 +376,12 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     // Ensure Tools tab items are styled as clean horizontal rows
     expect(css).toMatch(/\.mn-sidebar-tabs-section \.tc-sidebar-tools-item\s*\{[^}]*display:\s*flex !important/s);
 
-    // Ensure workspace main tabs are evenly distributed (flex: 1 1 0)
-    expect(css).toMatch(/\.mn-sidebar-tabs-section \.tc-sidebar-tabs-main > \.tc-tab-buttons button[^{]*\{[^}]*flex:\s*1 1 0 !important/s);
+    // Ensure sidebar navigation tabs wrap properly and auto-size to support arbitrarily many choices without clipping
+    expect(css).toMatch(/\.mn-sidebar-tabs-section \.tc-sidebar-tabs-main > \.tc-tab-buttons[^{]*\{[^}]*flex-wrap:\s*wrap !important/s);
+    expect(css).toMatch(/\.mn-sidebar-tabs-section \.tc-sidebar-tabs-main > \.tc-tab-buttons button[^{]*\{[^}]*flex:\s*0 1 auto !important/s);
+    expect(css).toMatch(/\.mn-sidebar-tabs-section\.mn-tabs-scroll \.tc-sidebar-tabs-main > \.tc-tab-buttons[^{]*\{[^}]*overflow-x:\s*auto !important/s);
 
-    // Verify LeftNav rendered on mobile contains mobile close drawer button
+    // Verify LeftNav rendered on mobile contains mobile close drawer button and default Navigation heading
     $tw.wiki.addTiddler({
       title: "$:/info/browser/window/system/main/client/width",
       text: "390",
@@ -390,6 +392,7 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     );
     expect(leftNavHtml).toContain("mn-mobile-only");
     expect(leftNavHtml).toContain("Close drawer");
+    expect(leftNavHtml).toContain("Navigation");
 
     // Verify custom Open Tiddlers section was removed from LeftNav in favor of built-in Open tab
     expect(leftNavHtml).not.toContain("Open Tiddlers (");

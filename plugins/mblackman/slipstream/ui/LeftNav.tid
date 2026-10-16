@@ -54,9 +54,18 @@ type: text/vnd.tiddlywiki
 		</section>
 	</$list>
 
-	<!-- Section 4: Standard TiddlyWiki Sidebar Tabs (Open, Recent, Tools, More) -->
-	<section class="mn-nav-section mn-sidebar-tabs-section">
-		<h3 class="mn-nav-heading">Workspace Tabs</h3>
+	<!-- Section 4: Standard TiddlyWiki Sidebar Tabs (Open, Recent, Tools, More, and custom tabs) -->
+	<section class={{{ [[mn-nav-section mn-sidebar-tabs-section]] [{$:/config/slipstream/sidebar-tabs-style}match[scroll]then[mn-tabs-scroll]] +[join[ ]] }}}>
+		<h3 class="mn-nav-heading">
+			<span><$text text={{{ [{$:/config/slipstream/sidebar-tabs-heading}!is[blank]else[Navigation]] }}}/></span>
+			<$button class="tc-btn-invisible" tooltip="Customize sidebar navigation in Slipstream Settings">
+				<$action-setfield $tiddler="$:/state/tab-1749438307" text="$:/core/ui/ControlPanel/Settings"/>
+				<$action-setfield $tiddler="$:/state/tab--697582678" text="$:/plugins/mblackman/slipstream/settings"/>
+				<$action-navigate $to="$:/ControlPanel"/>
+				⚙
+			</$button>
+		</h3>
 		{{$:/core/ui/SideBarSegments/tabs}}
 	</section>
 </div>
+
