@@ -1,142 +1,65 @@
-# Slipstream — Modern 3-Column & Mobile Layout for TiddlyWiki v5.4.0+
+# Slipstream
+
+A modern, distraction-free workspace and responsive layout for **[TiddlyWiki](https://tiddlywiki.com)** (v5.4.0+).
 
 [![CI](https://github.com/mblackman/tiddlywiki-slipstream/actions/workflows/ci.yml/badge.svg)](https://github.com/mblackman/tiddlywiki-slipstream/actions/workflows/ci.yml)
 [![Latest Release](https://img.shields.io/github/v/release/mblackman/tiddlywiki-slipstream?color=blue)](https://github.com/mblackman/tiddlywiki-slipstream/releases)
-[![TiddlyWiki Version](https://img.shields.io/badge/TiddlyWiki-%3E%3D5.4.0-darkgreen.svg)](https://tiddlywiki.com/static/Release%25205.4.0.html)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Live Demo](https://img.shields.io/badge/Demo-Interactive%20Wiki-brightgreen)](https://mblackman.github.io/tiddlywiki-slipstream/)
+[![Live Demo](https://img.shields.io/badge/Demo-Interactive%20Preview-brightgreen)](https://mblackman.github.io/tiddlywiki-slipstream/)
 
-**Slipstream** (`$:/plugins/mblackman/slipstream`) is a modern, responsive page layout theme and UI component toolkit for **[TiddlyWiki v5.4.0+](https://tiddlywiki.com/static/Release%25205.4.0.html)**.
+Slipstream transforms TiddlyWiki into a polished, modern note-taking experience inspired by tools like Craft, Capacities, Obsidian, and Nicolas Petton's Notebook theme.
 
-Inspired by modern note-taking workspaces like [Craft](https://www.craft.do/), [Capacities](https://capacities.io/), [Obsidian](https://obsidian.md/), and Nicolas Petton's iconic [Notebook Theme](https://tiddlywiki.com/static/%2522Notebook%2520theme%2522%2520by%2520Nicolas%2520Petton.html), Slipstream provides an ergonomic 3-column desktop workspace, a fluid single-tiddler mobile experience, dynamic wide breakout views, and reusable UI widgets.
-
-👉 **[Launch Interactive Live Demo](https://mblackman.github.io/tiddlywiki-slipstream/)**
+👉 **[Try the Live Demo](https://mblackman.github.io/tiddlywiki-slipstream/)**
 
 ---
 
-## ✨ Features
+## Why Slipstream?
 
-### 🖥️ 3-Column Desktop Workspace (`>= 1024px`)
-* **Collapsible Left Navigation Rail**: Access your pinned dashboard notes, active story river list, recent history, and extensible sidebar sections with smooth collapse animation (`⌥` shortcut or `☰` button).
-* **Distraction-Free Reading Column**: Standard prose notes remain centered at an ergonomic measure of `72ch` (`840px`), eliminating eye fatigue on ultra-wide desktop monitors.
-* **Context-Aware Right Inspector**: Stays synchronized with the focused note (`{$:/HistoryList!!current-tiddler}`) and provides:
-  * **Backlinks**: Instant real-time view of incoming references.
-  * **Document Outline**: Automatic hierarchical table of contents (`!`, `!!`, `!!!`) with smooth jump scrolling.
-  * **Fields Manager**: Inspect, edit, add, and remove tiddler fields inline without entering edit mode.
-  * **Extensible Tabs**: Add custom inspector views simply by tagging tiddlers with `$:/tags/Slipstream/InspectorTab`.
-
-### 📱 Fluid Mobile `fade` Experience (`< 1024px`)
-* **Single-Tiddler Focus**: Seamlessly transitions from desktop multi-column view to an uncluttered single-tiddler reading mode with hardware-accelerated cross-fading.
-* **Per-Note Scroll Restoration**: Remembers your exact reading position when switching back and forth between open tiddlers.
-* **Horizontal Switcher Strip**: Swipe through open tiddlers from a pinned top pill bar.
-* **Thumb-Zone Bottom Navigation**: Fast access to core navigation, search, and creation from comfortable lower screen reach. Contextually switches between reading and editing modes.
-* **Slide-Up Action Sheet**: Clean bottom sheet drawer for note toolbar actions (`$:/tags/ViewToolbar`).
-
-### ↔️ Dynamic Wide Breakout Layout (`1120px`)
-* Dashboards, kanban boards, media hubs, and data tables automatically expand from standard reading width (`840px`) to full container width (`1120px`).
-* Trigger wide breakout on any note by tagging it `Wide` or adding the field `page-width: wide`.
-
-### 🧩 UI Primitives Toolkit
-Included out-of-the-box via global custom widgets (`$:/tags/Global`):
-* `<$ss.hero title="..." subtitle="..." />`: Showcase hero headers for dashboards and indexes.
-* `<$ss.grid min="240px">`: Responsive CSS Grid that auto-fits columns according to viewport size.
-* `<$ss.card badge="..." accent="...">`: Clean surface containers with subtle borders and hover elevation.
-* `<$ss.prop-pill name="..." value="..." />`: Metadata property badges (supports static attributes or dynamic tiddler fields with select options).
-* `<$ss.progress value="..." total="..." />`: Adaptive progress bars with percentage calculations.
-
-### 🎨 Native Design Tokens & Zero CSS Bleed
-* **Zero Global CSS Leakage**: Every stylesheet rule is strictly scoped under `.mn-app-shell`. Switch seamlessly between Slipstream and any other TiddlyWiki theme with `Ctrl+Shift+L` with zero style collisions or broken core layouts.
-* **Palette Agnostic**: 100% of theme colors derive directly from native TiddlyWiki v5.4.0 `--tpc-*` CSS variables, ensuring perfect contrast across light, dark, and custom palettes.
-* **100% Generic & Configurable**: No hardcoded personal titles or rigid opinions. Everything is driven by tags (`$:/tags/Pinned`, `$:/tags/Slipstream/LeftNav`, etc.) and configuration tiddlers in `$:/config/slipstream/*`.
+* 📖 **Distraction-Free Writing**: Notes stay centered at a comfortable reading width so your eyes don't get tired scanning wide desktop monitors.
+* 🧭 **3-Column Desktop Workspace**: Keep your navigation on the left, your writing in the center, and contextual info on the right. Both side panels collapse smoothly whenever you want total focus.
+* 🔍 **Right Context Inspector**: Stay in flow with instant access to backlinks, an auto-generated table of contents with jump links, and an inline field manager for the note you're reading.
+* 📱 **First-Class Mobile Experience**: Automatically adapts to phones with smooth single-note focus, a swipeable switcher for open notes, and thumb-friendly bottom navigation.
+* ↔️ **Wide Mode for Dashboards**: Tag any note `Wide` to expand it into a full-width canvas for dashboards, kanban boards, and gallery grids.
+* 🧩 **Drop-in UI Primitives**: Build clean dashboards easily using built-in widgets for auto-fitting grids, cards, progress bars, and header banners.
+* 🎨 **Works with Any Palette**: Adapts automatically to light, dark, and community color palettes with zero contrast or readability issues.
+* 🧼 **Zero CSS Bleed**: Completely self-contained. Switch back and forth between Slipstream and standard TiddlyWiki layouts without breaking your wiki's styles.
 
 ---
 
-## 📦 Installation
+## Installation
 
-### Method 1: Drag & Drop (Easiest)
-1. Open your TiddlyWiki (v5.4.0 or newer) in your web browser.
-2. Open the [Live Demo](https://mblackman.github.io/tiddlywiki-slipstream/) or the [Latest Release](https://github.com/mblackman/tiddlywiki-slipstream/releases/latest).
-3. Drag the plugin link or `slipstream.tid` / `slipstream-plugin.json` file into your TiddlyWiki window.
-4. Click **Import** in the import modal.
-5. Save and reload your wiki. Slipstream activates automatically!
+### Drag & Drop (Fastest)
+1. Open your TiddlyWiki in a browser.
+2. Open the [Live Demo](https://mblackman.github.io/tiddlywiki-slipstream/) or grab `slipstream.tid` from the [Latest Release](https://github.com/mblackman/tiddlywiki-slipstream/releases/latest).
+3. Drag and drop the plugin file into your wiki, click **Import**, and save & reload.
 
-### Method 2: Manual Plugin Import
-1. Download `slipstream-plugin.json` or `slipstream.tid` from [Releases](https://github.com/mblackman/tiddlywiki-slipstream/releases).
-2. In your wiki, go to **$:/ControlPanel** > **Plugins** and drag the file onto the window.
-3. Save and reload.
-
-### Method 3: Node.js Edition
-Clone or symlink the plugin directory into your wiki's `plugins` folder:
+### Node.js Edition
+Clone into your wiki's `plugins` folder:
 ```bash
-cd my-wiki/plugins
-git clone https://github.com/mblackman/tiddlywiki-slipstream.git mblackman/slipstream
+git clone https://github.com/mblackman/tiddlywiki-slipstream.git plugins/mblackman/slipstream
 ```
-Add `"mblackman/slipstream"` to the `plugins` array in your `tiddlywiki.info` file:
-```json
-{
-  "plugins": [
-    "tiddlywiki/tiddlyweb",
-    "tiddlywiki/filesystem",
-    "mblackman/slipstream"
-  ]
-}
-```
+And add `"mblackman/slipstream"` to the `plugins` list in your `tiddlywiki.info`.
 
 ---
 
-## 🛠️ Customization & Usage
+## Quick Tips
 
-### Pinned Navigation Shortcuts
-Pin any note or hub to the Left Navigation Rail:
-1. Tag your note with `$:/tags/Pinned`.
-2. (Optional) Add a `caption` field for display text.
-3. (Optional) Add an `ss-icon` or `icon` field (e.g. `🗂️`, `✍️`, `🎯`).
-4. Reorder items in `$:/ControlPanel` > **Appearance** > **Toolbars** or directly inside [[$:/tags/Pinned]].
-
-### Custom Inspector Tabs
-Add custom tabs to the Right Context Inspector:
-1. Create a tiddler with your custom analysis or backlinks filter.
-2. Tag it `$:/tags/Slipstream/InspectorTab`.
-3. Add a `caption` field (e.g. `Tasks`, `History`, `Graph`).
-
-### Settings Panel
-Configure reading widths, wide breakout width, mobile breakpoints, and custom filters in:
-`$:/ControlPanel` > **Settings** > **Slipstream** (or `$:/plugins/mblackman/slipstream/settings`).
+* **Pin shortcuts**: Tag any note with `$:/tags/Pinned` to pin it to your Left Navigation rail.
+* **Make a note wide**: Add the tag `Wide` (or field `page-width: wide`) to any dashboard, table, or hub.
+* **Toggle panels**: Use `☰` to toggle the navigation rail, and click `Context` to toggle the inspector.
+* **Customize**: Open **$:/ControlPanel** > **Settings** > **Slipstream** to tweak reading widths, filters, and mobile options.
 
 ---
 
-## 💻 Development & Testing
-
-Requirements: [Node.js](https://nodejs.org/) (v18+)
+## Development
 
 ```bash
-# Clone the repository
-git clone https://github.com/mblackman/tiddlywiki-slipstream.git
-cd tiddlywiki-slipstream
-
-# Install dependencies
-npm install
-
-# Run automated tests (verifies boot, shadow tiddlers, theme invariants, zero-bleed CSS, layout rendering)
-npm test
-
-# Launch live-reloading dev server on http://127.0.0.1:8080
-npm run dev
-
-# Build distributable plugin bundle, standalone demo wiki, and CPL plugin library
-npm run build-all
+npm install        # Install dependencies
+npm test           # Run automated test suite
+npm run dev        # Start live-reloading dev server (http://127.0.0.1:8080)
+npm run build-all  # Build plugin, demo wiki, and release assets
 ```
 
-### Build Artifacts
-Running `npm run build-all` generates:
-* `build/slipstream.tid` — Single-tiddler plugin distribution
-* `build/slipstream-plugin.json` — Plugin bundle JSON
-* `dist/slipstream-plugin.json` — Production distribution release
-* `build/index.html` — Standalone offline demo wiki for GitHub Pages preview
-* `build/library/` — CPL (Community Plugin Library) metadata and index
+## License
 
----
-
-## 📄 License
-
-Distributed under the [MIT License](LICENSE). Copyright (c) 2026 Matt Blackman.
+MIT © [Matt Blackman](https://github.com/mblackman)
