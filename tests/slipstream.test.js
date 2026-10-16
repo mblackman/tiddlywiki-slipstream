@@ -53,6 +53,7 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
       "$:/plugins/mblackman/slipstream/storyviews/fade.js",
       "$:/plugins/mblackman/slipstream/startup/sync-history.js",
       "$:/config/ui/SideBar/More/horizontal",
+      "$:/core/ui/SideBar/Open",
     ];
 
     for (const title of expectedShadows) {
@@ -70,6 +71,7 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
       "ui/MobilePillStrip.tid",
       "ui/ObjectPropertyHeader.tid",
       "ui/WideViewWrapper.tid",
+      "ui/open-tab.tid",
       "templates/wide-body.tid",
       "widgets/ui-primitives.tid",
       "styles/core.css",
@@ -326,26 +328,257 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     // Ensure hidden dropdown elements are strictly suppressed
     expect(css).toMatch(/\.tc-drop-down\[hidden\][^}]*display:\s*none !important/s);
 
-    // Ensure .tc-drop-down is flex column with elevated card radius and shadow
-    expect(css).toMatch(/\.tc-drop-down:not\(\[hidden\]\)\s*\{[^}]*display:\s*flex/s);
-    expect(css).toMatch(/\.tc-drop-down:not\(\[hidden\]\)\s*\{[^}]*flex-direction:\s*column/s);
-    expect(css).toMatch(/\.tc-drop-down:not\(\[hidden\]\)\s*\{[^}]*min-width:\s*220px/s);
-    expect(css).toMatch(/\.tc-drop-down:not\(\[hidden\]\)\s*\{[^}]*border-radius:\s*var\(--mn-radius-card\)/s);
+    // Ensure .tc-drop-down is flex column with elevated card radius and shadow under .mn-app-shell
+    expect(css).toMatch(/(?:\.mn-app-shell\s+)?\.tc-drop-down:not\(\[hidden\]\)\s*\{[^}]*display:\s*flex/s);
+    expect(css).toMatch(/(?:\.mn-app-shell\s+)?\.tc-drop-down:not\(\[hidden\]\)\s*\{[^}]*flex-direction:\s*column/s);
+    expect(css).toMatch(/(?:\.mn-app-shell\s+)?\.tc-drop-down:not\(\[hidden\]\)\s*\{[^}]*min-width:\s*220px/s);
+    expect(css).toMatch(/(?:\.mn-app-shell\s+)?\.tc-drop-down:not\(\[hidden\]\)\s*\{[^}]*border-radius:\s*var\(--mn-radius-card\)/s);
 
     // Ensure dropdown buttons have 100% width, full touch target, and inline alignment
-    expect(css).toMatch(/\.tc-drop-down button,\s*\.tc-drop-down a\s*\{[^}]*width:\s*100% !important/s);
-    expect(css).toMatch(/\.tc-drop-down button,\s*\.tc-drop-down a\s*\{[^}]*min-height:\s*32px !important/s);
-    expect(css).toMatch(/\.tc-drop-down button,\s*\.tc-drop-down a\s*\{[^}]*display:\s*flex !important/s);
+    expect(css).toMatch(/(?:\.mn-app-shell\s+)?\.tc-drop-down button,\s*(?:\.mn-app-shell\s+)?\.tc-drop-down a\s*\{[^}]*width:\s*100% !important/s);
+    expect(css).toMatch(/(?:\.mn-app-shell\s+)?\.tc-drop-down button,\s*(?:\.mn-app-shell\s+)?\.tc-drop-down a\s*\{[^}]*min-height:\s*32px !important/s);
+    expect(css).toMatch(/(?:\.mn-app-shell\s+)?\.tc-drop-down button,\s*(?:\.mn-app-shell\s+)?\.tc-drop-down a\s*\{[^}]*display:\s*flex !important/s);
 
     // Ensure dropdown button icons and text are properly dimensioned and inline
-    expect(css).toMatch(/\.tc-drop-down button svg,\s*\.tc-drop-down a svg\s*\{[^}]*width:\s*15px !important/s);
-    expect(css).toMatch(/\.tc-drop-down \.tc-btn-text\s*\{[^}]*display:\s*inline !important/s);
+    expect(css).toMatch(/(?:\.mn-app-shell\s+)?\.tc-drop-down button svg,\s*(?:\.mn-app-shell\s+)?\.tc-drop-down a svg\s*\{[^}]*width:\s*15px !important/s);
+    expect(css).toMatch(/(?:\.mn-app-shell\s+)?\.tc-drop-down \.tc-btn-text\s*\{[^}]*display:\s*inline !important/s);
 
     // Ensure reveal containers inside dropdown expand to full width
-    expect(css).toMatch(/\.tc-drop-down \.tc-reveal:not\(\[hidden\]\)\s*\{[^}]*display:\s*block/s);
+    expect(css).toMatch(/(?:\.mn-app-shell\s+)?\.tc-drop-down \.tc-reveal:not\(\[hidden\]\)\s*\{[^}]*display:\s*block/s);
 
     // Ensure tiddler frame with open dropdown is elevated above sibling tiddler frames
     expect(css).toMatch(/\.tc-tiddler-frame:has\(\.tc-drop-down:not\(\[hidden\]\)\)[^}]*z-index:\s*50/s);
   });
+
+  test("properly formats LeftNav sidebar menus, page controls dropdowns, tools items, and workspace tabs", () => {
+    const css = fs.readFileSync(path.join(PLUGIN_DIR, "styles/core.css"), "utf8");
+
+    // Ensure page controls 32px constraint excludes dropdown buttons and SVGs
+    expect(css).toMatch(/\.mn-page-controls \.tc-page-controls button:not\(\.tc-drop-down button\)/);
+    expect(css).toMatch(/\.mn-page-controls \.tc-page-controls svg:not\(\.tc-drop-down svg\)/);
+
+    // Ensure LeftNav header allows dropdown menus to overflow visibly past the sidebar
+    expect(css).toMatch(/\.mn-panel-left\s*\{[^}]*overflow:\s*visible !important/s);
+    expect(css).toMatch(/\.mn-panel-left \.mn-panel-left-header\s*\{[^}]*overflow:\s*visible !important/s);
+    expect(css).toMatch(/\.mn-panel-left \.mn-panel-left-body\s*\{[^}]*overflow-y:\s*auto/s);
+    expect(css).toMatch(/\.mn-panel-left \.tc-drop-down:not\(\[hidden\]\)\s*\{[^}]*min-width:\s*240px !important/s);
+    expect(css).toMatch(/\.mn-panel-left \.tc-drop-down:not\(\[hidden\]\)\s*\{[^}]*max-height:\s*min\(75vh,\s*520px\) !important/s);
+
+    // Ensure dropdown items inside LeftNav have full-width alignment
+    expect(css).toMatch(/\.mn-panel-left \.tc-drop-down button[^{]*\{[^}]*width:\s*100% !important/s);
+
+    // Ensure Tools tab items are styled as clean horizontal rows
+    expect(css).toMatch(/\.mn-sidebar-tabs-section \.tc-sidebar-tools-item\s*\{[^}]*display:\s*flex !important/s);
+
+    // Ensure workspace main tabs are evenly distributed (flex: 1 1 0)
+    expect(css).toMatch(/\.mn-sidebar-tabs-section \.tc-sidebar-tabs-main > \.tc-tab-buttons button[^{]*\{[^}]*flex:\s*1 1 0 !important/s);
+
+    // Verify LeftNav rendered on mobile contains mobile close drawer button
+    $tw.wiki.addTiddler({
+      title: "$:/info/browser/window/system/main/client/width",
+      text: "390",
+    });
+    const leftNavHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/LeftNav"
+    );
+    expect(leftNavHtml).toContain("mn-mobile-only");
+    expect(leftNavHtml).toContain("Close drawer");
+
+    // Verify custom Open Tiddlers section was removed from LeftNav in favor of built-in Open tab
+    expect(leftNavHtml).not.toContain("Open Tiddlers (");
+
+    // Verify Open tab is registered with $:/tags/SideBar and ordered before Recent
+    const sidebarTabs = $tw.wiki.filterTiddlers(
+      "[all[shadows+tiddlers]tag[$:/tags/SideBar]!has[draft.of]]"
+    );
+    expect(sidebarTabs[0]).toBe("$:/core/ui/SideBar/Open");
+    expect(sidebarTabs).toContain("$:/core/ui/SideBar/Recent");
+
+    // Verify built-in Open tab renders styled open rows with active note pill
+    $tw.wiki.addTiddler({
+      title: "$:/StoryList",
+      list: "[[Welcome to Slipstream]] [[Knowledge Base]]",
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/HistoryList",
+      "current-tiddler": "Welcome to Slipstream",
+    });
+    const openTabHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/core/ui/SideBar/Open"
+    );
+    expect(openTabHtml).toContain("tc-sidebar-tab-open-row");
+    expect(openTabHtml).toContain("mn-nav-item-active");
+    expect(openTabHtml).toContain("Welcome");
+    expect(openTabHtml).toContain("✕");
+    expect(openTabHtml).toContain("close all");
+
+    // Ensure open-tab.tid does NOT bind history= on its <$list storyview="pop"> widget
+    // (which would cause PopStoryView.navigateTo to dispatch tm-scroll on the fixed sidebar and scroll the page to the bottom)
+    const openTabTid = fs.readFileSync(path.join(PLUGIN_DIR, "ui/open-tab.tid"), "utf8");
+    expect(openTabTid).not.toContain("history=");
+  });
+
+  test("enforces Invariant 6: zero un-scoped global selectors in styles/core.css for 100% theme compatibility", () => {
+    const css = fs.readFileSync(path.join(PLUGIN_DIR, "styles/core.css"), "utf8");
+    const blocks = css.split("}");
+    const unscopedSelectors = [];
+    for (const b of blocks) {
+      const parts = b.split("{");
+      if (parts.length >= 2) {
+        const rawSel = parts[0].trim();
+        const lines = rawSel.split("\n").map((s) => s.trim()).filter(Boolean);
+        const sel = lines.join(" ");
+        if (
+          sel &&
+          !sel.startsWith("@") &&
+          !sel.includes(".mn-") &&
+          !sel.startsWith(":root") &&
+          !sel.startsWith("/*")
+        ) {
+          unscopedSelectors.push(sel);
+        }
+      }
+    }
+    expect(unscopedSelectors).toEqual([]);
+  });
+
+  test("preserves per-tiddler scroll position and scrolls to top when switching notes on mobile", () => {
+    const views = {};
+    $tw.modules.applyMethods("storyview", views);
+    const FadeStoryView = views.fade;
+    expect(typeof FadeStoryView).toBe("function");
+
+    // Clear any previous positions
+    FadeStoryView.clearSavedPositions();
+
+    // Mock window scroll environment
+    let currentScrollY = 0;
+    const scrollToCalls = [];
+    const origWindow = global.window;
+    const origDoc = global.document;
+    const origSandboxWindow = $tw.utils.sandbox ? $tw.utils.sandbox.window : undefined;
+
+    const mockWindow = {
+      get pageYOffset() { return currentScrollY; },
+      scrollTo: jest.fn((opts) => {
+        scrollToCalls.push(opts);
+        if (typeof opts === "object" && typeof opts.top === "number") {
+          currentScrollY = opts.top;
+        } else if (typeof opts === "number") {
+          currentScrollY = opts;
+        }
+      }),
+      addEventListener: jest.fn(),
+    };
+
+    global.window = mockWindow;
+    if ($tw.utils.sandbox) {
+      $tw.utils.sandbox.window = mockWindow;
+    }
+
+    try {
+      function createMockNode() {
+        const styles = { display: "none" };
+        return {
+          nodeType: 1,
+          style: {
+            get display() { return styles.display; },
+            set display(v) { styles.display = v; },
+            removeProperty: (p) => { delete styles[p]; },
+            setProperty: (p, v) => { styles[p] = v; },
+          },
+          className: "",
+        };
+      }
+
+      // Create mock DOM nodes for Note A and Note B
+      const nodeA = createMockNode();
+      const nodeB = createMockNode();
+
+      const listWidget = {
+        wiki: $tw.wiki,
+        historyTitle: "$:/HistoryList",
+        children: [
+          {
+            parseTreeNode: { itemTitle: "Note A" },
+            findFirstDomNode: () => nodeA,
+            removeChildDomNodes: jest.fn(),
+          },
+          {
+            parseTreeNode: { itemTitle: "Note B" },
+            findFirstDomNode: () => nodeB,
+            previousSibling: () => listWidget.children[0],
+            removeChildDomNodes: jest.fn(),
+          },
+        ],
+        findListItem: (start, title) => {
+          if (title === "Note A") return 0;
+          if (title === "Note B") return 1;
+          return undefined;
+        },
+      };
+
+      // Initialize storyview with Note A active
+      $tw.wiki.setTiddlerData("$:/HistoryList", [{ title: "Note A" }], { "current-tiddler": "Note A" });
+
+      const storyView = new FadeStoryView(listWidget);
+      expect(nodeA.style.display).toBe("block");
+      expect(nodeB.style.display).toBe("none");
+      expect(storyView.currentTiddlerTitle).toBe("Note A");
+      expect(listWidget.history).toEqual([{ title: "Note A" }]);
+
+      // User scrolls Note A down to 500px
+      currentScrollY = 500;
+
+      // Switch to Note B (no state saved)
+      storyView.navigateTo({ title: "Note B" });
+
+      // Outgoing Note A's position should be saved as 500
+      expect(FadeStoryView.getSavedPosition("Note A")).toBe(500);
+
+      // Incoming Note B has no saved state -> scrolls to top (0)
+      expect(currentScrollY).toBe(0);
+      expect(nodeB.style.display).toBe("block");
+      expect(storyView.currentTiddlerTitle).toBe("Note B");
+
+      // User scrolls Note B down to 250px
+      currentScrollY = 250;
+
+      // Switch back to Note A -> should restore Note A's position at 500px!
+      storyView.navigateTo({ title: "Note A" });
+      expect(FadeStoryView.getSavedPosition("Note B")).toBe(250);
+      expect(currentScrollY).toBe(500);
+      expect(storyView.currentTiddlerTitle).toBe("Note A");
+
+      // Switch back to Note B -> should restore Note B's position at 250px!
+      storyView.navigateTo({ title: "Note B" });
+      expect(currentScrollY).toBe(250);
+
+      // Tapping active Note B again smoothly scrolls to top (0) and updates saved state
+      storyView.navigateTo({ title: "Note B" });
+      expect(currentScrollY).toBe(0);
+      expect(FadeStoryView.getSavedPosition("Note B")).toBe(0);
+
+      // Closing Note B cleans up its saved state and reveals Note A at Note A's saved position
+      storyView.remove(listWidget.children[1]);
+      expect(FadeStoryView.getSavedPosition("Note B")).toBeUndefined();
+      expect(currentScrollY).toBe(500);
+
+      // Draft tiddler inherits and preserves original tiddler's scroll position
+      expect(FadeStoryView.getSavedPosition("Draft of 'Note A'")).toBe(500);
+      FadeStoryView.setSavedPosition("Draft of 'Note A'", 620);
+      expect(FadeStoryView.getSavedPosition("Note A")).toBe(620);
+    } finally {
+      global.window = origWindow;
+      global.document = origDoc;
+      if ($tw.utils.sandbox) {
+        $tw.utils.sandbox.window = origSandboxWindow;
+      }
+      FadeStoryView.clearSavedPositions();
+    }
+  });
 });
+
 

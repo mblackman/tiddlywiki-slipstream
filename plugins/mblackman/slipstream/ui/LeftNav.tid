@@ -2,73 +2,61 @@ title: $:/plugins/mblackman/slipstream/ui/LeftNav
 type: text/vnd.tiddlywiki
 
 \whitespace trim
+\import [subfilter{$:/core/config/GlobalImportFilter}]
 \procedure default-pinned-filter() [all[shadows+tiddlers]tag[$:/tags/Pinned]!has[draft.of]]
 \function .pinned-filter() [{$:/config/slipstream/pinned-filter}!is[blank]else<default-pinned-filter>]
 \function .active-tiddler() [list[$:/StoryList]match{$:/HistoryList!!current-tiddler}] ~[list[$:/StoryList]first[]]
 
-<!-- Section 0: Standard TiddlyWiki Page Controls Toolbar (like Notebook Theme) -->
-<section class="mn-nav-section mn-page-controls">
+<!-- Section 0: Standard TiddlyWiki Page Controls Toolbar (Pinned at top with overflow:visible for floating dropdowns) -->
+<header class="mn-nav-section mn-page-controls mn-panel-left-header">
 	<h3 class="mn-nav-heading">
 		<span>Toolbar</span>
+		<$button set="$:/state/slipstream/left-panel" setTo="no" class="tc-btn-invisible mn-mobile-only" tooltip="Close drawer" aria-label="Close navigation">✕</$button>
 	</h3>
 	{{$:/core/ui/PageTemplate/pagecontrols}}
-</section>
+</header>
 
-<!-- Section 1: User-Configurable Pinned Shortcuts (Tag any tiddler $:/tags/Pinned or customize filter in Settings) -->
-<section class="mn-nav-section">
-	<h3 class="mn-nav-heading">
-		<span><$text text={{{ [{$:/config/slipstream/pinned-heading}!is[blank]else[Pinned Shortcuts]] }}}/></span>
-		<$button class="tc-btn-invisible" tooltip="Customize pinned shortcuts in Slipstream Settings">
-			<$action-setfield $tiddler="$:/state/tab-1749438307" text="$:/core/ui/ControlPanel/Settings"/>
-			<$action-setfield $tiddler="$:/state/tab--697582678" text="$:/plugins/mblackman/slipstream/settings"/>
-			<$action-navigate $to="$:/ControlPanel"/>
-			⚙
-		</$button>
-	</h3>
-	<$list filter="[subfilter<.pinned-filter>]" variable="pinItem" emptyMessage="<p class='mn-prop-label'>Tag any tiddler <code>$:/tags/Pinned</code> to pin it here.</p>">
-		<$button
-			to=<<pinItem>>
-			class={{{ [[mn-nav-item tc-btn-invisible]] [<pinItem>match<.active-tiddler>then[mn-nav-item-active]] +[join[ ]] }}}
-		>
-			<span style="display:inline-flex;align-items:center;gap:0.45rem;">
-				<%if [<pinItem>get[ss-icon]!is[blank]] %>
-					<span><$text text={{{ [<pinItem>get[ss-icon]] }}}/></span>
-				<%elseif [<pinItem>get[mn-icon]!is[blank]] %>
-					<span><$text text={{{ [<pinItem>get[mn-icon]] }}}/></span>
-				<%elseif [<pinItem>get[icon]!is[blank]] %>
-					<$transclude $tiddler={{{ [<pinItem>get[icon]] }}}/>
-				<%endif%>
-				<$view tiddler=<<pinItem>> field="caption"><$text text=<<pinItem>>/></$view>
-			</span>
-		</$button>
-	</$list>
-</section>
-
-<!-- Section 2: Open Story Switcher -->
-<section class="mn-nav-section">
-	<h3 class="mn-nav-heading">
-		<span>Open Tiddlers (<$count filter="[list[$:/StoryList]]"/>)</span>
-		<$button message="tm-close-all-tiddlers" class="tc-btn-invisible" tooltip="Close all open tiddlers">Clear</$button>
-	</h3>
-	<$list filter="[list[$:/StoryList]]" variable="openItem">
-		<div class={{{ [[mn-nav-item]] [<openItem>match<.active-tiddler>then[mn-nav-item-active]] +[join[ ]] }}}>
-			<$link to=<<openItem>> class="mn-card-title">
-				<$view tiddler=<<openItem>> field="caption"><$text text=<<openItem>>/></$view>
-			</$link>
-			<$button message="tm-close-tiddler" param=<<openItem>> class="tc-btn-invisible" tooltip="Close tiddler">✕</$button>
-		</div>
-	</$list>
-</section>
-
-<!-- Section 3: Extensible Custom LeftNav Sections ($:/tags/Slipstream/LeftNav or $:/tags/ModernNotebook/LeftNav) -->
-<$list filter="[all[shadows+tiddlers]tag[$:/tags/Slipstream/LeftNav]!has[draft.of]] [all[shadows+tiddlers]tag[$:/tags/ModernNotebook/LeftNav]!has[draft.of]] +[unique[]]" variable="navSection">
+<div class="mn-panel-left-body">
+	<!-- Section 1: User-Configurable Pinned Shortcuts (Tag any tiddler $:/tags/Pinned or customize filter in Settings) -->
 	<section class="mn-nav-section">
-		<$transclude $tiddler=<<navSection>> mode="block"/>
+		<h3 class="mn-nav-heading">
+			<span><$text text={{{ [{$:/config/slipstream/pinned-heading}!is[blank]else[Pinned Shortcuts]] }}}/></span>
+			<$button class="tc-btn-invisible" tooltip="Customize pinned shortcuts in Slipstream Settings">
+				<$action-setfield $tiddler="$:/state/tab-1749438307" text="$:/core/ui/ControlPanel/Settings"/>
+				<$action-setfield $tiddler="$:/state/tab--697582678" text="$:/plugins/mblackman/slipstream/settings"/>
+				<$action-navigate $to="$:/ControlPanel"/>
+				⚙
+			</$button>
+		</h3>
+		<$list filter="[subfilter<.pinned-filter>]" variable="pinItem" emptyMessage="<p class='mn-prop-label'>Tag any tiddler <code>$:/tags/Pinned</code> to pin it here.</p>">
+			<$button
+				to=<<pinItem>>
+				class={{{ [[mn-nav-item tc-btn-invisible]] [<pinItem>match<.active-tiddler>then[mn-nav-item-active]] +[join[ ]] }}}
+			>
+				<span style="display:inline-flex;align-items:center;gap:0.45rem;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+					<%if [<pinItem>get[ss-icon]!is[blank]] %>
+						<span><$text text={{{ [<pinItem>get[ss-icon]] }}}/></span>
+					<%elseif [<pinItem>get[mn-icon]!is[blank]] %>
+						<span><$text text={{{ [<pinItem>get[mn-icon]] }}}/></span>
+					<%elseif [<pinItem>get[icon]!is[blank]] %>
+						<$transclude $tiddler={{{ [<pinItem>get[icon]] }}}/>
+					<%endif%>
+					<$view tiddler=<<pinItem>> field="caption"><$text text=<<pinItem>>/></$view>
+				</span>
+			</$button>
+		</$list>
 	</section>
-</$list>
 
-<!-- Section 4: Standard TiddlyWiki Sidebar Tabs (Open, Recent, Tools, More) -->
-<section class="mn-nav-section mn-sidebar-tabs-section">
-	<h3 class="mn-nav-heading">Workspace Tabs</h3>
-	{{$:/core/ui/SideBarSegments/tabs}}
-</section>
+	<!-- Section 2: Extensible Custom LeftNav Sections ($:/tags/Slipstream/LeftNav or $:/tags/ModernNotebook/LeftNav) -->
+	<$list filter="[all[shadows+tiddlers]tag[$:/tags/Slipstream/LeftNav]!has[draft.of]] [all[shadows+tiddlers]tag[$:/tags/ModernNotebook/LeftNav]!has[draft.of]] +[unique[]]" variable="navSection">
+		<section class="mn-nav-section">
+			<$transclude $tiddler=<<navSection>> mode="block"/>
+		</section>
+	</$list>
+
+	<!-- Section 4: Standard TiddlyWiki Sidebar Tabs (Open, Recent, Tools, More) -->
+	<section class="mn-nav-section mn-sidebar-tabs-section">
+		<h3 class="mn-nav-heading">Workspace Tabs</h3>
+		{{$:/core/ui/SideBarSegments/tabs}}
+	</section>
+</div>

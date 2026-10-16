@@ -52,8 +52,8 @@
 /*-----------------------------------------------------------------------------
   2. Application Shell, Top Command Bar & 3-Column Workspace Grid
 -----------------------------------------------------------------------------*/
-html,
-body.tc-body {
+html:has(.mn-app-shell),
+body:has(.mn-app-shell).tc-body {
 	margin: 0;
 	padding: 0;
 	background: var(--mn-bg-app);
@@ -195,18 +195,21 @@ body.tc-body {
 	top: var(--mn-topbar-height);
 	z-index: 200;
 	height: calc(100dvh - var(--mn-topbar-height));
-	overflow-y: auto;
-	overflow-x: hidden;
 	background: color-mix(in srgb, var(--mn-bg-surface) 78%, var(--mn-bg-app) 22%);
 	scrollbar-width: thin;
 }
 
 .mn-panel-left {
+	display: flex;
+	flex-direction: column;
+	overflow: visible !important;
 	border-right: 1px solid var(--mn-border-hairline);
 	box-shadow: none;
 }
 
 .mn-panel-right {
+	overflow-y: auto;
+	overflow-x: hidden;
 	border-left: 1px solid var(--mn-border-hairline);
 	box-shadow: none;
 }
@@ -226,6 +229,7 @@ body.tc-body {
 	top: 0;
 	z-index: 1;
 	width: 100%;
+	min-height: calc(100dvh - var(--mn-topbar-height));
 	max-width: none;
 	min-width: 0;
 	margin: 0;
@@ -234,6 +238,7 @@ body.tc-body {
 	flex-direction: column;
 	align-items: center;
 	box-sizing: border-box;
+	overflow-anchor: none;
 }
 
 .mn-story-container > .story-backdrop,
@@ -353,7 +358,7 @@ body.tc-body {
 }
 
 /* Modern Dropdown & Popup Menus (.tc-drop-down) */
-.tc-drop-down:not([hidden]) {
+.mn-app-shell .tc-drop-down:not([hidden]) {
 	min-width: 220px;
 	max-width: 320px;
 	margin: 6px 0 0 0;
@@ -373,13 +378,13 @@ body.tc-body {
 	backdrop-filter: blur(8px);
 }
 
-.tc-drop-down .tc-reveal:not([hidden]) {
+.mn-app-shell .tc-drop-down .tc-reveal:not([hidden]) {
 	display: block;
 	width: 100%;
 }
 
-.tc-drop-down button,
-.tc-drop-down a {
+.mn-app-shell .tc-drop-down button,
+.mn-app-shell .tc-drop-down a {
 	display: flex !important;
 	align-items: center !important;
 	justify-content: flex-start !important;
@@ -403,22 +408,22 @@ body.tc-body {
 	transition: background var(--mn-transition), color var(--mn-transition) !important;
 }
 
-.tc-drop-down button:hover,
-.tc-drop-down a:hover {
+.mn-app-shell .tc-drop-down button:hover,
+.mn-app-shell .tc-drop-down a:hover {
 	background: var(--mn-bg-subtle) !important;
 	color: var(--mn-accent) !important;
 	text-decoration: none !important;
 }
 
-.tc-drop-down button svg,
-.tc-drop-down a svg {
+.mn-app-shell .tc-drop-down button svg,
+.mn-app-shell .tc-drop-down a svg {
 	width: 15px !important;
 	height: 15px !important;
 	fill: currentColor !important;
 	flex-shrink: 0 !important;
 }
 
-.tc-drop-down .tc-btn-text {
+.mn-app-shell .tc-drop-down .tc-btn-text {
 	display: inline !important;
 	font-size: 0.82rem !important;
 	font-weight: 500 !important;
@@ -426,8 +431,8 @@ body.tc-body {
 	white-space: nowrap !important;
 }
 
-.tc-drop-down input[type="text"],
-.tc-drop-down input[type="search"] {
+.mn-app-shell .tc-drop-down input[type="text"],
+.mn-app-shell .tc-drop-down input[type="search"] {
 	width: 100%;
 	padding: 0.35rem 0.5rem;
 	margin: 0.2rem 0;
@@ -439,21 +444,21 @@ body.tc-body {
 	box-sizing: border-box;
 }
 
-.tc-drop-down input[type="text"]:focus,
-.tc-drop-down input[type="search"]:focus {
+.mn-app-shell .tc-drop-down input[type="text"]:focus,
+.mn-app-shell .tc-drop-down input[type="search"]:focus {
 	outline: none;
 	border-color: var(--mn-accent);
 }
 
-.tc-drop-down .tc-dropdown-item,
-.tc-drop-down .tc-dropdown-item-plain,
-.tc-drop-down .tc-drop-down-info {
+.mn-app-shell .tc-drop-down .tc-dropdown-item,
+.mn-app-shell .tc-drop-down .tc-dropdown-item-plain,
+.mn-app-shell .tc-drop-down .tc-drop-down-info {
 	padding: 0.35rem 0.65rem;
 	font-size: 0.78rem;
 	color: var(--mn-text-muted);
 }
 
-.tc-drop-down hr {
+.mn-app-shell .tc-drop-down hr {
 	margin: 0.3rem 0;
 	border: none;
 	border-top: 1px solid var(--mn-border-hairline);
@@ -629,16 +634,41 @@ body.tc-body {
 	padding: 0.85rem 1rem;
 }
 
-/*-----------------------------------------------------------------------------
-  4. Sidebar Navigation, Workspace Tabs & More Sub-Tabs
------------------------------------------------------------------------------*/
+/* Sidebar Header (Pinned Toolbar with Visible Overflow for Floating Dropdowns) */
+.mn-panel-left .mn-panel-left-header {
+	flex-shrink: 0;
+	position: relative;
+	overflow: visible !important;
+	z-index: 100;
+}
+
+/* Sidebar Scrollable Body */
+.mn-panel-left .mn-panel-left-body {
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow-y: auto;
+	overflow-x: hidden;
+	scrollbar-width: thin;
+}
+
+.mn-panel-left .mn-panel-left-body .mn-nav-section:last-child {
+	border-bottom: none;
+}
+
 .mn-nav-section {
+	position: relative;
 	padding: 0.9rem 0.95rem 0.75rem;
 	border-bottom: 1px solid var(--mn-border-hairline);
 }
 
 .mn-nav-section:last-child {
 	border-bottom: none;
+}
+
+.mn-panel-left > p {
+	margin: 0 !important;
+	padding: 0 !important;
+	display: contents !important;
 }
 
 /* TiddlyWiki Page Controls Toolbar in Left Menu (Notebook-style) */
@@ -651,8 +681,8 @@ body.tc-body {
 	font-size: 1rem;
 }
 
-.mn-page-controls .tc-page-controls button,
-.mn-page-controls .tc-page-controls .tc-btn-invisible {
+.mn-page-controls .tc-page-controls button:not(.tc-drop-down button):not(.tc-drop-down a),
+.mn-page-controls .tc-page-controls .tc-btn-invisible:not(.tc-drop-down button):not(.tc-drop-down a) {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -667,42 +697,125 @@ body.tc-body {
 	transition: background var(--mn-transition), color var(--mn-transition);
 }
 
-.mn-page-controls .tc-page-controls button:hover,
-.mn-page-controls .tc-page-controls .tc-btn-invisible:hover {
+.mn-page-controls .tc-page-controls button:not(.tc-drop-down button):not(.tc-drop-down a):hover,
+.mn-page-controls .tc-page-controls .tc-btn-invisible:not(.tc-drop-down button):not(.tc-drop-down a):hover {
 	background: var(--mn-bg-elevated);
 	color: var(--mn-text-main);
 }
 
-.mn-page-controls .tc-page-controls svg {
+.mn-page-controls .tc-page-controls svg:not(.tc-drop-down svg) {
 	width: 17px !important;
 	height: 17px !important;
 	fill: currentColor !important;
 }
 
-/* Standard TiddlyWiki Sidebar Tabs inside Left Menu */
-.mn-sidebar-tabs-section .tc-tab-buttons {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.25rem;
-	border-bottom: 1px solid var(--mn-border-subtle);
-	padding-bottom: 0.4rem;
-	margin-bottom: 0.5rem;
+/* Dropdown Menus inside LeftNav Sidebar (.mn-panel-left) */
+.mn-panel-left .tc-drop-down:not([hidden]) {
+	min-width: 240px !important;
+	max-width: 320px !important;
+	width: max-content !important;
+	max-height: min(75vh, 520px) !important;
+	overflow-y: auto !important;
+	overflow-x: hidden !important;
+	box-sizing: border-box !important;
+	z-index: 1000 !important;
+	padding: 0.4rem !important;
+	background: var(--mn-bg-surface) !important;
+	border: 1px solid var(--mn-border-subtle) !important;
+	border-radius: var(--mn-radius-card) !important;
+	box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.15) !important;
 }
 
-.mn-sidebar-tabs-section .tc-tab-buttons button {
-	padding: 0.28rem 0.6rem !important;
+.mn-panel-left .tc-drop-down button,
+.mn-panel-left .tc-drop-down a {
+	display: flex !important;
+	align-items: center !important;
+	justify-content: flex-start !important;
+	width: 100% !important;
+	min-height: 34px !important;
+	padding: 0.4rem 0.65rem !important;
+	border-radius: var(--mn-radius-sm) !important;
+	font-size: 0.84rem !important;
+	font-weight: 500 !important;
+	color: var(--mn-text-main) !important;
+	background: transparent !important;
+	border: none !important;
+	text-align: left !important;
+	box-sizing: border-box !important;
+	gap: 0.6rem !important;
+	transition: background var(--mn-transition), color var(--mn-transition) !important;
+}
+
+.mn-panel-left .tc-drop-down button:hover,
+.mn-panel-left .tc-drop-down a:hover {
+	background: var(--mn-bg-elevated) !important;
+	color: var(--mn-accent) !important;
+}
+
+.mn-panel-left .tc-drop-down button svg,
+.mn-panel-left .tc-drop-down a svg {
+	width: 15px !important;
+	height: 15px !important;
+	min-width: 15px !important;
+	fill: currentColor !important;
+	flex-shrink: 0 !important;
+}
+
+.mn-panel-left .tc-drop-down .tc-btn-text {
+	display: inline !important;
+	font-size: 0.84rem !important;
+	font-weight: 500 !important;
+	white-space: nowrap !important;
+}
+
+.mn-panel-left .tc-drop-down .tc-reveal:not([hidden]) {
+	display: block !important;
+	width: 100% !important;
+}
+
+/* Nested dropdowns inside sidebar menu (e.g. export, palette inside more-page-actions) */
+.mn-panel-left .tc-drop-down .tc-drop-down {
+	position: static !important;
+	width: 100% !important;
+	max-width: 100% !important;
+	margin: 0.35rem 0 !important;
+	background: var(--mn-bg-subtle) !important;
+	border: 1px solid var(--mn-border-subtle) !important;
+	border-radius: var(--mn-radius-sm) !important;
+	box-shadow: none !important;
+	padding: 0.35rem !important;
+}
+
+/* Standard TiddlyWiki Sidebar Tabs inside Left Menu */
+.mn-sidebar-tabs-section .tc-sidebar-tabs-main > .tc-tab-buttons,
+.mn-sidebar-tabs-section > .tc-sidebar-tabs > .tc-sidebar-tabs-main > .tc-tab-buttons {
+	display: flex !important;
+	flex-direction: row !important;
+	align-items: center !important;
+	gap: 0.25rem !important;
+	border-bottom: 1px solid var(--mn-border-subtle) !important;
+	padding-bottom: 0.4rem !important;
+	margin-bottom: 0.5rem !important;
+}
+
+.mn-sidebar-tabs-section .tc-sidebar-tabs-main > .tc-tab-buttons button,
+.mn-sidebar-tabs-section > .tc-sidebar-tabs > .tc-sidebar-tabs-main > .tc-tab-buttons button {
+	flex: 1 1 0 !important;
+	padding: 0.32rem 0.4rem !important;
 	border-radius: 7px !important;
 	border: none !important;
 	background: transparent !important;
 	color: var(--mn-text-muted) !important;
 	font-size: 0.78rem !important;
 	font-weight: 600 !important;
-	cursor: pointer;
+	cursor: pointer !important;
 	margin: 0 !important;
 	text-align: center !important;
+	transition: background var(--mn-transition), color var(--mn-transition) !important;
 }
 
-.mn-sidebar-tabs-section .tc-tab-buttons button.tc-tab-selected {
+.mn-sidebar-tabs-section .tc-sidebar-tabs-main > .tc-tab-buttons button.tc-tab-selected,
+.mn-sidebar-tabs-section > .tc-sidebar-tabs > .tc-sidebar-tabs-main > .tc-tab-buttons button.tc-tab-selected {
 	background: var(--mn-accent-soft) !important;
 	color: var(--mn-accent) !important;
 }
@@ -790,7 +903,222 @@ body.tc-body {
 	margin-top: 0.25rem !important;
 }
 
-/* Polished Sidebar Lists (All, Recent, Tags, System, etc.) */
+/* Polished Tools Tab Items (Page Control Settings & Toggles) */
+.mn-sidebar-tabs-section .tc-sidebar-tools-item {
+	display: flex !important;
+	align-items: center !important;
+	gap: 0.45rem !important;
+	padding: 0.35rem 0.5rem !important;
+	margin: 0.15rem 0 !important;
+	border-radius: var(--mn-radius-sm) !important;
+	transition: background var(--mn-transition) !important;
+}
+
+.mn-sidebar-tabs-section .tc-sidebar-tools-item:hover {
+	background: var(--mn-bg-elevated) !important;
+}
+
+.mn-sidebar-tabs-section .tc-sidebar-tools-item label.tc-checkbox {
+	display: inline-flex !important;
+	align-items: center !important;
+	margin: 0 !important;
+	cursor: pointer !important;
+	flex-shrink: 0 !important;
+}
+
+.mn-sidebar-tabs-section .tc-sidebar-tools-item button {
+	display: inline-flex !important;
+	align-items: center !important;
+	gap: 0.4rem !important;
+	background: transparent !important;
+	border: none !important;
+	color: var(--mn-text-main) !important;
+	font-size: 0.82rem !important;
+	font-weight: 500 !important;
+	cursor: pointer !important;
+	padding: 0 !important;
+	margin: 0 !important;
+	white-space: nowrap !important;
+	flex-shrink: 0 !important;
+}
+
+.mn-sidebar-tabs-section .tc-sidebar-tools-item button svg {
+	width: 15px !important;
+	height: 15px !important;
+	min-width: 15px !important;
+	fill: currentColor !important;
+}
+
+.mn-sidebar-tabs-section .tc-sidebar-tools-item i.tc-muted,
+.mn-sidebar-tabs-section .tc-sidebar-tools-item i {
+	font-style: normal !important;
+	font-size: 0.73rem !important;
+	color: var(--mn-text-muted) !important;
+	margin-left: auto !important;
+	white-space: nowrap !important;
+	overflow: hidden !important;
+	text-overflow: ellipsis !important;
+	text-align: right !important;
+	padding-left: 0.35rem !important;
+}
+
+/* Polished Open Tab (Open Tiddlers Story List) */
+.mn-sidebar-tabs-section .tc-sidebar-tab-open .tc-droppable-placeholder {
+	display: none !important;
+}
+
+.mn-sidebar-tabs-section .tc-sidebar-tab-open .tc-droppable.tc-dragover > .tc-droppable-placeholder {
+	display: block !important;
+	border: 2px dashed var(--mn-accent) !important;
+	border-radius: var(--mn-radius-sm) !important;
+	margin: 0.25rem 0 !important;
+	height: 34px !important;
+	background: var(--mn-accent-soft) !important;
+}
+
+.mn-sidebar-tabs-section .tc-sidebar-tab-open-item {
+	margin: 0.15rem 0 !important;
+}
+
+.mn-sidebar-tabs-section .tc-sidebar-tab-open-row {
+	display: flex !important;
+	align-items: center !important;
+	justify-content: space-between !important;
+	gap: 0.5rem !important;
+	width: 100% !important;
+	box-sizing: border-box !important;
+	padding: 0.45rem 0.65rem !important;
+	margin-bottom: 0.15rem !important;
+	border-radius: var(--mn-radius-sm) !important;
+	color: var(--mn-text-main) !important;
+	transition: background var(--mn-transition), color var(--mn-transition) !important;
+}
+
+.mn-sidebar-tabs-section .tc-sidebar-tab-open-row:hover {
+	background: var(--mn-bg-elevated) !important;
+}
+
+.mn-sidebar-tabs-section .tc-sidebar-tab-open-row.mn-nav-item-active {
+	background: var(--mn-accent-soft) !important;
+	color: var(--mn-accent) !important;
+	font-weight: 600 !important;
+}
+
+.mn-sidebar-tabs-section .tc-sidebar-tab-open-row .mn-card-title {
+	flex: 1 1 auto !important;
+	min-width: 0 !important;
+	white-space: nowrap !important;
+	overflow: hidden !important;
+	text-overflow: ellipsis !important;
+	color: inherit !important;
+	text-decoration: none !important;
+	font-size: 0.86rem !important;
+	font-weight: inherit !important;
+}
+
+.mn-sidebar-tabs-section .tc-sidebar-tab-open-row button {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	width: 22px !important;
+	height: 22px !important;
+	min-width: 22px !important;
+	min-height: 22px !important;
+	padding: 0 !important;
+	margin: 0 !important;
+	border: none !important;
+	background: transparent !important;
+	color: inherit !important;
+	opacity: 0.6 !important;
+	border-radius: 4px !important;
+	cursor: pointer !important;
+	font-size: 0.82rem !important;
+	flex-shrink: 0 !important;
+	transition: opacity var(--mn-transition), background var(--mn-transition) !important;
+}
+
+.mn-sidebar-tabs-section .tc-sidebar-tab-open-row button:hover {
+	opacity: 1 !important;
+	background: var(--mn-bg-surface) !important;
+	color: var(--mn-accent) !important;
+}
+
+/* Fallback for unshadowed vanilla Open tab items */
+.mn-sidebar-tabs-section .tc-sidebar-tab-open-item .tc-droppable > div:not(.tc-droppable-placeholder) {
+	display: flex !important;
+	align-items: center !important;
+	justify-content: space-between !important;
+	gap: 0.5rem !important;
+	width: 100% !important;
+	box-sizing: border-box !important;
+	padding: 0.45rem 0.65rem !important;
+	border-radius: var(--mn-radius-sm) !important;
+	transition: background var(--mn-transition), color var(--mn-transition) !important;
+}
+
+.mn-sidebar-tabs-section .tc-sidebar-tab-open-item .tc-droppable > div:not(.tc-droppable-placeholder):hover {
+	background: var(--mn-bg-elevated) !important;
+}
+
+.mn-sidebar-tabs-section .tc-sidebar-tab-open-item a.tc-tiddlylink {
+	order: 1 !important;
+	flex: 1 1 auto !important;
+	min-width: 0 !important;
+	white-space: nowrap !important;
+	overflow: hidden !important;
+	text-overflow: ellipsis !important;
+	padding: 0 !important;
+	font-size: 0.86rem !important;
+}
+
+.mn-sidebar-tabs-section .tc-sidebar-tab-open-item button.tc-btn-mini {
+	order: 2 !important;
+	width: 22px !important;
+	height: 22px !important;
+	min-width: 22px !important;
+	min-height: 22px !important;
+	padding: 0 !important;
+	margin: 0 !important;
+	border: none !important;
+	background: transparent !important;
+	opacity: 0.6 !important;
+}
+
+.mn-sidebar-tabs-section .tc-sidebar-tab-open-item button.tc-btn-mini svg {
+	width: 12px !important;
+	height: 12px !important;
+	fill: currentColor !important;
+}
+
+/* Close all button at bottom of Open tab */
+.mn-sidebar-tabs-section .tc-sidebar-tab-open .tc-sidebar-tab-open-clear button,
+.mn-sidebar-tabs-section .tc-sidebar-tab-open > div:last-child button.tc-btn-mini {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	width: 100% !important;
+	margin-top: 0.6rem !important;
+	padding: 0.38rem 0.65rem !important;
+	border-radius: var(--mn-radius-sm) !important;
+	border: 1px dashed var(--mn-border-subtle) !important;
+	background: transparent !important;
+	color: var(--mn-text-muted) !important;
+	font-size: 0.78rem !important;
+	font-weight: 500 !important;
+	cursor: pointer !important;
+	text-align: center !important;
+	text-transform: capitalize !important;
+	transition: background var(--mn-transition), color var(--mn-transition), border-color var(--mn-transition) !important;
+}
+
+.mn-sidebar-tabs-section .tc-sidebar-tab-open .tc-sidebar-tab-open-clear button:hover,
+.mn-sidebar-tabs-section .tc-sidebar-tab-open > div:last-child button.tc-btn-mini:hover {
+	background: var(--mn-bg-elevated) !important;
+	color: var(--mn-text-main) !important;
+	border-color: var(--mn-border-strong) !important;
+}
+
+/* Polished Sidebar Lists (All, Recent, Tags, System, Shadows, etc.) */
 .mn-sidebar-tabs-section .tc-sidebar-lists {
 	padding: 0.2rem 0;
 	width: 100%;
@@ -806,20 +1134,99 @@ body.tc-body {
 	margin: 0.15rem 0;
 }
 
+.mn-sidebar-tabs-section .tc-menu-list-item {
+	white-space: normal !important;
+	word-break: break-word !important;
+	margin: 0.2rem 0 !important;
+	font-size: 0.85rem !important;
+}
+
+.mn-sidebar-tabs-section .tc-timeline .tc-menu-list-item {
+	font-size: 0.72rem !important;
+	font-weight: 700 !important;
+	text-transform: uppercase !important;
+	letter-spacing: 0.05em !important;
+	color: var(--mn-text-muted) !important;
+	margin: 0.75rem 0 0.25rem !important;
+	display: block !important;
+}
+
+.mn-sidebar-tabs-section .tc-menu-list-subitem {
+	padding-left: 0.5rem !important;
+	margin: 0.15rem 0 !important;
+}
+
+.mn-sidebar-tabs-section .tc-menu-list-subitem a.tc-tiddlylink,
+.mn-sidebar-tabs-section .tc-menu-list-item a.tc-tiddlylink,
 .mn-sidebar-tabs-section a.tc-tiddlylink {
 	display: block;
 	padding: 0.28rem 0.5rem;
 	border-radius: 6px;
 	color: var(--mn-text-main);
-	font-size: 0.85rem;
+	font-size: 0.84rem;
+	font-weight: normal;
 	text-decoration: none;
 	border-bottom: none;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 	transition: background var(--mn-transition), color var(--mn-transition);
 }
 
+.mn-sidebar-tabs-section .tc-menu-list-subitem a.tc-tiddlylink:hover,
+.mn-sidebar-tabs-section .tc-menu-list-item a.tc-tiddlylink:hover,
 .mn-sidebar-tabs-section a.tc-tiddlylink:hover {
 	background: var(--mn-bg-elevated);
 	color: var(--mn-accent);
+}
+
+/* Polished Tag Manager Button in More > Tags */
+.mn-sidebar-tabs-section button[aria-label="tag manager"] {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	gap: 0.45rem !important;
+	padding: 0.35rem 0.65rem !important;
+	border-radius: var(--mn-radius-sm) !important;
+	border: 1px solid var(--mn-border-subtle) !important;
+	background: var(--mn-bg-surface) !important;
+	color: var(--mn-text-main) !important;
+	font-size: 0.82rem !important;
+	font-weight: 500 !important;
+	cursor: pointer !important;
+	width: 100% !important;
+	margin-bottom: 0.6rem !important;
+	transition: background var(--mn-transition), color var(--mn-transition) !important;
+}
+
+.mn-sidebar-tabs-section button[aria-label="tag manager"]:hover {
+	background: var(--mn-bg-elevated) !important;
+	color: var(--mn-accent) !important;
+}
+
+.mn-sidebar-tabs-section button[aria-label="tag manager"] svg {
+	width: 15px !important;
+	height: 15px !important;
+	fill: currentColor !important;
+}
+
+/* Polished Explorer Tree View in More > Explorer */
+.mn-sidebar-tabs-section .tc-tree {
+	padding: 0.2rem 0;
+	font-size: 0.84rem;
+}
+
+.mn-sidebar-tabs-section .tc-tree ol {
+	list-style: none;
+	padding-left: 0.85rem;
+	margin: 0.2rem 0;
+}
+
+.mn-sidebar-tabs-section .tc-tree li {
+	margin: 0.2rem 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .mn-sidebar-tabs-section .tc-date {
@@ -916,7 +1323,20 @@ body.tc-body {
 	color: var(--mn-accent) !important;
 }
 
-/* Soft Modern Cards (no hard top notecard stripe) */
+.mn-nav-item .mn-card-title {
+	flex: 1 1 auto;
+	min-width: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.mn-nav-item > span {
+	min-width: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
 .mn-card {
 	background: var(--mn-bg-subtle);
 	border: 1px solid var(--mn-border-hairline);
@@ -1107,8 +1527,7 @@ body.tc-body {
 /*-----------------------------------------------------------------------------
   Floating Saved Drafts Pill (Desktop & Mobile)
 -----------------------------------------------------------------------------*/
-.mn-app-shell .tc-drafts-list,
-.tc-drafts-list {
+.mn-app-shell .tc-drafts-list {
 	position: fixed;
 	z-index: 450;
 	bottom: 2rem;
@@ -1123,8 +1542,7 @@ body.tc-body {
 	pointer-events: none;
 }
 
-.mn-app-shell .tc-drafts-list a,
-.tc-drafts-list a {
+.mn-app-shell .tc-drafts-list a {
 	pointer-events: auto;
 	display: inline-flex;
 	align-items: center;
@@ -1152,9 +1570,7 @@ body.tc-body {
 }
 
 .mn-app-shell .tc-drafts-list a:hover,
-.mn-app-shell .tc-drafts-list a:focus-visible,
-.tc-drafts-list a:hover,
-.tc-drafts-list a:focus-visible {
+.mn-app-shell .tc-drafts-list a:focus-visible {
 	background: var(--mn-bg-elevated);
 	border-color: var(--mn-accent);
 	color: var(--mn-accent);
@@ -1164,14 +1580,12 @@ body.tc-body {
 	text-decoration: none !important;
 }
 
-.mn-app-shell .tc-drafts-list a:active,
-.tc-drafts-list a:active {
+.mn-app-shell .tc-drafts-list a:active {
 	background: var(--mn-accent-soft);
 	transform: translateY(0) scale(0.98);
 }
 
-.mn-app-shell .tc-drafts-list a svg,
-.tc-drafts-list a svg {
+.mn-app-shell .tc-drafts-list a svg {
 	width: 17px;
 	height: 17px;
 	fill: var(--mn-accent);
@@ -1181,8 +1595,7 @@ body.tc-body {
 	transition: fill var(--mn-transition);
 }
 
-.mn-app-shell .tc-drafts-list a:hover svg,
-.tc-drafts-list a:hover svg {
+.mn-app-shell .tc-drafts-list a:hover svg {
 	fill: var(--mn-accent);
 }
 
@@ -1487,8 +1900,16 @@ body.tc-body {
 		width: min(86vw, 320px) !important;
 		background: var(--mn-bg-surface) !important;
 		border-right: 1px solid var(--mn-border-hairline) !important;
-		box-shadow: none !important;
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+		display: flex !important;
+		flex-direction: column !important;
+		overflow: visible !important;
+		padding-bottom: 0 !important;
 		transition: transform var(--mn-transition), opacity var(--mn-transition);
+	}
+
+	.mn-panel-left .mn-panel-left-body {
+		padding-bottom: 2.5rem !important;
 	}
 
 	.mn-left-collapsed .mn-panel-left {
@@ -1505,8 +1926,10 @@ body.tc-body {
 
 	.mn-app-shell .mn-story-container,
 	.mn-app-shell .mn-story-container.tc-story-river {
+		min-height: calc(100dvh - var(--mn-topbar-height) - var(--mn-bottombar-height));
 		padding: 0.75rem 0.75rem calc(var(--mn-bottombar-height) + 2.5rem);
 		width: 100%;
+		overflow-anchor: none;
 	}
 
 	.mn-app-shell .mn-story-container .tc-tiddler-frame {
@@ -1515,6 +1938,7 @@ body.tc-body {
 		padding: 1.6rem 1.25rem;
 		margin-bottom: 0.85rem;
 		border-radius: 16px;
+		overflow-anchor: none;
 	}
 
 	.mn-story-container .tc-titlebar h2.tc-title {
@@ -1529,6 +1953,7 @@ body.tc-body {
 	/* Suppress any zooming or scaling on mobile tiddlers */
 	.mn-is-mobile .tc-tiddler-frame {
 		transform: none !important;
+		overflow-anchor: none;
 	}
 
 	/* Outgoing tiddler during single-tiddler cross-fade */
@@ -1542,11 +1967,13 @@ body.tc-body {
 		margin: 0 !important;
 		pointer-events: none !important;
 		z-index: 10 !important;
+		will-change: opacity;
 	}
 
 	/* Incoming tiddler during single-tiddler cross-fade */
 	.mn-is-mobile .tc-tiddler-frame.mn-tiddler-fading-in {
 		z-index: 20 !important;
+		will-change: opacity;
 	}
 
 	/* Floating Drafts Pill on Mobile — sits right above the bottom navigation bar */
