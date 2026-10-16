@@ -1,0 +1,7 @@
+title: $:/plugins/mblackman/slipstream/templates/wide-body
+type: text/vnd.tiddlywiki
+
+\whitespace trim
+<div class="mn-wide-view">
+	<$transclude $tiddler="$:/core/ui/ViewTemplate/body/default"/>
+</div>

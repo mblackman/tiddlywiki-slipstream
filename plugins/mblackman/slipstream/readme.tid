@@ -1,0 +1,12 @@
+title: $:/plugins/mblackman/slipstream/readme
+type: text/vnd.tiddlywiki
+
+\whitespace trim
+<h3>Slipstream Theme & Layout (v0.1.0 for TiddlyWiki v5.4.0+)</h3>
+<p>A generic, configurable 3-column desktop reading workspace and mobile <code>zoomin</code> single-tiddler layout.</p>
+<ul>
+	<li><strong>Activate Layout:</strong> Press <kbd>Ctrl+Shift+L</kbd> (or go to <em>Control Panel → Appearance → Layout</em>) and select <strong>Slipstream</strong>.</li>
+	<li><strong>Pin Any Tiddler to Left Nav:</strong> Tag any tiddler with <code>$:/tags/Pinned</code> (or customize <code>$:/config/slipstream/pinned-filter</code> in Settings).</li>
+	<li><strong>Customize Mobile Bottom Bar:</strong> Tag any tiddler with <code>$:/tags/Slipstream/BottomBar</code> (with optional <code>ss-icon</code> / <code>mn-icon</code> and <code>caption</code> fields) or list titles in <code>$:/config/slipstream/mobile-shortcuts</code>.</li>
+	<li><strong>Wide Mode for Dashboards:</strong> Add field <code>page-width: wide</code> (or tag <code>Wide</code>) to any tiddler to expand it from <code>72ch</code> to <code>1180px</code>.</li>
+</ul>

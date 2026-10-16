@@ -1,0 +1,519 @@
+/*=============================================================================
+  Slipstream Theme & Layout for TiddlyWiki v5.4.0+
+  100% Generic & Configurable Architecture
+  Uses native v5.4.0 Core CSS Variables (--tpc-* palette & --tp-* metrics)
+=============================================================================*/
+@layer tokens, layout, tiddler, components, utilities, mobile;
+
+@layer tokens {
+	:root {
+		--mn-bg-app: var(--tpc-page-background, #f4f6f9);
+		--mn-bg-surface: var(--tpc-background, #ffffff);
+		--mn-bg-elevated: color-mix(in srgb, var(--tpc-background, #ffffff) 93%, var(--tpc-foreground, #0f172a) 7%);
+		--mn-bg-subtle: color-mix(in srgb, var(--tpc-background, #ffffff) 96%, var(--tpc-foreground, #0f172a) 4%);
+		--mn-border-subtle: color-mix(in srgb, var(--tpc-foreground, #0f172a) 11%, transparent);
+		--mn-border-strong: color-mix(in srgb, var(--tpc-foreground, #0f172a) 22%, transparent);
+		--mn-text-main: var(--tpc-foreground, #0f172a);
+		--mn-text-muted: var(--tpc-muted-foreground, #64748b);
+		--mn-accent: var(--tpc-primary, #2563eb);
+		--mn-accent-soft: color-mix(in srgb, var(--tpc-primary, #2563eb) 14%, transparent);
+		--mn-tag-bg: var(--tpc-tag-background, #e2e8f0);
+		--mn-tag-fg: var(--tpc-tag-foreground, #1e293b);
+		--mn-left-width: 260px;
+		--mn-right-width: 320px;
+		--mn-reading-width: var(--tp-tiddler-width, 72ch);
+		--mn-wide-width: 1180px;
+		--mn-topbar-height: 52px;
+		--mn-pillstrip-height: 42px;
+		--mn-bottombar-height: 60px;
+		--mn-radius-card: 12px;
+		--mn-radius-sm: 8px;
+		--mn-radius-pill: 9999px;
+		--mn-shadow-card: 0 1px 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.03);
+		--mn-shadow-sheet: 0 -8px 30px rgba(15, 23, 42, 0.18);
+		--mn-transition: var(--tp-animation-duration, 180ms) cubic-bezier(0.2, 0, 0, 1);
+	}
+}
+
+@layer layout {
+	.mn-app-shell {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		min-height: 100dvh;
+		background: var(--mn-bg-app);
+		color: var(--mn-text-main);
+		font-family: var(--tp-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+		font-size: var(--tp-body-font-size, 15px);
+		line-height: var(--tp-body-line-height, 1.6);
+		isolation: isolate;
+	}
+
+	.mn-topbar {
+		position: sticky;
+		top: 0;
+		z-index: 420;
+		height: var(--mn-topbar-height);
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		padding: 0 1rem;
+		background: color-mix(in srgb, var(--mn-bg-surface) 92%, transparent);
+		backdrop-filter: blur(12px);
+		border-bottom: 1px solid var(--mn-border-subtle);
+	}
+
+	.mn-topbar-left,
+	.mn-topbar-right {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.mn-topbar-center {
+		position: relative;
+		flex: 1;
+		max-width: 520px;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.mn-search-dropdown {
+		position: absolute;
+		top: calc(100% + 6px);
+		left: 0;
+		right: 0;
+		z-index: 450;
+		max-height: 60dvh;
+		overflow-y: auto;
+		background: var(--mn-bg-surface);
+		border: 1px solid var(--mn-border-strong);
+		border-radius: var(--mn-radius-card);
+		box-shadow: 0 10px 25px rgba(15, 23, 42, 0.14);
+		padding: 0.5rem;
+	}
+
+	.mn-workspace-grid {
+		position: relative;
+		z-index: 1;
+		display: grid;
+		grid-template-columns: var(--mn-left-width) minmax(0, 1fr) var(--mn-right-width);
+		flex: 1;
+		align-items: start;
+		transition: grid-template-columns var(--mn-transition);
+	}
+
+	.mn-left-collapsed .mn-workspace-grid {
+		grid-template-columns: 0px minmax(0, 1fr) var(--mn-right-width);
+	}
+
+	.mn-right-collapsed .mn-workspace-grid {
+		grid-template-columns: var(--mn-left-width) minmax(0, 1fr) 0px;
+	}
+
+	.mn-left-collapsed.mn-right-collapsed .mn-workspace-grid {
+		grid-template-columns: 0px minmax(0, 1fr) 0px;
+	}
+
+	.mn-panel-left,
+	.mn-panel-right {
+		position: sticky;
+		top: var(--mn-topbar-height);
+		z-index: 200;
+		height: calc(100dvh - var(--mn-topbar-height));
+		overflow-y: auto;
+		overflow-x: hidden;
+		background: var(--mn-bg-surface);
+	}
+
+	.mn-panel-left {
+		border-right: 1px solid var(--mn-border-subtle);
+	}
+
+	.mn-panel-right {
+		border-left: 1px solid var(--mn-border-subtle);
+	}
+
+	.mn-left-collapsed .mn-panel-left,
+	.mn-right-collapsed .mn-panel-right {
+		border: none;
+		pointer-events: none;
+		opacity: 0;
+	}
+
+	.mn-story-container {
+		position: relative;
+		z-index: 1;
+		padding: 2rem 1.75rem 5rem;
+		width: 100%;
+		min-width: 0;
+		margin: 0;
+	}
+}
+
+@layer tiddler {
+	/* Centered Reading Column for Standard Tiddlers (z-index: 1 so menus always float above) */
+	.mn-story-container .tc-tiddler-frame {
+		position: relative;
+		z-index: 1;
+		width: 100%;
+		max-width: var(--mn-reading-width);
+		margin: 0 auto 1.5rem;
+		padding: 2.25rem 2.5rem;
+		background: var(--mn-bg-surface);
+		border: 1px solid var(--mn-border-subtle);
+		border-radius: var(--mn-radius-card);
+		box-shadow: var(--mn-shadow-card);
+	}
+
+	/* Generic Wide Mode: triggered by .mn-wide-view or user-configured wide tag/field */
+	.mn-story-container .tc-tiddler-frame:has(.mn-wide-view),
+	.mn-story-container .tc-tiddler-frame.mn-tiddler-wide {
+		max-width: var(--mn-wide-width);
+	}
+
+	/* Generic Inline Object Property Header Bar */
+	.mn-object-prop-bar {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.5rem;
+		margin: 0.65rem 0 1.25rem;
+		padding: 0.5rem 0.75rem;
+		background: var(--mn-bg-subtle);
+		border: 1px solid var(--mn-border-subtle);
+		border-radius: var(--mn-radius-sm);
+		font-size: 0.85em;
+	}
+}
+
+@layer components {
+	.mn-nav-section {
+		padding: 0.85rem 0.85rem 0.5rem;
+	}
+
+	.mn-nav-heading {
+		font-size: 0.72rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: var(--mn-text-muted);
+		margin: 0 0 0.5rem;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.mn-nav-item {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem;
+		width: 100%;
+		text-align: left;
+		padding: 0.45rem 0.65rem;
+		border-radius: var(--mn-radius-sm);
+		color: var(--mn-text-main);
+		text-decoration: none;
+		font-size: 0.9em;
+		transition: background var(--mn-transition);
+	}
+
+	.mn-nav-item:hover {
+		background: var(--mn-bg-elevated);
+	}
+
+	.mn-nav-item-active {
+		background: var(--mn-accent-soft);
+		color: var(--mn-accent);
+		font-weight: 600;
+	}
+
+	.mn-card {
+		background: var(--mn-bg-surface);
+		border: 1px solid var(--mn-border-subtle);
+		border-top: 3px solid var(--mn-card-accent, var(--mn-accent));
+		border-radius: var(--mn-radius-card);
+		padding: 1.1rem 1.25rem;
+		box-shadow: var(--mn-shadow-card);
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	.mn-card-header {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 0.75rem;
+	}
+
+	.mn-card-title {
+		font-weight: 600;
+		font-size: 1.05em;
+		color: var(--mn-text-main);
+		text-decoration: none;
+	}
+
+	.mn-badge {
+		display: inline-flex;
+		align-items: center;
+		padding: 0.15rem 0.55rem;
+		border-radius: var(--mn-radius-pill);
+		font-size: 0.75rem;
+		font-weight: 600;
+		background: var(--mn-accent-soft);
+		color: var(--mn-accent);
+	}
+
+	.mn-prop-pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		padding: 0.2rem 0.55rem;
+		background: var(--mn-bg-surface);
+		border: 1px solid var(--mn-border-subtle);
+		border-radius: var(--mn-radius-pill);
+		font-size: 0.8rem;
+	}
+
+	.mn-prop-label {
+		color: var(--mn-text-muted);
+		font-weight: 500;
+	}
+
+	.mn-search-input {
+		width: 100%;
+		padding: 0.45rem 0.85rem;
+		border-radius: var(--mn-radius-pill);
+		border: 1px solid var(--mn-border-subtle);
+		background: var(--mn-bg-subtle);
+		color: var(--mn-text-main);
+		font-size: 0.9em;
+	}
+
+	.mn-btn-primary {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		padding: 0.45rem 0.9rem;
+		border-radius: var(--mn-radius-sm);
+		background: var(--mn-accent);
+		color: #ffffff;
+		border: none;
+		font-weight: 600;
+		font-size: 0.88em;
+		cursor: pointer;
+	}
+
+	.mn-pill-btn {
+		padding: 0.3rem 0.75rem;
+		border-radius: var(--mn-radius-pill);
+		border: 1px solid var(--mn-border-subtle);
+		background: var(--mn-bg-surface);
+		color: var(--mn-text-muted);
+		font-size: 0.82rem;
+		font-weight: 500;
+		cursor: pointer;
+	}
+
+	.mn-pill-active {
+		background: var(--mn-accent);
+		color: #ffffff;
+		border-color: var(--mn-accent);
+	}
+
+	/* Generic Hero, Auto-Grid, Poster Grid & Progress Primitives */
+	.mn-hero {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		flex-wrap: wrap;
+		gap: 1rem;
+		padding: 1.25rem 1.5rem;
+		margin-bottom: 1.25rem;
+		background: linear-gradient(135deg, var(--mn-accent-soft), var(--mn-bg-subtle));
+		border: 1px solid var(--mn-border-subtle);
+		border-radius: var(--mn-radius-card);
+	}
+
+	.mn-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(var(--mn-grid-min, 280px), 1fr));
+		gap: 1rem;
+		margin-top: 1rem;
+	}
+
+	.mn-progress-track {
+		width: 100%;
+		height: 7px;
+		background: var(--mn-bg-elevated);
+		border-radius: var(--mn-radius-pill);
+		overflow: hidden;
+		margin-top: 0.3rem;
+	}
+
+	.mn-progress-fill {
+		height: 100%;
+		background: var(--mn-accent);
+		border-radius: var(--mn-radius-pill);
+		transition: width var(--mn-transition);
+	}
+}
+
+@layer mobile {
+	/* Open Tiddler Pill Switcher Strip on Mobile — pinned directly below topbar, above tiddlers */
+	.mn-mobile-pill-strip {
+		position: sticky;
+		top: var(--mn-topbar-height);
+		z-index: 410;
+		display: flex;
+		align-items: center;
+		gap: 0.45rem;
+		padding: 0.45rem 0.75rem;
+		overflow-x: auto;
+		background: color-mix(in srgb, var(--mn-bg-surface) 95%, transparent);
+		backdrop-filter: blur(10px);
+		border-bottom: 1px solid var(--mn-border-subtle);
+		scrollbar-width: none;
+	}
+
+	.mn-mobile-tab-chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		padding: 0.28rem 0.65rem;
+		border-radius: var(--mn-radius-pill);
+		background: var(--mn-bg-subtle);
+		border: 1px solid var(--mn-border-subtle);
+		font-size: 0.8rem;
+		white-space: nowrap;
+	}
+
+	.mn-mobile-tab-chip-active {
+		background: var(--mn-accent-soft);
+		border-color: var(--mn-accent);
+		color: var(--mn-accent);
+		font-weight: 600;
+	}
+
+	/* Fixed Thumb-Zone Bottom Bar — high z-index (480) so it NEVER renders under tiddlers */
+	.mn-mobile-bottombar {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		z-index: 480;
+		height: calc(var(--mn-bottombar-height) + env(safe-area-inset-bottom, 0px));
+		padding-bottom: env(safe-area-inset-bottom, 0px);
+		background: color-mix(in srgb, var(--mn-bg-surface) 96%, transparent);
+		backdrop-filter: blur(16px);
+		border-top: 1px solid var(--mn-border-subtle);
+		display: flex;
+		align-items: center;
+		justify-content: space-around;
+		box-shadow: 0 -2px 12px rgba(15, 23, 42, 0.06);
+	}
+
+	.mn-mobile-nav-btn {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 0.15rem;
+		height: 100%;
+		background: transparent;
+		border: none;
+		color: var(--mn-text-muted);
+		font-size: 0.68rem;
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	/* Mobile Left Drawer Backdrop & Overlay */
+	.mn-mobile-drawer-backdrop {
+		position: fixed;
+		inset: 0;
+		z-index: 460;
+		background: rgba(15, 23, 42, 0.4);
+	}
+
+	/* Slide-Up Bottom Sheet for Zoomed Tiddler Options */
+	.mn-backdrop {
+		position: fixed;
+		inset: 0;
+		z-index: 520;
+		background: rgba(15, 23, 42, 0.45);
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-end;
+	}
+
+	.mn-bottom-sheet {
+		background: var(--mn-bg-surface);
+		border-radius: 18px 18px 0 0;
+		padding: 1.15rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
+		max-height: 82dvh;
+		overflow-y: auto;
+		box-shadow: var(--mn-shadow-sheet);
+	}
+
+	.mn-sheet-action-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+		gap: 0.6rem;
+		margin: 1rem 0;
+	}
+
+	.mn-sheet-action-item {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		min-height: 44px;
+		padding: 0.5rem;
+		background: var(--mn-bg-subtle);
+		border: 1px solid var(--mn-border-subtle);
+		border-radius: var(--mn-radius-sm);
+	}
+
+	@media (max-width: 1023px) {
+		.mn-workspace-grid {
+			grid-template-columns: minmax(0, 1fr) !important;
+		}
+
+		.mn-panel-left {
+			position: fixed !important;
+			top: var(--mn-topbar-height) !important;
+			left: 0 !important;
+			bottom: var(--mn-bottombar-height) !important;
+			height: auto !important;
+			z-index: 470 !important;
+			width: min(84vw, 300px) !important;
+			box-shadow: 8px 0 24px rgba(15, 23, 42, 0.22);
+			transition: transform var(--mn-transition), opacity var(--mn-transition);
+		}
+
+		.mn-left-collapsed .mn-panel-left {
+			transform: translateX(-105%);
+			opacity: 0;
+			pointer-events: none;
+		}
+
+		.mn-story-container {
+			padding: 0.85rem 0.75rem calc(var(--mn-bottombar-height) + 2.5rem);
+		}
+
+		.mn-story-container .tc-tiddler-frame {
+			padding: 1.25rem 1.1rem;
+			margin-bottom: 0.75rem;
+		}
+
+		/* Hide top-right toolbar clutter on mobile; use Bottom Sheet (•••) instead */
+		.mn-story-container .tc-tiddler-controls {
+			display: none;
+		}
+	}
+}

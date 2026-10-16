@@ -1,0 +1,27 @@
+title: Journal Dashboard
+tags: $:/tags/Pinned $:/tags/Slipstream/BottomBar Wide
+caption: Journal
+ss-icon: 📓
+page-width: wide
+modified: 20261016133000000
+created: 20261016120000000
+
+<$ss.hero title="Daily Journal" subtitle="User-space dashboard built with generic $ss.hero, $ss.grid, and $ss.card primitives">
+	<$fill $name="actions">
+		<$button class="mn-btn-primary">
+			<$action-sendmessage $message="tm-new-tiddler" title=<<now "YYYY-0MM-0DD">> tags="Journal" mood="Focused"/>
+			+ Today's Entry
+		</$button>
+	</$fill>
+</$ss.hero>
+
+<$ss.grid min="300px">
+	<$list filter="[all[tiddlers]tag[Journal]!has[draft.of]!sort[created]limit[12]]">
+		<$ss.card badge={{!!mood}}>
+			<$transclude mode="block"/>
+			<$fill $name="footer">
+				<span class="mn-prop-label">Created <$view field="created" format="relativedate"/></span>
+			</$fill>
+		</$ss.card>
+	</$list>
+</$ss.grid>

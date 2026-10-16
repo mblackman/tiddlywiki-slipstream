@@ -1,0 +1,1841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modern Notebook — TiddlyWiki v5.4+ Theme Studio & Plugin Builder</title>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --tp-color-page-background: #f3f5f8;
+    --tp-color-background: #ffffff;
+    --tp-color-foreground: #0f172a;
+    --tp-color-muted-foreground: #64748b;
+    --tp-color-primary: #2563eb;
+    --tp-color-tag-background: #e2e8f0;
+    --tp-color-tag-foreground: #1e293b;
+    --tp-tiddler-width: 72ch;
+    --tp-body-font-size: 15px;
+    --tp-animation-duration: 180ms;
+
+    --mn-bg-app: var(--tp-color-page-background);
+    --mn-bg-surface: var(--tp-color-background);
+    --mn-bg-subtle: #f8fafc;
+    --mn-bg-elevated: #eef2f6;
+    --mn-border-subtle: rgba(15, 23, 42, 0.1);
+    --mn-text-main: var(--tp-color-foreground);
+    --mn-text-muted: var(--tp-color-muted-foreground);
+    --mn-accent: var(--tp-color-primary);
+    --mn-accent-soft: rgba(37, 99, 235, 0.12);
+    --mn-reading-width: 72ch;
+    --mn-dashboard-width: 1180px;
+  }
+
+  html.dark-palette {
+    --tp-color-page-background: #0b0f19;
+    --tp-color-background: #111827;
+    --tp-color-foreground: #f1f5f9;
+    --tp-color-muted-foreground: #94a3b8;
+    --tp-color-primary: #3b82f6;
+    --tp-color-tag-background: #1e293b;
+    --tp-color-tag-foreground: #e2e8f0;
+
+    --mn-bg-app: #0b0f19;
+    --mn-bg-surface: #111827;
+    --mn-bg-subtle: #1e293b;
+    --mn-bg-elevated: #263349;
+    --mn-border-subtle: rgba(241, 245, 249, 0.12);
+    --mn-text-main: #f1f5f9;
+    --mn-text-muted: #94a3b8;
+    --mn-accent: #60a5fa;
+    --mn-accent-soft: rgba(96, 165, 250, 0.16);
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--mn-bg-app);
+    color: var(--mn-text-main);
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  code, pre {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .mn-surface {
+    background: var(--mn-bg-surface);
+    border-color: var(--mn-border-subtle);
+    color: var(--mn-text-main);
+  }
+
+  .mn-subtle {
+    background: var(--mn-bg-subtle);
+    border-color: var(--mn-border-subtle);
+  }
+
+  .mn-reading-col {
+    max-width: var(--mn-reading-width);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .mn-wide-col {
+    max-width: var(--mn-dashboard-width);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .mobile-frame-sim {
+    max-width: 412px;
+    width: 100%;
+    margin: 0.75rem auto;
+    border: 8px solid #1e293b;
+    border-radius: 32px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    height: 760px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    isolation: isolate;
+    background: var(--mn-bg-app);
+  }
+
+  @media (max-width: 640px) {
+    .mobile-frame-sim {
+      max-width: 100%;
+      margin: 0;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+      height: calc(100dvh - 44px);
+    }
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+</style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+<!-- Top Studio Control Bar (Simulates TW v5.4 InfoMechanism & Plugin Exporter) -->
+<div class="bg-slate-900 text-slate-100 px-3 py-2 text-xs flex flex-wrap items-center justify-between gap-2 border-b border-slate-700 z-50">
+  <div class="flex items-center gap-2 flex-wrap">
+    <span class="px-2 py-0.5 rounded bg-blue-600 font-semibold text-white">TW v5.4.0+ Plugin Build</span>
+    <span class="font-medium text-slate-300 hidden sm:inline">$:/plugins/mblackman/modern-notebook</span>
+    <div class="flex items-center bg-slate-800 rounded-lg p-0.5 border border-slate-700">
+      <button id="btnModeDesktop" type="button" class="px-2.5 py-1 rounded-md font-medium bg-blue-600 text-white transition">Desktop 3-Col (&ge;1024px)</button>
+      <button id="btnModeMobile" type="button" class="px-2.5 py-1 rounded-md font-medium text-slate-300 hover:text-white transition">Mobile Zoomin (&lt;1024px)</button>
+      <button id="btnModeCode" type="button" class="px-2.5 py-1 rounded-md font-medium text-slate-300 hover:text-white transition">Source Tiddlers (17)</button>
+    </div>
+  </div>
+  <div class="flex items-center gap-2 flex-wrap">
+    <button id="btnOpenControlPanel" type="button" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 font-semibold transition">
+      &#9881; $:/ControlPanel
+    </button>
+    <button id="btnOpenTwCompiler" type="button" class="px-2.5 py-1 rounded bg-purple-600 hover:bg-purple-500 text-white font-semibold transition">
+      &#9889; Build Real TW (.html)
+    </button>
+    <button id="btnTogglePalette" type="button" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 transition">
+      Palette: <span id="paletteLabel">Light</span>
+    </button>
+    <button id="btnDownloadHtml" type="button" class="px-2.5 py-1 rounded bg-amber-600 hover:bg-amber-500 text-white font-semibold transition">
+      &darr; Download Mobile (.html)
+    </button>
+    <button id="btnDownloadPlugin" type="button" class="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-semibold transition">
+      &darr; Download Plugin (.json)
+    </button>
+    <button id="btnDownloadDashboards" type="button" class="px-2.5 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition">
+      &darr; Starter Dashboards (.json)
+    </button>
+  </div>
+</div>
+
+<!-- Toast Notification Banner -->
+<div id="toastBanner" class="fixed top-14 right-4 z-50 hidden px-4 py-2.5 rounded-lg bg-slate-900 text-white text-xs font-medium shadow-xl border border-slate-700"></div>
+
+<!-- Main Interactive Container -->
+<div id="studioViewport" class="flex-1 flex flex-col"></div>
+
+<!-- Modal for Creating / Editing Tiddler -->
+<div id="modalOverlay" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+  <div class="mn-surface border rounded-xl max-w-lg w-full p-5 shadow-2xl">
+    <div class="flex items-center justify-between pb-3 border-b" style="border-color: var(--mn-border-subtle);">
+      <h3 id="modalTitle" class="font-bold text-base">Create New Tiddler</h3>
+      <button id="btnCloseModal" type="button" class="text-sm px-2 py-1 rounded hover:bg-slate-500/10">&times;</button>
+    </div>
+    <div class="space-y-3 my-4 text-sm">
+      <div>
+        <label class="block text-xs font-semibold mb-1" style="color: var(--mn-text-muted);">Title</label>
+        <input id="inputTiddlerTitle" type="text" class="w-full px-3 py-1.5 rounded-lg border mn-subtle text-sm" placeholder="e.g., 2026-10-16 or New Project">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold mb-1" style="color: var(--mn-text-muted);">Primary Tag / Cascade</label>
+          <select id="inputTiddlerTag" class="w-full px-3 py-1.5 rounded-lg border mn-subtle text-sm">
+            <option value="Note">Standard Note (72ch Reading)</option>
+            <option value="Journal">Journal Entry</option>
+            <option value="Project">Project</option>
+            <option value="Task">Project Task</option>
+            <option value="Media">Media Item</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold mb-1" style="color: var(--mn-text-muted);">Status / Mood / Type</label>
+          <input id="inputTiddlerMeta" type="text" class="w-full px-3 py-1.5 rounded-lg border mn-subtle text-sm" placeholder="e.g., Active, Focused, Game">
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold mb-1" style="color: var(--mn-text-muted);">WikiText Content</label>
+        <textarea id="inputTiddlerBody" rows="4" class="w-full px-3 py-2 rounded-lg border mn-subtle text-sm" placeholder="Write tiddler content..."></textarea>
+      </div>
+    </div>
+    <div class="flex justify-end gap-2 pt-2">
+      <button id="btnCancelModal" type="button" class="px-3 py-1.5 rounded-lg border mn-subtle text-xs font-semibold">Cancel</button>
+      <button id="btnSaveTiddler" type="button" class="px-4 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-semibold hover:bg-blue-500">Save to Story River</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: TiddlyWiki $:/ControlPanel, Layout Switcher & Page Controls -->
+<div id="controlPanelOverlay" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+  <div class="mn-surface border rounded-xl max-w-2xl w-full p-5 shadow-2xl max-h-[88dvh] overflow-y-auto space-y-4">
+    <div class="flex items-center justify-between pb-3 border-b" style="border-color: var(--mn-border-subtle);">
+      <div>
+        <div class="text-[10px] font-mono uppercase text-blue-500">$:/ControlPanel &bull; TiddlyWiki v5.4.0+</div>
+        <h3 class="font-bold text-base">&#9881; TiddlyWiki Control Panel &amp; Layout Switcher</h3>
+      </div>
+      <button id="btnCloseControlPanel" type="button" class="text-sm px-2.5 py-1 rounded border mn-subtle font-semibold">Done &times;</button>
+    </div>
+
+    <!-- TiddlyWiki Page Control Buttons ($:/tags/PageControls) -->
+    <div class="p-3 rounded-xl border mn-subtle space-y-2">
+      <div class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--mn-text-muted);">Core Page Controls ($:/tags/PageControls)</div>
+      <div class="flex flex-wrap gap-2 text-xs font-semibold">
+        <button data-tw-pagecontrol="New Tiddler (tm-new-tiddler)" type="button" class="px-3 py-1.5 rounded-lg border mn-surface hover:border-blue-500">&#65291; New Tiddler</button>
+        <button data-tw-pagecontrol="New Journal" type="button" class="px-3 py-1.5 rounded-lg border mn-surface hover:border-blue-500">&#128211; New Journal</button>
+        <button data-tw-pagecontrol="Switch Layout (Ctrl+Shift+L)" type="button" class="px-3 py-1.5 rounded-lg border mn-surface hover:border-blue-500">&#128466; Switch Layout ($:/layout)</button>
+        <button data-tw-pagecontrol="Palette Chooser ($:/palette)" type="button" class="px-3 py-1.5 rounded-lg border mn-surface hover:border-blue-500">&#127912; Palette ($:/palette)</button>
+        <button data-tw-pagecontrol="Advanced Search ($:/AdvancedSearch)" type="button" class="px-3 py-1.5 rounded-lg border mn-surface hover:border-blue-500">&#128269; $:/AdvancedSearch</button>
+        <button data-tw-pagecontrol="Save Wiki (tm-save-wiki)" type="button" class="px-3 py-1.5 rounded-lg border mn-surface hover:border-blue-500">&#128190; Save Wiki</button>
+      </div>
+    </div>
+
+    <!-- Modern Notebook Settings Tab ($:/tags/ControlPanel/SettingsTab) -->
+    <div class="p-3.5 rounded-xl border mn-subtle space-y-3 text-xs">
+      <div class="flex items-center justify-between">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-blue-500">Settings Tab: $:/plugins/mblackman/modern-notebook/settings</span>
+        <span class="px-2 py-0.5 rounded bg-blue-500/15 text-blue-500 font-mono text-[10px]">$:/tags/ControlPanel/SettingsTab</span>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block font-semibold mb-1" style="color: var(--mn-text-muted);">Centered Reading Width (<code>--mn-reading-width</code>)</label>
+          <select id="selectReadingWidth" class="w-full px-3 py-1.5 rounded-lg border mn-surface">
+            <option value="65ch">65ch (Compact)</option>
+            <option value="72ch" selected>72ch (Default Notebook)</option>
+            <option value="85ch">85ch (Wide Prose)</option>
+            <option value="100%">100% (Full Fluid)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold mb-1" style="color: var(--mn-text-muted);">Dashboard Max Width (<code>--mn-dashboard-width</code>)</label>
+          <select id="selectDashboardWidth" class="w-full px-3 py-1.5 rounded-lg border mn-surface">
+            <option value="1024px">1024px</option>
+            <option value="1180px" selected>1180px (Default Wide)</option>
+            <option value="1440px">1440px (Ultrawide)</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="block font-semibold mb-1" style="color: var(--mn-text-muted);">Active Storyview Override (<code>$:/view</code>)</label>
+        <div class="flex flex-wrap gap-2">
+          <button data-set-storyview="auto" type="button" class="px-3 py-1 rounded-lg border mn-surface font-semibold hover:border-blue-500">Auto (Desktop: classic / Mobile: zoomin)</button>
+          <button data-set-storyview="zoomin" type="button" class="px-3 py-1 rounded-lg border mn-surface font-semibold hover:border-blue-500">Force Single-Tiddler (zoomin)</button>
+          <button data-set-storyview="classic" type="button" class="px-3 py-1 rounded-lg border mn-surface font-semibold hover:border-blue-500">Force Multi-Tiddler River (classic)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Configurable Navigation & Mobile Bar Shortcuts Manager -->
+    <div class="p-3.5 rounded-xl border mn-subtle space-y-2.5 text-xs">
+      <div class="flex items-center justify-between">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-blue-500">Configurable Shortcuts ($:/tags/Pinned &amp; $:/tags/ModernNotebook/BottomBar)</span>
+        <span class="text-[10px]" style="color: var(--mn-text-muted);">No hardcoded theme links</span>
+      </div>
+      <p class="text-[11px]" style="color: var(--mn-text-muted);">
+        Toggle which tiddlers appear in the <strong>Left Navigation Rail</strong> (<code>$:/tags/Pinned</code>), on the <strong>Mobile Bottom Bar</strong> (<code>$:/tags/ModernNotebook/BottomBar</code>), or expand to <strong>Wide Mode</strong> (<code>Wide</code>):
+      </p>
+      <div id="shortcutManagerList" class="space-y-1.5 max-h-48 overflow-y-auto pr-1"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Real TiddlyWiki Standalone HTML Compiler / Injector -->
+<div id="twCompilerOverlay" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+  <div class="mn-surface border rounded-xl max-w-xl w-full p-5 shadow-2xl space-y-4">
+    <div class="flex items-center justify-between pb-3 border-b" style="border-color: var(--mn-border-subtle);">
+      <div>
+        <div class="text-[10px] font-mono uppercase text-purple-500">Standalone TiddlyWiki HTML Builder</div>
+        <h3 class="font-bold text-base">&#9889; Inject Theme into a Real TiddlyWiki <code>.html</code> File</h3>
+      </div>
+      <button id="btnCloseTwCompiler" type="button" class="text-sm px-2.5 py-1 rounded border mn-subtle font-semibold">&times;</button>
+    </div>
+
+    <div class="text-xs leading-relaxed space-y-2" style="color: var(--mn-text-main);">
+      <p>
+        This preview window is a lightweight UI simulator because the cloud sandbox doesn't bundle the 2.5&nbsp;MB TiddlyWiki <code>$:/core</code> kernel.
+        To generate a <strong>100% real, bootable TiddlyWiki v5.4+ <code>.html</code> file</strong> with all TiddlyWiki core options, <code>$:/ControlPanel</code>, and the <strong>Modern Notebook</strong> theme pre-installed and active:
+      </p>
+    </div>
+
+    <div class="p-4 rounded-xl border-2 border-dashed border-purple-500/40 mn-subtle text-center space-y-3">
+      <div class="text-xs font-semibold">Select any TiddlyWiki <code>.html</code> file (your personal wiki or a fresh <a href="https://tiddlywiki.com/empty.html" target="_blank" rel="noopener" class="text-blue-500 underline">empty.html</a>)</div>
+      <input id="inputTwHtmlFile" type="file" accept=".html,.htm" class="block w-full text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-500 cursor-pointer">
+      <div class="text-[11px]" style="color: var(--mn-text-muted);">
+        Injects <code>$:/plugins/mblackman/modern-notebook</code> (all 17 shadow tiddlers), sets <code>$:/layout</code> to <code>Modern Notebook</code>, adds the 3 starter dashboards, and downloads a ready-to-open TiddlyWiki <code>.html</code> file right on your device.
+      </div>
+    </div>
+
+    <div id="compilerStatusBox" class="hidden p-3 rounded-lg bg-emerald-500/15 text-emerald-500 text-xs font-semibold"></div>
+  </div>
+</div>
+
+<script>
+const PACKAGED_PLUGIN_DATA = [{"title": "$:/plugins/mblackman/modern-notebook", "name": "Modern Notebook", "description": "Generic 3-column desktop & mobile Zoomin layout theme with configurable shortcuts and UI primitives", "author": "Matt Blackman", "version": "1.1.0", "core-version": ">=5.4.0", "plugin-type": "plugin", "list": "readme settings", "type": "application/json", "text": "{\n  \"tiddlers\": {\n    \"$:/plugins/mblackman/modern-notebook/readme\": {\n      \"title\": \"$:/plugins/mblackman/modern-notebook/readme\",\n      \"type\": \"text/vnd.tiddlywiki\",\n      \"text\": \"\\\\whitespace trim\\n<h3>Modern Notebook Theme & Layout (v1.1.0 for TiddlyWiki v5.4.0+)</h3>\\n<p>A generic, configurable 3-column desktop reading workspace and mobile <code>zoomin</code> single-tiddler layout.</p>\\n<ul>\\n\\t<li><strong>Pin Any Tiddler to Left Nav:</strong> Tag any tiddler with <code>$:/tags/Pinned</code> (or customize <code>$:/config/modern-notebook/pinned-filter</code> in Settings).</li>\\n\\t<li><strong>Customize Mobile Bottom Bar:</strong> Tag any tiddler with <code>$:/tags/ModernNotebook/BottomBar</code> (with optional <code>mn-icon</code> and <code>caption</code> fields) or list titles in <code>$:/config/modern-notebook/mobile-shortcuts</code>.</li>\\n\\t<li><strong>Wide Mode for Dashboards:</strong> Add field <code>page-width: wide</code> (or tag <code>Wide</code>) to any tiddler to expand it from <code>72ch</code> to <code>1180px</code>.</li>\\n</ul>\\n\"\n    },\n    \"$:/plugins/mblackman/modern-notebook/settings\": {\n      \"title\": \"$:/plugins/mblackman/modern-notebook/settings\",\n      \"tags\": \"$:/tags/ControlPanel/SettingsTab\",\n      \"caption\": \"Modern Notebook\",\n      \"type\": \"text/vnd.tiddlywiki\",\n      \"text\": \"\\\\whitespace trim\\n<h3>Modern Notebook Layout & Navigation Settings</h3>\\n<p class=\\\"mn-prop-label\\\">Customize your pinned shortcuts, mobile bottom bar slots, reading widths, and property pills without modifying theme code.</p>\\n\\n<div class=\\\"mn-card\\\" style=\\\"margin-bottom:1rem;\\\">\\n\\t<h4 class=\\\"mn-nav-heading\\\">1. Navigation & Shortcut Customization</h4>\\n\\t<div class=\\\"mn-object-prop-bar\\\">\\n\\t\\t<label class=\\\"mn-prop-label\\\" style=\\\"min-width:240px;\\\">Left Nav Pinned Filter:</label>\\n\\t\\t<$edit-text tiddler=\\\"$:/config/modern-notebook/pinned-filter\\\" field=\\\"text\\\" default=\\\"[all[shadows+tiddlers]tag[$:/tags/Pinned]!has[draft.of]]\\\" tag=\\\"input\\\" class=\\\"mn-search-input\\\"/>\\n\\t</div>\\n\\t<div class=\\\"mn-object-prop-bar\\\">\\n\\t\\t<label class=\\\"mn-prop-label\\\" style=\\\"min-width:240px;\\\">Mobile Bottom Bar Shortcuts (Title List):</label>\\n\\t\\t<$edit-text tiddler=\\\"$:/config/modern-notebook/mobile-shortcuts\\\" field=\\\"text\\\" default=\\\"\\\" placeholder=\\\"e.g. [[Journal Dashboard]] [[Media Hub]]\\\" tag=\\\"input\\\" class=\\\"mn-search-input\\\"/>\\n\\t</div>\\n\\t<div class=\\\"mn-object-prop-bar\\\">\\n\\t\\t<label class=\\\"mn-prop-label\\\" style=\\\"min-width:240px;\\\">Wide Tiddler Filter (<code>1180px</code>):</label>\\n\\t\\t<$edit-text tiddler=\\\"$:/config/modern-notebook/wide-filter\\\" field=\\\"text\\\" default=\\\"[tag[Wide]] [field:page-width[wide]]\\\" tag=\\\"input\\\" class=\\\"mn-search-input\\\"/>\\n\\t</div>\\n\\t<div class=\\\"mn-object-prop-bar\\\">\\n\\t\\t<label class=\\\"mn-prop-label\\\" style=\\\"min-width:240px;\\\">Auto-Displayed Property Pill Fields:</label>\\n\\t\\t<$edit-text tiddler=\\\"$:/config/modern-notebook/default-property-fields\\\" field=\\\"text\\\" default=\\\"status priority mood rating media-type creator due-date\\\" tag=\\\"input\\\" class=\\\"mn-search-input\\\"/>\\n\\t</div>\\n</div>\\n\\n<div class=\\\"mn-card\\\" style=\\\"margin-bottom:1rem;\\\">\\n\\t<h4 class=\\\"mn-nav-heading\\\">2. Layout Dimensions & Responsive Breakpoints</h4>\\n\\t<div class=\\\"mn-object-prop-bar\\\">\\n\\t\\t<label class=\\\"mn-prop-label\\\" style=\\\"min-width:240px;\\\">Centered Reading Column Width:</label>\\n\\t\\t<$edit-text tiddler=\\\"$:/config/modern-notebook/reading-width\\\" field=\\\"text\\\" default=\\\"72ch\\\" tag=\\\"input\\\" class=\\\"mn-search-input\\\"/>\\n\\t</div>\\n\\t<div class=\\\"mn-object-prop-bar\\\">\\n\\t\\t<label class=\\\"mn-prop-label\\\" style=\\\"min-width:240px;\\\">Wide Container Max Width:</label>\\n\\t\\t<$edit-text tiddler=\\\"$:/config/modern-notebook/wide-width\\\" field=\\\"text\\\" default=\\\"1180px\\\" tag=\\\"input\\\" class=\\\"mn-search-input\\\"/>\\n\\t</div>\\n\\t<div class=\\\"mn-object-prop-bar\\\">\\n\\t\\t<label class=\\\"mn-prop-label\\\" style=\\\"min-width:240px;\\\">Mobile Zoomin Breakpoint (px):</label>\\n\\t\\t<$edit-text tiddler=\\\"$:/config/modern-notebook/mobile-breakpoint\\\" field=\\\"text\\\" default=\\\"1024\\\" tag=\\\"input\\\" class=\\\"mn-search-input\\\"/>\\n\\t</div>\\n</div>\\n\\n<$button class=\\\"mn-pill-btn\\\">\\n\\t<$action-deletetiddler $filter=\\\"[prefix[$:/config/modern-notebook/]] [prefix[$:/state/modern-notebook/]]\\\"/>\\n\\t\\u21ba Reset Modern Notebook Settings to Defaults\\n</$button>\\n\"\n    },\n    \"$:/plugins/mblackman/modern-notebook/styles/core.css\": {\n      \"title\": \"$:/plugins/mblackman/modern-notebook/styles/core.css\",\n      \"tags\": \"$:/tags/Stylesheet\",\n      \"type\": \"text/css\",\n      \"text\": \"/*=============================================================================\\n  Modern Notebook Theme & Layout for TiddlyWiki v5.4.0+\\n  100% Generic & Configurable Architecture\\n  Uses native v5.4.0 Core CSS Variables (--tpc-* palette & --tp-* metrics)\\n=============================================================================*/\\n@layer tokens, layout, tiddler, components, utilities, mobile;\\n\\n@layer tokens {\\n\\t:root {\\n\\t\\t--mn-bg-app: var(--tp-color-page-background, #f4f6f9);\\n\\t\\t--mn-bg-surface: var(--tp-color-background, #ffffff);\\n\\t\\t--mn-bg-elevated: color-mix(in srgb, var(--tp-color-background, #ffffff) 93%, var(--tp-color-foreground, #0f172a) 7%);\\n\\t\\t--mn-bg-subtle: color-mix(in srgb, var(--tp-color-background, #ffffff) 96%, var(--tp-color-foreground, #0f172a) 4%);\\n\\t\\t--mn-border-subtle: color-mix(in srgb, var(--tp-color-foreground, #0f172a) 11%, transparent);\\n\\t\\t--mn-border-strong: color-mix(in srgb, var(--tp-color-foreground, #0f172a) 22%, transparent);\\n\\t\\t--mn-text-main: var(--tp-color-foreground, #0f172a);\\n\\t\\t--mn-text-muted: var(--tp-color-muted-foreground, #64748b);\\n\\t\\t--mn-accent: var(--tp-color-primary, #2563eb);\\n\\t\\t--mn-accent-soft: color-mix(in srgb, var(--tp-color-primary, #2563eb) 14%, transparent);\\n\\t\\t--mn-tag-bg: var(--tp-color-tag-background, #e2e8f0);\\n\\t\\t--mn-tag-fg: var(--tp-color-tag-foreground, #1e293b);\\n\\t\\t--mn-left-width: 260px;\\n\\t\\t--mn-right-width: 320px;\\n\\t\\t--mn-reading-width: var(--tp-tiddler-width, 72ch);\\n\\t\\t--mn-wide-width: 1180px;\\n\\t\\t--mn-topbar-height: 52px;\\n\\t\\t--mn-pillstrip-height: 42px;\\n\\t\\t--mn-bottombar-height: 60px;\\n\\t\\t--mn-radius-card: 12px;\\n\\t\\t--mn-radius-sm: 8px;\\n\\t\\t--mn-radius-pill: 9999px;\\n\\t\\t--mn-shadow-card: 0 1px 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.03);\\n\\t\\t--mn-shadow-sheet: 0 -8px 30px rgba(15, 23, 42, 0.18);\\n\\t\\t--mn-transition: var(--tp-animation-duration, 180ms) cubic-bezier(0.2, 0, 0, 1);\\n\\t}\\n}\\n\\n@layer layout {\\n\\t.mn-app-shell {\\n\\t\\tposition: relative;\\n\\t\\tdisplay: flex;\\n\\t\\tflex-direction: column;\\n\\t\\tmin-height: 100dvh;\\n\\t\\tbackground: var(--mn-bg-app);\\n\\t\\tcolor: var(--mn-text-main);\\n\\t\\tfont-size: var(--tp-body-font-size, 15px);\\n\\t\\tline-height: var(--tp-body-line-height, 1.6);\\n\\t\\tisolation: isolate;\\n\\t}\\n\\n\\t.mn-topbar {\\n\\t\\tposition: sticky;\\n\\t\\ttop: 0;\\n\\t\\tz-index: 420;\\n\\t\\theight: var(--mn-topbar-height);\\n\\t\\tdisplay: flex;\\n\\t\\talign-items: center;\\n\\t\\tjustify-content: space-between;\\n\\t\\tgap: 1rem;\\n\\t\\tpadding: 0 1rem;\\n\\t\\tbackground: color-mix(in srgb, var(--mn-bg-surface) 92%, transparent);\\n\\t\\tbackdrop-filter: blur(12px);\\n\\t\\tborder-bottom: 1px solid var(--mn-border-subtle);\\n\\t}\\n\\n\\t.mn-topbar-left,\\n\\t.mn-topbar-right {\\n\\t\\tdisplay: flex;\\n\\t\\talign-items: center;\\n\\t\\tgap: 0.5rem;\\n\\t}\\n\\n\\t.mn-topbar-center {\\n\\t\\tflex: 1;\\n\\t\\tmax-width: 520px;\\n\\t\\tdisplay: flex;\\n\\t\\talign-items: center;\\n\\t\\tgap: 0.5rem;\\n\\t}\\n\\n\\t.mn-workspace-grid {\\n\\t\\tposition: relative;\\n\\t\\tz-index: 1;\\n\\t\\tdisplay: grid;\\n\\t\\tgrid-template-columns: var(--mn-left-width) minmax(0, 1fr) var(--mn-right-width);\\n\\t\\tflex: 1;\\n\\t\\talign-items: start;\\n\\t\\ttransition: grid-template-columns var(--mn-transition);\\n\\t}\\n\\n\\t.mn-left-collapsed .mn-workspace-grid {\\n\\t\\tgrid-template-columns: 0px minmax(0, 1fr) var(--mn-right-width);\\n\\t}\\n\\n\\t.mn-right-collapsed .mn-workspace-grid {\\n\\t\\tgrid-template-columns: var(--mn-left-width) minmax(0, 1fr) 0px;\\n\\t}\\n\\n\\t.mn-left-collapsed.mn-right-collapsed .mn-workspace-grid {\\n\\t\\tgrid-template-columns: 0px minmax(0, 1fr) 0px;\\n\\t}\\n\\n\\t.mn-panel-left,\\n\\t.mn-panel-right {\\n\\t\\tposition: sticky;\\n\\t\\ttop: var(--mn-topbar-height);\\n\\t\\tz-index: 200;\\n\\t\\theight: calc(100dvh - var(--mn-topbar-height));\\n\\t\\toverflow-y: auto;\\n\\t\\toverflow-x: hidden;\\n\\t\\tbackground: var(--mn-bg-surface);\\n\\t}\\n\\n\\t.mn-panel-left {\\n\\t\\tborder-right: 1px solid var(--mn-border-subtle);\\n\\t}\\n\\n\\t.mn-panel-right {\\n\\t\\tborder-left: 1px solid var(--mn-border-subtle);\\n\\t}\\n\\n\\t.mn-left-collapsed .mn-panel-left,\\n\\t.mn-right-collapsed .mn-panel-right {\\n\\t\\tborder: none;\\n\\t\\tpointer-events: none;\\n\\t\\topacity: 0;\\n\\t}\\n\\n\\t.mn-story-container {\\n\\t\\tposition: relative;\\n\\t\\tz-index: 1;\\n\\t\\tpadding: 2rem 1.75rem 5rem;\\n\\t\\twidth: 100%;\\n\\t\\tmin-width: 0;\\n\\t}\\n}\\n\\n@layer tiddler {\\n\\t/* Centered Reading Column for Standard Tiddlers (z-index: 1 so menus always float above) */\\n\\t.mn-story-container .tc-tiddler-frame {\\n\\t\\tposition: relative;\\n\\t\\tz-index: 1;\\n\\t\\tmax-width: var(--mn-reading-width);\\n\\t\\tmargin: 0 auto 1.5rem;\\n\\t\\tpadding: 2.25rem 2.5rem;\\n\\t\\tbackground: var(--mn-bg-surface);\\n\\t\\tborder: 1px solid var(--mn-border-subtle);\\n\\t\\tborder-radius: var(--mn-radius-card);\\n\\t\\tbox-shadow: var(--mn-shadow-card);\\n\\t}\\n\\n\\t/* Generic Wide Mode: triggered by .mn-wide-view or user-configured wide tag/field */\\n\\t.mn-story-container .tc-tiddler-frame:has(.mn-wide-view),\\n\\t.mn-story-container .tc-tiddler-frame.mn-tiddler-wide {\\n\\t\\tmax-width: var(--mn-wide-width);\\n\\t}\\n\\n\\t/* Generic Inline Object Property Header Bar */\\n\\t.mn-object-prop-bar {\\n\\t\\tdisplay: flex;\\n\\t\\tflex-wrap: wrap;\\n\\t\\talign-items: center;\\n\\t\\tgap: 0.5rem;\\n\\t\\tmargin: 0.65rem 0 1.25rem;\\n\\t\\tpadding: 0.5rem 0.75rem;\\n\\t\\tbackground: var(--mn-bg-subtle);\\n\\t\\tborder: 1px solid var(--mn-border-subtle);\\n\\t\\tborder-radius: var(--mn-radius-sm);\\n\\t\\tfont-size: 0.85em;\\n\\t}\\n}\\n\\n@layer components {\\n\\t.mn-nav-section {\\n\\t\\tpadding: 0.85rem 0.85rem 0.5rem;\\n\\t}\\n\\n\\t.mn-nav-heading {\\n\\t\\tfont-size: 0.72rem;\\n\\t\\tfont-weight: 700;\\n\\t\\ttext-transform: uppercase;\\n\\t\\tletter-spacing: 0.06em;\\n\\t\\tcolor: var(--mn-text-muted);\\n\\t\\tmargin: 0 0 0.5rem;\\n\\t\\tdisplay: flex;\\n\\t\\talign-items: center;\\n\\t\\tjustify-content: space-between;\\n\\t}\\n\\n\\t.mn-nav-item {\\n\\t\\tdisplay: flex;\\n\\t\\talign-items: center;\\n\\t\\tjustify-content: space-between;\\n\\t\\tgap: 0.5rem;\\n\\t\\tpadding: 0.45rem 0.65rem;\\n\\t\\tborder-radius: var(--mn-radius-sm);\\n\\t\\tcolor: var(--mn-text-main);\\n\\t\\ttext-decoration: none;\\n\\t\\tfont-size: 0.9em;\\n\\t\\ttransition: background var(--mn-transition);\\n\\t}\\n\\n\\t.mn-nav-item:hover {\\n\\t\\tbackground: var(--mn-bg-elevated);\\n\\t}\\n\\n\\t.mn-nav-item-active {\\n\\t\\tbackground: var(--mn-accent-soft);\\n\\t\\tcolor: var(--mn-accent);\\n\\t\\tfont-weight: 600;\\n\\t}\\n\\n\\t.mn-card {\\n\\t\\tbackground: var(--mn-bg-surface);\\n\\t\\tborder: 1px solid var(--mn-border-subtle);\\n\\t\\tborder-top: 3px solid var(--mn-card-accent, var(--mn-accent));\\n\\t\\tborder-radius: var(--mn-radius-card);\\n\\t\\tpadding: 1.1rem 1.25rem;\\n\\t\\tbox-shadow: var(--mn-shadow-card);\\n\\t\\tdisplay: flex;\\n\\t\\tflex-direction: column;\\n\\t\\tgap: 0.75rem;\\n\\t}\\n\\n\\t.mn-card-header {\\n\\t\\tdisplay: flex;\\n\\t\\talign-items: flex-start;\\n\\t\\tjustify-content: space-between;\\n\\t\\tgap: 0.75rem;\\n\\t}\\n\\n\\t.mn-card-title {\\n\\t\\tfont-weight: 600;\\n\\t\\tfont-size: 1.05em;\\n\\t\\tcolor: var(--mn-text-main);\\n\\t\\ttext-decoration: none;\\n\\t}\\n\\n\\t.mn-badge {\\n\\t\\tdisplay: inline-flex;\\n\\t\\talign-items: center;\\n\\t\\tpadding: 0.15rem 0.55rem;\\n\\t\\tborder-radius: var(--mn-radius-pill);\\n\\t\\tfont-size: 0.75rem;\\n\\t\\tfont-weight: 600;\\n\\t\\tbackground: var(--mn-accent-soft);\\n\\t\\tcolor: var(--mn-accent);\\n\\t}\\n\\n\\t.mn-prop-pill {\\n\\t\\tdisplay: inline-flex;\\n\\t\\talign-items: center;\\n\\t\\tgap: 0.35rem;\\n\\t\\tpadding: 0.2rem 0.55rem;\\n\\t\\tbackground: var(--mn-bg-surface);\\n\\t\\tborder: 1px solid var(--mn-border-subtle);\\n\\t\\tborder-radius: var(--mn-radius-pill);\\n\\t\\tfont-size: 0.8rem;\\n\\t}\\n\\n\\t.mn-prop-label {\\n\\t\\tcolor: var(--mn-text-muted);\\n\\t\\tfont-weight: 500;\\n\\t}\\n\\n\\t.mn-search-input {\\n\\t\\twidth: 100%;\\n\\t\\tpadding: 0.45rem 0.85rem;\\n\\t\\tborder-radius: var(--mn-radius-pill);\\n\\t\\tborder: 1px solid var(--mn-border-subtle);\\n\\t\\tbackground: var(--mn-bg-subtle);\\n\\t\\tcolor: var(--mn-text-main);\\n\\t\\tfont-size: 0.9em;\\n\\t}\\n\\n\\t.mn-btn-primary {\\n\\t\\tdisplay: inline-flex;\\n\\t\\talign-items: center;\\n\\t\\tgap: 0.4rem;\\n\\t\\tpadding: 0.45rem 0.9rem;\\n\\t\\tborder-radius: var(--mn-radius-sm);\\n\\t\\tbackground: var(--mn-accent);\\n\\t\\tcolor: #ffffff;\\n\\t\\tborder: none;\\n\\t\\tfont-weight: 600;\\n\\t\\tfont-size: 0.88em;\\n\\t\\tcursor: pointer;\\n\\t}\\n\\n\\t.mn-pill-btn {\\n\\t\\tpadding: 0.3rem 0.75rem;\\n\\t\\tborder-radius: var(--mn-radius-pill);\\n\\t\\tborder: 1px solid var(--mn-border-subtle);\\n\\t\\tbackground: var(--mn-bg-surface);\\n\\t\\tcolor: var(--mn-text-muted);\\n\\t\\tfont-size: 0.82rem;\\n\\t\\tfont-weight: 500;\\n\\t\\tcursor: pointer;\\n\\t}\\n\\n\\t.mn-pill-active {\\n\\t\\tbackground: var(--mn-accent);\\n\\t\\tcolor: #ffffff;\\n\\t\\tborder-color: var(--mn-accent);\\n\\t}\\n\\n\\t/* Generic Hero, Auto-Grid, Poster Grid & Progress Primitives */\\n\\t.mn-hero {\\n\\t\\tdisplay: flex;\\n\\t\\talign-items: center;\\n\\t\\tjustify-content: space-between;\\n\\t\\tflex-wrap: wrap;\\n\\t\\tgap: 1rem;\\n\\t\\tpadding: 1.25rem 1.5rem;\\n\\t\\tmargin-bottom: 1.25rem;\\n\\t\\tbackground: linear-gradient(135deg, var(--mn-accent-soft), var(--mn-bg-subtle));\\n\\t\\tborder: 1px solid var(--mn-border-subtle);\\n\\t\\tborder-radius: var(--mn-radius-card);\\n\\t}\\n\\n\\t.mn-grid {\\n\\t\\tdisplay: grid;\\n\\t\\tgrid-template-columns: repeat(auto-fill, minmax(var(--mn-grid-min, 280px), 1fr));\\n\\t\\tgap: 1rem;\\n\\t\\tmargin-top: 1rem;\\n\\t}\\n\\n\\t.mn-progress-track {\\n\\t\\twidth: 100%;\\n\\t\\theight: 7px;\\n\\t\\tbackground: var(--mn-bg-elevated);\\n\\t\\tborder-radius: var(--mn-radius-pill);\\n\\t\\toverflow: hidden;\\n\\t\\tmargin-top: 0.3rem;\\n\\t}\\n\\n\\t.mn-progress-fill {\\n\\t\\theight: 100%;\\n\\t\\tbackground: var(--mn-accent);\\n\\t\\tborder-radius: var(--mn-radius-pill);\\n\\t\\ttransition: width var(--mn-transition);\\n\\t}\\n}\\n\\n@layer mobile {\\n\\t/* Open Tiddler Pill Switcher Strip on Mobile \\u2014 pinned directly below topbar, above tiddlers */\\n\\t.mn-mobile-pill-strip {\\n\\t\\tposition: sticky;\\n\\t\\ttop: var(--mn-topbar-height);\\n\\t\\tz-index: 410;\\n\\t\\tdisplay: flex;\\n\\t\\talign-items: center;\\n\\t\\tgap: 0.45rem;\\n\\t\\tpadding: 0.45rem 0.75rem;\\n\\t\\toverflow-x: auto;\\n\\t\\tbackground: color-mix(in srgb, var(--mn-bg-surface) 95%, transparent);\\n\\t\\tbackdrop-filter: blur(10px);\\n\\t\\tborder-bottom: 1px solid var(--mn-border-subtle);\\n\\t\\tscrollbar-width: none;\\n\\t}\\n\\n\\t.mn-mobile-tab-chip {\\n\\t\\tdisplay: inline-flex;\\n\\t\\talign-items: center;\\n\\t\\tgap: 0.35rem;\\n\\t\\tpadding: 0.28rem 0.65rem;\\n\\t\\tborder-radius: var(--mn-radius-pill);\\n\\t\\tbackground: var(--mn-bg-subtle);\\n\\t\\tborder: 1px solid var(--mn-border-subtle);\\n\\t\\tfont-size: 0.8rem;\\n\\t\\twhite-space: nowrap;\\n\\t}\\n\\n\\t.mn-mobile-tab-chip-active {\\n\\t\\tbackground: var(--mn-accent-soft);\\n\\t\\tborder-color: var(--mn-accent);\\n\\t\\tcolor: var(--mn-accent);\\n\\t\\tfont-weight: 600;\\n\\t}\\n\\n\\t/* Fixed Thumb-Zone Bottom Bar \\u2014 high z-index (480) so it NEVER renders under tiddlers */\\n\\t.mn-mobile-bottombar {\\n\\t\\tposition: fixed;\\n\\t\\tbottom: 0;\\n\\t\\tleft: 0;\\n\\t\\tright: 0;\\n\\t\\tz-index: 480;\\n\\t\\theight: calc(var(--mn-bottombar-height) + env(safe-area-inset-bottom, 0px));\\n\\t\\tpadding-bottom: env(safe-area-inset-bottom, 0px);\\n\\t\\tbackground: color-mix(in srgb, var(--mn-bg-surface) 96%, transparent);\\n\\t\\tbackdrop-filter: blur(16px);\\n\\t\\tborder-top: 1px solid var(--mn-border-subtle);\\n\\t\\tdisplay: flex;\\n\\t\\talign-items: center;\\n\\t\\tjustify-content: space-around;\\n\\t\\tbox-shadow: 0 -2px 12px rgba(15, 23, 42, 0.06);\\n\\t}\\n\\n\\t.mn-mobile-nav-btn {\\n\\t\\tflex: 1;\\n\\t\\tdisplay: flex;\\n\\t\\tflex-direction: column;\\n\\t\\talign-items: center;\\n\\t\\tjustify-content: center;\\n\\t\\tgap: 0.15rem;\\n\\t\\theight: 100%;\\n\\t\\tbackground: transparent;\\n\\t\\tborder: none;\\n\\t\\tcolor: var(--mn-text-muted);\\n\\t\\tfont-size: 0.68rem;\\n\\t\\tfont-weight: 600;\\n\\t\\tcursor: pointer;\\n\\t}\\n\\n\\t/* Mobile Left Drawer Backdrop & Overlay */\\n\\t.mn-mobile-drawer-backdrop {\\n\\t\\tposition: fixed;\\n\\t\\tinset: 0;\\n\\t\\tz-index: 460;\\n\\t\\tbackground: rgba(15, 23, 42, 0.4);\\n\\t}\\n\\n\\t/* Slide-Up Bottom Sheet for Zoomed Tiddler Options */\\n\\t.mn-backdrop {\\n\\t\\tposition: fixed;\\n\\t\\tinset: 0;\\n\\t\\tz-index: 520;\\n\\t\\tbackground: rgba(15, 23, 42, 0.45);\\n\\t\\tdisplay: flex;\\n\\t\\tflex-direction: column;\\n\\t\\tjustify-content: flex-end;\\n\\t}\\n\\n\\t.mn-bottom-sheet {\\n\\t\\tbackground: var(--mn-bg-surface);\\n\\t\\tborder-radius: 18px 18px 0 0;\\n\\t\\tpadding: 1.15rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom, 0px));\\n\\t\\tmax-height: 82dvh;\\n\\t\\toverflow-y: auto;\\n\\t\\tbox-shadow: var(--mn-shadow-sheet);\\n\\t}\\n\\n\\t.mn-sheet-action-grid {\\n\\t\\tdisplay: grid;\\n\\t\\tgrid-template-columns: repeat(auto-fill, minmax(110px, 1fr));\\n\\t\\tgap: 0.6rem;\\n\\t\\tmargin: 1rem 0;\\n\\t}\\n\\n\\t.mn-sheet-action-item {\\n\\t\\tdisplay: flex;\\n\\t\\talign-items: center;\\n\\t\\tjustify-content: center;\\n\\t\\tmin-height: 44px;\\n\\t\\tpadding: 0.5rem;\\n\\t\\tbackground: var(--mn-bg-subtle);\\n\\t\\tborder: 1px solid var(--mn-border-subtle);\\n\\t\\tborder-radius: var(--mn-radius-sm);\\n\\t}\\n\\n\\t@media (max-width: 1023px) {\\n\\t\\t.mn-workspace-grid {\\n\\t\\t\\tgrid-template-columns: minmax(0, 1fr) !important;\\n\\t\\t}\\n\\n\\t\\t.mn-panel-left {\\n\\t\\t\\tposition: fixed !important;\\n\\t\\t\\ttop: var(--mn-topbar-height) !important;\\n\\t\\t\\tleft: 0 !important;\\n\\t\\t\\tbottom: var(--mn-bottombar-height) !important;\\n\\t\\t\\theight: auto !important;\\n\\t\\t\\tz-index: 470 !important;\\n\\t\\t\\twidth: min(84vw, 300px) !important;\\n\\t\\t\\tbox-shadow: 8px 0 24px rgba(15, 23, 42, 0.22);\\n\\t\\t\\ttransition: transform var(--mn-transition), opacity var(--mn-transition);\\n\\t\\t}\\n\\n\\t\\t.mn-left-collapsed .mn-panel-left {\\n\\t\\t\\ttransform: translateX(-105%);\\n\\t\\t\\topacity: 0;\\n\\t\\t\\tpointer-events: none;\\n\\t\\t}\\n\\n\\t\\t.mn-story-container {\\n\\t\\t\\tpadding: 0.85rem 0.75rem calc(var(--mn-bottombar-height) + 2.5rem);\\n\\t\\t}\\n\\n\\t\\t.mn-story-container .tc-tiddler-frame {\\n\\t\\t\\tpadding: 1.25rem 1.1rem;\\n\\t\\t\\tmargin-bottom: 0.75rem;\\n\\t\\t}\\n\\n\\t\\t/* Hide top-right toolbar clutter on mobile; use Bottom Sheet (\\u2022\\u2022\\u2022) instead */\\n\\t\\t.mn-story-container .tc-tiddler-controls {\\n\\t\\t\\tdisplay: none;\\n\\t\\t}\\n\\t}\\n}\\n\"\n    },\n    \"$:/plugins/mblackman/modern-notebook/ui/Layout\": {\n      \"title\": \"$:/plugins/mblackman/modern-notebook/ui/Layout\",\n      \"tags\": \"$:/tags/Layout\",\n      \"name\": \"Modern Notebook\",\n      \"description\": \"Generic 3-column centered reading workspace with configurable shortcuts and mobile Zoomin bottom bar\",\n      \"type\": \"text/vnd.tiddlywiki\",\n      \"text\": \"\\\\whitespace trim\\n\\\\import [subfilter{$:/core/config/GlobalImportFilter}]\\n\\n\\\\function .breakpoint() [{$:/config/modern-notebook/mobile-breakpoint}!is[blank]else[1024]]\\n\\\\function .is-mobile() [{$:/info/browser/window/system/main/client/width}compare:number:lt<.breakpoint>then[yes]else[no]]\\n\\\\function .active-storyview()\\n[{$:/config/modern-notebook/storyview-override}!is[blank]!match[auto]]\\n~[.is-mobile[]match[yes]then[zoomin]else[classic]]\\n\\\\end\\n\\n\\\\function .container-classes()\\ntc-page-container mn-app-shell\\n[{$:/state/modern-notebook/left-panel}match[no]then[mn-left-collapsed]else[mn-left-open]]\\n[{$:/state/modern-notebook/right-panel}match[no]then[mn-right-collapsed]else[mn-right-open]]\\n[.is-mobile[]match[yes]then[mn-is-mobile]else[mn-is-desktop]]\\n+[join[ ]]\\n\\\\end\\n\\n\\\\procedure redirected-navigate-actions()\\n<$action-setfield $tiddler=\\\"$:/HistoryList\\\" current-tiddler=<<event-navigateTo>> $timestamp=\\\"no\\\"/>\\n<%if [.is-mobile[]match[yes]] %>\\n\\t<$action-setfield $tiddler=\\\"$:/state/modern-notebook/left-panel\\\" text=\\\"no\\\" $timestamp=\\\"no\\\"/>\\n<%endif%>\\n<$action-navigate $to=<<event-navigateTo>> $scroll=\\\"yes\\\"/>\\n\\\\end\\n\\n<$navigator\\n\\tstory=\\\"$:/StoryList\\\"\\n\\thistory=\\\"$:/HistoryList\\\"\\n\\topenLinkFromInsideRiver={{$:/config/Navigation/openLinkFromInsideRiver}}\\n\\topenLinkFromOutsideRiver={{$:/config/Navigation/openLinkFromOutsideRiver}}\\n\\trelinkOnRename={{$:/config/RelinkOnRename}}\\n>\\n\\t<$messagecatcher $tm-navigate=<<redirected-navigate-actions>>>\\n\\t\\t<$dropzone enable=<<tv-enable-drag-and-drop>>>\\n\\t\\t\\t<div class=<<.container-classes>> style=`--mn-reading-width: ${ [{$:/config/modern-notebook/reading-width}!is[blank]else[72ch]] }$; --mn-wide-width: ${ [{$:/config/modern-notebook/wide-width}!is[blank]else[1180px]] }$;`>\\n\\t\\t\\t\\t<!-- Sticky Top Command Header (z-index: 420) -->\\n\\t\\t\\t\\t<header class=\\\"mn-topbar tc-adjust-top-of-scroll\\\">\\n\\t\\t\\t\\t\\t{{$:/plugins/mblackman/modern-notebook/ui/TopBar}}\\n\\t\\t\\t\\t</header>\\n\\n\\t\\t\\t\\t<!-- Mobile Horizontal Open-Tiddler Switcher Strip (z-index: 410) -->\\n\\t\\t\\t\\t<%if [.is-mobile[]match[yes]] %>\\n\\t\\t\\t\\t\\t{{$:/plugins/mblackman/modern-notebook/ui/MobilePillStrip}}\\n\\t\\t\\t\\t<%endif%>\\n\\n\\t\\t\\t\\t<!-- Mobile Drawer Backdrop when Left Nav is Open on Mobile -->\\n\\t\\t\\t\\t<%if [.is-mobile[]match[yes]] [{$:/state/modern-notebook/left-panel}!match[no]] +[count[]match[2]] %>\\n\\t\\t\\t\\t\\t<$button set=\\\"$:/state/modern-notebook/left-panel\\\" setTo=\\\"no\\\" class=\\\"mn-mobile-drawer-backdrop tc-btn-invisible\\\" aria-label=\\\"Close navigation drawer\\\"/>\\n\\t\\t\\t\\t<%endif%>\\n\\n\\t\\t\\t\\t<!-- Three-Zone Workspace Grid -->\\n\\t\\t\\t\\t<div class=\\\"mn-workspace-grid\\\">\\n\\t\\t\\t\\t\\t<aside class=\\\"mn-panel-left\\\">\\n\\t\\t\\t\\t\\t\\t{{$:/plugins/mblackman/modern-notebook/ui/LeftNav}}\\n\\t\\t\\t\\t\\t</aside>\\n\\n\\t\\t\\t\\t\\t<main class=\\\"mn-story-container\\\">\\n\\t\\t\\t\\t\\t\\t<$list\\n\\t\\t\\t\\t\\t\\t\\tfilter=\\\"[list[$:/StoryList]]\\\"\\n\\t\\t\\t\\t\\t\\t\\thistory=\\\"$:/HistoryList\\\"\\n\\t\\t\\t\\t\\t\\t\\ttemplate={{$:/config/ui/ViewTemplate}}\\n\\t\\t\\t\\t\\t\\t\\teditTemplate={{$:/config/ui/EditTemplate}}\\n\\t\\t\\t\\t\\t\\t\\tstoryview=<<.active-storyview>>\\n\\t\\t\\t\\t\\t\\t\\temptyMessage={{$:/config/EmptyStoryMessage}}\\n\\t\\t\\t\\t\\t\\t/>\\n\\t\\t\\t\\t\\t</main>\\n\\n\\t\\t\\t\\t\\t<%if [.is-mobile[]match[no]] %>\\n\\t\\t\\t\\t\\t\\t<aside class=\\\"mn-panel-right\\\">\\n\\t\\t\\t\\t\\t\\t\\t{{$:/plugins/mblackman/modern-notebook/ui/RightInspector}}\\n\\t\\t\\t\\t\\t\\t</aside>\\n\\t\\t\\t\\t\\t<%endif%>\\n\\t\\t\\t\\t</div>\\n\\n\\t\\t\\t\\t<!-- Fixed Mobile Bottom Bar & Zoomed Tiddler Options Sheet (z-index: 480/520) -->\\n\\t\\t\\t\\t<%if [.is-mobile[]match[yes]] %>\\n\\t\\t\\t\\t\\t{{$:/plugins/mblackman/modern-notebook/ui/MobileBar}}\\n\\t\\t\\t\\t<%endif%>\\n\\t\\t\\t</div>\\n\\t\\t</$dropzone>\\n\\t</$messagecatcher>\\n</$navigator>\\n\"\n    },\n    \"$:/plugins/mblackman/modern-notebook/ui/TopBar\": {\n      \"title\": \"$:/plugins/mblackman/modern-notebook/ui/TopBar\",\n      \"type\": \"text/vnd.tiddlywiki\",\n      \"text\": \"\\\\whitespace trim\\n<div class=\\\"mn-topbar-left\\\">\\n\\t<$button\\n\\t\\tset=\\\"$:/state/modern-notebook/left-panel\\\"\\n\\t\\tsetTo={{{ [{$:/state/modern-notebook/left-panel}match[no]then[yes]else[no]] }}}\\n\\t\\tclass=\\\"mn-pill-btn\\\"\\n\\t\\ttooltip=\\\"Toggle Left Navigation Rail\\\"\\n\\t>\\n\\t\\t\\u2630\\n\\t</$button>\\n\\t<span class=\\\"mn-site-brand\\\">\\n\\t\\t<$link to={{$:/HistoryList!!current-tiddler}} class=\\\"mn-card-title\\\">\\n\\t\\t\\t<$text text={{{ [{$:/SiteTitle}!is[blank]else[TiddlyWiki]] }}}/>\\n\\t\\t</$link>\\n\\t</span>\\n</div>\\n\\n<div class=\\\"mn-topbar-center\\\">\\n\\t<$edit-text\\n\\t\\ttiddler=\\\"$:/temp/volatile/modern-notebook/global-search\\\"\\n\\t\\tfield=\\\"text\\\"\\n\\t\\ttag=\\\"input\\\"\\n\\t\\ttype=\\\"search\\\"\\n\\t\\tplaceholder=\\\"Search or jump to tiddler...\\\"\\n\\t\\tclass=\\\"mn-search-input\\\"\\n\\t/>\\n</div>\\n\\n<div class=\\\"mn-topbar-right\\\">\\n\\t<$button message=\\\"tm-new-tiddler\\\" class=\\\"mn-btn-primary\\\" tooltip=\\\"Create New Tiddler\\\">\\n\\t\\t+ New\\n\\t</$button>\\n\\t<$button to=\\\"$:/ControlPanel\\\" class=\\\"mn-pill-btn\\\" tooltip=\\\"Open Control Panel\\\">\\n\\t\\t\\u2699\\n\\t</$button>\\n\\t<$button\\n\\t\\tset=\\\"$:/state/modern-notebook/right-panel\\\"\\n\\t\\tsetTo={{{ [{$:/state/modern-notebook/right-panel}match[no]then[yes]else[no]] }}}\\n\\t\\tclass=\\\"mn-pill-btn\\\"\\n\\t\\ttooltip=\\\"Toggle Right Context Inspector\\\"\\n\\t>\\n\\t\\t\\u25e8\\n\\t</$button>\\n</div>\\n\"\n    },\n    \"$:/plugins/mblackman/modern-notebook/ui/LeftNav\": {\n      \"title\": \"$:/plugins/mblackman/modern-notebook/ui/LeftNav\",\n      \"type\": \"text/vnd.tiddlywiki\",\n      \"text\": \"\\\\whitespace trim\\n\\\\function .pinned-filter() [{$:/config/modern-notebook/pinned-filter}!is[blank]else[[all[shadows+tiddlers]tag[$:/tags/Pinned]!has[draft.of]]]]\\n\\n<!-- Section 1: User-Configurable Pinned Shortcuts (Tag any tiddler $:/tags/Pinned or customize filter in Settings) -->\\n<section class=\\\"mn-nav-section\\\">\\n\\t<h3 class=\\\"mn-nav-heading\\\">\\n\\t\\t<span><$text text={{{ [{$:/config/modern-notebook/pinned-heading}!is[blank]else[Pinned Shortcuts]] }}}/></span>\\n\\t\\t<$button to=\\\"$:/ControlPanel\\\" class=\\\"tc-btn-invisible\\\" tooltip=\\\"Customize pinned shortcuts in Settings\\\">\\u2699</$button>\\n\\t</h3>\\n\\t<$list filter=\\\"[subfilter<.pinned-filter>]\\\" variable=\\\"pinItem\\\" emptyMessage=\\\"<p class='mn-prop-label'>Tag any tiddler <code>$:/tags/Pinned</code> to pin it here.</p>\\\">\\n\\t\\t<$button\\n\\t\\t\\tto=<<pinItem>>\\n\\t\\t\\tclass={{{ [[mn-nav-item tc-btn-invisible]] [{$:/HistoryList!!current-tiddler}match<pinItem>then[mn-nav-item-active]] +[join[ ]] }}}\\n\\t\\t>\\n\\t\\t\\t<span>\\n\\t\\t\\t\\t<%if [<pinItem>get[icon]!is[blank]] %>\\n\\t\\t\\t\\t\\t<$transclude $tiddler={{{ [<pinItem>get[icon]] }}}/>\\n\\t\\t\\t\\t<%endif%>\\n\\t\\t\\t\\t<$view tiddler=<<pinItem>> field=\\\"caption\\\"><$text text=<<pinItem>>/></$view>\\n\\t\\t\\t</span>\\n\\t\\t</$button>\\n\\t</$list>\\n</section>\\n\\n<!-- Section 2: Open Story Switcher -->\\n<section class=\\\"mn-nav-section\\\">\\n\\t<h3 class=\\\"mn-nav-heading\\\">\\n\\t\\t<span>Open Tiddlers (<$count filter=\\\"[list[$:/StoryList]]\\\"/>)</span>\\n\\t\\t<$button message=\\\"tm-close-all-tiddlers\\\" class=\\\"tc-btn-invisible\\\" tooltip=\\\"Close all open tiddlers\\\">Clear</$button>\\n\\t</h3>\\n\\t<$list filter=\\\"[list[$:/StoryList]]\\\" variable=\\\"openItem\\\">\\n\\t\\t<div class={{{ [[mn-nav-item]] [{$:/HistoryList!!current-tiddler}match<openItem>then[mn-nav-item-active]] +[join[ ]] }}}>\\n\\t\\t\\t<$link to=<<openItem>> class=\\\"mn-card-title\\\">\\n\\t\\t\\t\\t<$view tiddler=<<openItem>> field=\\\"caption\\\"><$text text=<<openItem>>/></$view>\\n\\t\\t\\t</$link>\\n\\t\\t\\t<$button message=\\\"tm-close-tiddler\\\" param=<<openItem>> class=\\\"tc-btn-invisible\\\" tooltip=\\\"Close tiddler\\\">\\u2715</$button>\\n\\t\\t</div>\\n\\t</$list>\\n</section>\\n\\n<!-- Section 3: Extensible Custom LeftNav Sections ($:/tags/ModernNotebook/LeftNav) -->\\n<$list filter=\\\"[all[shadows+tiddlers]tag[$:/tags/ModernNotebook/LeftNav]!has[draft.of]]\\\" variable=\\\"navSection\\\">\\n\\t<section class=\\\"mn-nav-section\\\">\\n\\t\\t<$transclude $tiddler=<<navSection>> mode=\\\"block\\\"/>\\n\\t</section>\\n</$list>\\n\\n<!-- Section 4: Generic Tag Explorer (Filter configurable via $:/config/modern-notebook/tag-explorer-filter) -->\\n<section class=\\\"mn-nav-section\\\">\\n\\t<h3 class=\\\"mn-nav-heading\\\">Tags</h3>\\n\\t<$let tagFilter={{{ [{$:/config/modern-notebook/tag-explorer-filter}!is[blank]else[[tags[]!is[system]sort[title]limit[25]]]] }}}>\\n\\t\\t<$list filter=\\\"[subfilter<tagFilter>]\\\" variable=\\\"tagItem\\\">\\n\\t\\t\\t<div class=\\\"mn-nav-item\\\">\\n\\t\\t\\t\\t<$macrocall $name=\\\"tag-pill\\\" tag=<<tagItem>>/>\\n\\t\\t\\t\\t<span class=\\\"mn-prop-label\\\"><$count filter=\\\"[all[tiddlers]tag<tagItem>]\\\"/></span>\\n\\t\\t\\t</div>\\n\\t\\t</$list>\\n\\t</$let>\\n</section>\\n\"\n    },\n    \"$:/plugins/mblackman/modern-notebook/ui/RightInspector\": {\n      \"title\": \"$:/plugins/mblackman/modern-notebook/ui/RightInspector\",\n      \"type\": \"text/vnd.tiddlywiki\",\n      \"text\": \"\\\\whitespace trim\\n<$let activeTiddler={{{ [{$:/HistoryList!!current-tiddler}!is[blank]] ~[list[$:/StoryList]first[]] }}}>\\n\\t<$tiddler tiddler=<<activeTiddler>>>\\n\\t\\t<section class=\\\"mn-nav-section\\\">\\n\\t\\t\\t<h3 class=\\\"mn-nav-heading\\\">Active Context Inspector</h3>\\n\\t\\t\\t<div class=\\\"mn-card-title\\\"><$view field=\\\"caption\\\"><$view field=\\\"title\\\"/></$view></div>\\n\\t\\t\\t<div class=\\\"mn-prop-label\\\">Modified <$view field=\\\"modified\\\" format=\\\"relativedate\\\"/></div>\\n\\n\\t\\t\\t<!-- Generic Inspector Mode Tabs -->\\n\\t\\t\\t<div class=\\\"mn-object-prop-bar\\\">\\n\\t\\t\\t\\t<$list filter=\\\"Backlinks Outline Fields [all[shadows+tiddlers]tag[$:/tags/ModernNotebook/InspectorTab]!has[draft.of]]\\\" variable=\\\"tabItem\\\">\\n\\t\\t\\t\\t\\t<$button\\n\\t\\t\\t\\t\\t\\tset=\\\"$:/state/modern-notebook/inspector-tab\\\"\\n\\t\\t\\t\\t\\t\\tsetTo=<<tabItem>>\\n\\t\\t\\t\\t\\t\\tselectedClass=\\\"mn-pill-active\\\"\\n\\t\\t\\t\\t\\t\\tclass=\\\"mn-pill-btn\\\"\\n\\t\\t\\t\\t\\t>\\n\\t\\t\\t\\t\\t\\t<$view tiddler=<<tabItem>> field=\\\"caption\\\"><$text text=<<tabItem>>/></$view>\\n\\t\\t\\t\\t\\t</$button>\\n\\t\\t\\t\\t</$list>\\n\\t\\t\\t</div>\\n\\n\\t\\t\\t<!-- Tab 1: Backlinks & Transclusions -->\\n\\t\\t\\t<%if [{$:/state/modern-notebook/inspector-tab}!is[blank]else[Backlinks]match[Backlinks]] %>\\n\\t\\t\\t\\t<h4 class=\\\"mn-nav-heading\\\">Linked From (<$count filter=\\\"[<activeTiddler>backlinks[]!is[system]]\\\"/>)</h4>\\n\\t\\t\\t\\t<$list filter=\\\"[<activeTiddler>backlinks[]!is[system]sort[title]]\\\" emptyMessage=\\\"<p class='mn-prop-label'>No incoming links yet.</p>\\\">\\n\\t\\t\\t\\t\\t<div class=\\\"mn-nav-item\\\">\\n\\t\\t\\t\\t\\t\\t<$link to=<<currentTiddler>>/>\\n\\t\\t\\t\\t\\t</div>\\n\\t\\t\\t\\t</$list>\\n\\t\\t\\t<%endif%>\\n\\n\\t\\t\\t<!-- Tab 2: Table of Contents / Outline -->\\n\\t\\t\\t<%if [{$:/state/modern-notebook/inspector-tab}match[Outline]] %>\\n\\t\\t\\t\\t<h4 class=\\\"mn-nav-heading\\\">Sub-Tiddlers & TOC</h4>\\n\\t\\t\\t\\t<$macrocall $name=\\\"toc\\\" tag=<<activeTiddler>>/>\\n\\t\\t\\t<%endif%>\\n\\n\\t\\t\\t<!-- Tab 3: Inline Fields & Properties -->\\n\\t\\t\\t<%if [{$:/state/modern-notebook/inspector-tab}match[Fields]] %>\\n\\t\\t\\t\\t<h4 class=\\\"mn-nav-heading\\\">Tiddler Fields</h4>\\n\\t\\t\\t\\t<$list filter=\\\"[<activeTiddler>fields[]!match[text]!match[title]!match[created]!match[modified]!match[bag]!match[revision]]\\\" variable=\\\"fieldName\\\">\\n\\t\\t\\t\\t\\t<div class=\\\"mn-object-prop-bar\\\">\\n\\t\\t\\t\\t\\t\\t<span class=\\\"mn-prop-label\\\"><$text text=<<fieldName>>/>:</span>\\n\\t\\t\\t\\t\\t\\t<$edit-text tiddler=<<activeTiddler>> field=<<fieldName>> tag=\\\"input\\\" class=\\\"mn-search-input\\\"/>\\n\\t\\t\\t\\t\\t</div>\\n\\t\\t\\t\\t</$list>\\n\\t\\t\\t<%endif%>\\n\\n\\t\\t\\t<!-- Extensible Custom Inspector Tabs ($:/tags/ModernNotebook/InspectorTab) -->\\n\\t\\t\\t<$list filter=\\\"[all[shadows+tiddlers]tag[$:/tags/ModernNotebook/InspectorTab]!has[draft.of]]\\\" variable=\\\"customTab\\\">\\n\\t\\t\\t\\t<%if [{$:/state/modern-notebook/inspector-tab}match<customTab>] %>\\n\\t\\t\\t\\t\\t<$transclude $tiddler=<<customTab>> mode=\\\"block\\\"/>\\n\\t\\t\\t\\t<%endif%>\\n\\t\\t\\t</$list>\\n\\t\\t</section>\\n\\t</$tiddler>\\n</$let>\\n\"\n    },\n    \"$:/plugins/mblackman/modern-notebook/ui/MobilePillStrip\": {\n      \"title\": \"$:/plugins/mblackman/modern-notebook/ui/MobilePillStrip\",\n      \"type\": \"text/vnd.tiddlywiki\",\n      \"text\": \"\\\\whitespace trim\\n<nav class=\\\"mn-mobile-pill-strip\\\" aria-label=\\\"Open Tiddlers Switcher\\\">\\n\\t<$list filter=\\\"[list[$:/StoryList]]\\\" variable=\\\"storyItem\\\">\\n\\t\\t<span class={{{ [[mn-mobile-tab-chip]] [{$:/HistoryList!!current-tiddler}match<storyItem>then[mn-mobile-tab-chip-active]] +[join[ ]] }}}>\\n\\t\\t\\t<$button to=<<storyItem>> class=\\\"tc-btn-invisible\\\">\\n\\t\\t\\t\\t<$view tiddler=<<storyItem>> field=\\\"caption\\\"><$text text=<<storyItem>>/></$view>\\n\\t\\t\\t</$button>\\n\\t\\t\\t<$button message=\\\"tm-close-tiddler\\\" param=<<storyItem>> class=\\\"tc-btn-invisible\\\" aria-label=\\\"Close tiddler\\\">\\u2715</$button>\\n\\t\\t</span>\\n\\t</$list>\\n</nav>\\n\"\n    },\n    \"$:/plugins/mblackman/modern-notebook/ui/MobileBar\": {\n      \"title\": \"$:/plugins/mblackman/modern-notebook/ui/MobileBar\",\n      \"type\": \"text/vnd.tiddlywiki\",\n      \"text\": \"\\\\whitespace trim\\n\\\\function .mobile-shortcut-list() [{$:/config/modern-notebook/mobile-shortcuts}!is[blank]] ~[[all[shadows+tiddlers]tag[$:/tags/ModernNotebook/BottomBar]!has[draft.of]]]\\n\\n<nav class=\\\"mn-mobile-bottombar\\\" aria-label=\\\"Mobile Primary Controls\\\">\\n\\t<!-- 1. Left Drawer Menu Toggle -->\\n\\t<$button\\n\\t\\tset=\\\"$:/state/modern-notebook/left-panel\\\"\\n\\t\\tsetTo={{{ [{$:/state/modern-notebook/left-panel}match[no]then[yes]else[no]] }}}\\n\\t\\tclass=\\\"mn-mobile-nav-btn\\\"\\n\\t>\\n\\t\\t<span>\\u2630</span>\\n\\t\\t<span>Menu</span>\\n\\t</$button>\\n\\n\\t<!-- 2. User-Configurable Middle Shortcut Slots (configured via $:/config/modern-notebook/mobile-shortcuts or $:/tags/ModernNotebook/BottomBar) -->\\n\\t<$list filter=\\\"[enlist{$:/config/modern-notebook/mobile-shortcuts}] [all[shadows+tiddlers]tag[$:/tags/ModernNotebook/BottomBar]!has[draft.of]] +[unique[]limit[2]]\\\" variable=\\\"shortcutItem\\\">\\n\\t\\t<$button to=<<shortcutItem>> class=\\\"mn-mobile-nav-btn\\\">\\n\\t\\t\\t<span><$view tiddler=<<shortcutItem>> field=\\\"mn-icon\\\">\\u2605</$view></span>\\n\\t\\t\\t<span><$view tiddler=<<shortcutItem>> field=\\\"caption\\\"><$text text=<<shortcutItem>>/></$view></span>\\n\\t\\t</$button>\\n\\t</$list>\\n\\n\\t<!-- 3. Generic New Tiddler / Quick Capture Button -->\\n\\t<$button message=\\\"tm-new-tiddler\\\" class=\\\"mn-mobile-nav-btn\\\">\\n\\t\\t<span>\\uff0b</span>\\n\\t\\t<span>New</span>\\n\\t</$button>\\n\\n\\t<!-- 4. Zoomed Tiddler Options Sheet Trigger -->\\n\\t<$button\\n\\t\\tset=\\\"$:/state/modern-notebook/mobile-action-sheet\\\"\\n\\t\\tsetTo={{{ [{$:/state/modern-notebook/mobile-action-sheet}match[open]then[closed]else[open]] }}}\\n\\t\\tclass=\\\"mn-mobile-nav-btn\\\"\\n\\t>\\n\\t\\t<span>\\u2022\\u2022\\u2022</span>\\n\\t\\t<span>Options</span>\\n\\t</$button>\\n</nav>\\n\\n<!-- Slide-Up Bottom Sheet for Zoomed Tiddler Options & Inspector -->\\n<%if [{$:/state/modern-notebook/mobile-action-sheet}match[open]] %>\\n\\t<div class=\\\"mn-backdrop\\\">\\n\\t\\t<section class=\\\"mn-bottom-sheet\\\">\\n\\t\\t\\t<$let zoomedTiddler={{{ [{$:/HistoryList!!current-tiddler}!is[blank]] ~[list[$:/StoryList]first[]] }}}>\\n\\t\\t\\t\\t<$tiddler tiddler=<<zoomedTiddler>>>\\n\\t\\t\\t\\t\\t<header class=\\\"mn-card-header\\\">\\n\\t\\t\\t\\t\\t\\t<div>\\n\\t\\t\\t\\t\\t\\t\\t<div class=\\\"mn-nav-heading\\\">Zoomed Tiddler Options</div>\\n\\t\\t\\t\\t\\t\\t\\t<div class=\\\"mn-card-title\\\"><$view field=\\\"caption\\\"><$view field=\\\"title\\\"/></$view></div>\\n\\t\\t\\t\\t\\t\\t</div>\\n\\t\\t\\t\\t\\t\\t<$button set=\\\"$:/state/modern-notebook/mobile-action-sheet\\\" setTo=\\\"closed\\\" class=\\\"mn-pill-btn\\\">Done \\u2715</$button>\\n\\t\\t\\t\\t\\t</header>\\n\\n\\t\\t\\t\\t\\t<!-- All ViewToolbar Buttons Rendered as Touch Grid -->\\n\\t\\t\\t\\t\\t<div class=\\\"mn-sheet-action-grid\\\">\\n\\t\\t\\t\\t\\t\\t<$list filter=\\\"[all[shadows+tiddlers]tag[$:/tags/ViewToolbar]!has[draft.of]]\\\" variable=\\\"toolbarItem\\\">\\n\\t\\t\\t\\t\\t\\t\\t<div class=\\\"mn-sheet-action-item\\\">\\n\\t\\t\\t\\t\\t\\t\\t\\t<$transclude $tiddler=<<toolbarItem>>/>\\n\\t\\t\\t\\t\\t\\t\\t</div>\\n\\t\\t\\t\\t\\t\\t</$list>\\n\\t\\t\\t\\t\\t</div>\\n\\n\\t\\t\\t\\t\\t<!-- Quick Switcher & Inspector Inside Mobile Sheet -->\\n\\t\\t\\t\\t\\t<div class=\\\"mn-sheet-context\\\">\\n\\t\\t\\t\\t\\t\\t{{$:/plugins/mblackman/modern-notebook/ui/RightInspector}}\\n\\t\\t\\t\\t\\t</div>\\n\\t\\t\\t\\t</$tiddler>\\n\\t\\t\\t</$let>\\n\\t\\t</section>\\n\\t</div>\\n<%endif%>\\n\"\n    },\n    \"$:/plugins/mblackman/modern-notebook/widgets/ui-primitives\": {\n      \"title\": \"$:/plugins/mblackman/modern-notebook/widgets/ui-primitives\",\n      \"tags\": \"$:/tags/Global\",\n      \"type\": \"text/vnd.tiddlywiki\",\n      \"text\": \"\\\\whitespace trim\\n\\n<!-- Generic Hero Banner Widget ($mn.hero) -->\\n\\\\widget $mn.hero(title:\\\"\\\", subtitle:\\\"\\\")\\n<section class=\\\"mn-hero\\\">\\n\\t<div>\\n\\t\\t<%if [<title>!is[blank]] %>\\n\\t\\t\\t<h2 style=\\\"margin:0;\\\"><$text text=<<title>>/></h2>\\n\\t\\t<%endif%>\\n\\t\\t<%if [<subtitle>!is[blank]] %>\\n\\t\\t\\t<div class=\\\"mn-prop-label\\\"><$text text=<<subtitle>>/></div>\\n\\t\\t<%endif%>\\n\\t\\t<$slot $name=\\\"info\\\"/>\\n\\t</div>\\n\\t<div style=\\\"display:flex;gap:0.5rem;flex-wrap:wrap;\\\">\\n\\t\\t<$slot $name=\\\"actions\\\"/>\\n\\t</div>\\n</section>\\n\\\\end $mn.hero\\n\\n<!-- Generic Responsive Grid Widget ($mn.grid) -->\\n\\\\widget $mn.grid(min:\\\"280px\\\", wide:\\\"yes\\\")\\n<div class={{{ [[mn-grid]] [<wide>match[yes]then[mn-wide-view]] +[join[ ]] }}} style=`--mn-grid-min: $(min)$;`>\\n\\t<$slot $name=\\\"ts-raw\\\"/>\\n</div>\\n\\\\end $mn.grid\\n\\n<!-- Reusable Card Component ($mn.card) -->\\n\\\\widget $mn.card(class:\\\"\\\", badge:\\\"\\\", accent:\\\"\\\")\\n<article class={{{ [[mn-card]] [<class>] +[join[ ]] }}} style={{{ [<accent>!is[blank]addprefix[--mn-card-accent:]addsuffix[;]] }}}>\\n\\t<header class=\\\"mn-card-header\\\">\\n\\t\\t<div class=\\\"mn-card-title-group\\\">\\n\\t\\t\\t<$slot $name=\\\"header\\\">\\n\\t\\t\\t\\t<$link to=<<currentTiddler>> class=\\\"mn-card-title\\\">\\n\\t\\t\\t\\t\\t<$view field=\\\"caption\\\"><$view field=\\\"title\\\"/></$view>\\n\\t\\t\\t\\t</$link>\\n\\t\\t\\t</$slot>\\n\\t\\t</div>\\n\\t\\t<%if [<badge>!is[blank]] %>\\n\\t\\t\\t<span class=\\\"mn-badge\\\"><$text text=<<badge>>/></span>\\n\\t\\t<%endif%>\\n\\t</header>\\n\\t<div class=\\\"mn-card-body\\\">\\n\\t\\t<$slot $name=\\\"ts-raw\\\"/>\\n\\t</div>\\n\\t<footer class=\\\"mn-card-footer\\\">\\n\\t\\t<$slot $name=\\\"footer\\\"/>\\n\\t</footer>\\n</article>\\n\\\\end $mn.card\\n\\n<!-- Inline Property Pill ($mn.prop-pill) -->\\n\\\\widget $mn.prop-pill(field:\\\"status\\\", label:\\\"\\\", values:\\\"\\\")\\n<div class=\\\"mn-prop-pill\\\">\\n\\t<span class=\\\"mn-prop-label\\\"><$text text={{{ [<label>!is[blank]else<field>] }}}/>:</span>\\n\\t<%if [<values>!is[blank]] %>\\n\\t\\t<$select field=<<field>> class=\\\"mn-prop-select\\\">\\n\\t\\t\\t<$list filter=\\\"[enlist<values>]\\\" variable=\\\"opt\\\">\\n\\t\\t\\t\\t<option value=<<opt>>><$text text=<<opt>>/></option>\\n\\t\\t\\t</$list>\\n\\t\\t</$select>\\n\\t<%else%>\\n\\t\\t<span class=\\\"mn-prop-value\\\"><$view field=<<field>>/></span>\\n\\t<%endif%>\\n</div>\\n\\\\end $mn.prop-pill\\n\\n<!-- Generic Progress Bar Widget ($mn.progress) -->\\n\\\\widget $mn.progress(done:\\\"0\\\", total:\\\"1\\\", label:\\\"Progress\\\")\\n\\\\function .calc-pct() [<total>match[0]then[0]] ~[<done>multiply[100]divide<total>round[]]\\n<div>\\n\\t<div style=\\\"display:flex;justify-content:space-between;font-size:0.8rem;\\\">\\n\\t\\t<span class=\\\"mn-prop-label\\\"><$text text=<<label>>/> (<$text text=<<done>>/>/<$text text=<<total>>/>)</span>\\n\\t\\t<strong><$text text=<<.calc-pct>>/>%</strong>\\n\\t</div>\\n\\t<div class=\\\"mn-progress-track\\\">\\n\\t\\t<div class=\\\"mn-progress-fill\\\" style=`width: ${ [.calc-pct[]] }$%;`/>\\n\\t</div>\\n</div>\\n\\\\end $mn.progress\\n\"\n    },\n    \"$:/plugins/mblackman/modern-notebook/ui/ObjectPropertyHeader\": {\n      \"title\": \"$:/plugins/mblackman/modern-notebook/ui/ObjectPropertyHeader\",\n      \"tags\": \"$:/tags/ViewTemplate\",\n      \"list-after\": \"$:/core/ui/ViewTemplate/subtitle\",\n      \"type\": \"text/vnd.tiddlywiki\",\n      \"text\": \"\\\\whitespace trim\\n\\\\function .prop-fields() [{!!mn-fields}!is[blank]] ~[{$:/config/modern-notebook/default-property-fields}!is[blank]else[status priority mood rating media-type creator due-date]]\\n\\n<%if [all[current]fields[]subfilter<.prop-fields>count[]compare:number:gt[0]] %>\\n\\t<div class=\\\"mn-object-prop-bar\\\">\\n\\t\\t<$list filter=\\\"[enlist<.prop-fields>]\\\" variable=\\\"propField\\\">\\n\\t\\t\\t<%if [all[current]has<propField>] %>\\n\\t\\t\\t\\t<$mn.prop-pill\\n\\t\\t\\t\\t\\tfield=<<propField>>\\n\\t\\t\\t\\t\\tvalues={{{ [[$:/config/modern-notebook/field-options/]addsuffix<propField>get[text]] }}}\\n\\t\\t\\t\\t/>\\n\\t\\t\\t<%endif%>\\n\\t\\t</$list>\\n\\t</div>\\n<%endif%>\\n\"\n    },\n    \"$:/plugins/mblackman/modern-notebook/ui/WideViewWrapper\": {\n      \"title\": \"$:/plugins/mblackman/modern-notebook/ui/WideViewWrapper\",\n      \"tags\": \"$:/tags/ViewTemplateBodyFilter\",\n      \"list-before\": \"$:/config/ViewTemplateBodyFilters/default\",\n      \"type\": \"text/vnd.tiddlywiki\",\n      \"text\": \"[field:page-width[wide]then[$:/plugins/mblackman/modern-notebook/templates/wide-body]] ~[tag[Wide]then[$:/plugins/mblackman/modern-notebook/templates/wide-body]]\"\n    },\n    \"$:/plugins/mblackman/modern-notebook/templates/wide-body\": {\n      \"title\": \"$:/plugins/mblackman/modern-notebook/templates/wide-body\",\n      \"type\": \"text/vnd.tiddlywiki\",\n      \"text\": \"\\\\whitespace trim\\n<%if [all[current]field:page-width[wide]] [all[current]subfilter{$:/config/modern-notebook/wide-filter}] +[limit[1]] %>\\n\\t<div class=\\\"mn-wide-view\\\">\\n\\t\\t<$transclude $tiddler=\\\"$:/core/ui/ViewTemplate/body/default\\\"/>\\n\\t</div>\\n<%endif%>\\n\"\n    }\n  }\n}"}];
+const STARTER_DASHBOARDS_DATA = [{"title": "Journal Dashboard", "tags": "$:/tags/Pinned $:/tags/ModernNotebook/BottomBar Wide", "caption": "Journal", "mn-icon": "\ud83d\udcd3", "page-width": "wide", "text": "<$mn.hero title=\"Daily Journal\" subtitle=\"User-space dashboard using generic $mn.hero and $mn.grid widgets\"/>\n<$mn.grid min=\"300px\">\n<$list filter=\"[all[tiddlers]tag[Journal]!sort[created]limit[12]]\">\n<$mn.card badge={{!!mood}}><$transclude mode=\"block\"/></$mn.card>\n</$list>\n</$mn.grid>"}, {"title": "Project Dashboard", "tags": "$:/tags/Pinned Wide", "caption": "Projects", "mn-icon": "\ud83d\udccb", "page-width": "wide", "text": "<$mn.hero title=\"Projects\" subtitle=\"User-space dashboard using generic $mn.card and $mn.progress widgets\"/>\n<$mn.grid min=\"280px\">\n<$list filter=\"[all[tiddlers]tag[Project]sort[priority]]\">\n<$mn.card badge={{!!status}} accent={{!!color}}><$transclude mode=\"block\"/></$mn.card>\n</$list>\n</$mn.grid>"}, {"title": "Media Hub", "tags": "$:/tags/Pinned $:/tags/ModernNotebook/BottomBar Wide", "caption": "Media", "mn-icon": "\ud83c\udfac", "page-width": "wide", "text": "<$mn.hero title=\"Media Library\" subtitle=\"User-space media hub using generic $mn.grid and $mn.card widgets\"/>\n<$mn.grid min=\"160px\">\n<$list filter=\"[all[tiddlers]tag[Media]!sort[modified]limit[24]]\">\n<$mn.card badge={{!!media-type}}><$transclude mode=\"block\"/></$mn.card>\n</$list>\n</$mn.grid>"}];
+const SHADOW_TIDDLERS = {"$:/plugins/mblackman/modern-notebook/readme": {"title": "$:/plugins/mblackman/modern-notebook/readme", "type": "text/vnd.tiddlywiki", "text": "\\whitespace trim\n<h3>Modern Notebook Theme & Layout (v1.1.0 for TiddlyWiki v5.4.0+)</h3>\n<p>A generic, configurable 3-column desktop reading workspace and mobile <code>zoomin</code> single-tiddler layout.</p>\n<ul>\n\t<li><strong>Pin Any Tiddler to Left Nav:</strong> Tag any tiddler with <code>$:/tags/Pinned</code> (or customize <code>$:/config/modern-notebook/pinned-filter</code> in Settings).</li>\n\t<li><strong>Customize Mobile Bottom Bar:</strong> Tag any tiddler with <code>$:/tags/ModernNotebook/BottomBar</code> (with optional <code>mn-icon</code> and <code>caption</code> fields) or list titles in <code>$:/config/modern-notebook/mobile-shortcuts</code>.</li>\n\t<li><strong>Wide Mode for Dashboards:</strong> Add field <code>page-width: wide</code> (or tag <code>Wide</code>) to any tiddler to expand it from <code>72ch</code> to <code>1180px</code>.</li>\n</ul>\n"}, "$:/plugins/mblackman/modern-notebook/settings": {"title": "$:/plugins/mblackman/modern-notebook/settings", "tags": "$:/tags/ControlPanel/SettingsTab", "caption": "Modern Notebook", "type": "text/vnd.tiddlywiki", "text": "\\whitespace trim\n<h3>Modern Notebook Layout & Navigation Settings</h3>\n<p class=\"mn-prop-label\">Customize your pinned shortcuts, mobile bottom bar slots, reading widths, and property pills without modifying theme code.</p>\n\n<div class=\"mn-card\" style=\"margin-bottom:1rem;\">\n\t<h4 class=\"mn-nav-heading\">1. Navigation & Shortcut Customization</h4>\n\t<div class=\"mn-object-prop-bar\">\n\t\t<label class=\"mn-prop-label\" style=\"min-width:240px;\">Left Nav Pinned Filter:</label>\n\t\t<$edit-text tiddler=\"$:/config/modern-notebook/pinned-filter\" field=\"text\" default=\"[all[shadows+tiddlers]tag[$:/tags/Pinned]!has[draft.of]]\" tag=\"input\" class=\"mn-search-input\"/>\n\t</div>\n\t<div class=\"mn-object-prop-bar\">\n\t\t<label class=\"mn-prop-label\" style=\"min-width:240px;\">Mobile Bottom Bar Shortcuts (Title List):</label>\n\t\t<$edit-text tiddler=\"$:/config/modern-notebook/mobile-shortcuts\" field=\"text\" default=\"\" placeholder=\"e.g. [[Journal Dashboard]] [[Media Hub]]\" tag=\"input\" class=\"mn-search-input\"/>\n\t</div>\n\t<div class=\"mn-object-prop-bar\">\n\t\t<label class=\"mn-prop-label\" style=\"min-width:240px;\">Wide Tiddler Filter (<code>1180px</code>):</label>\n\t\t<$edit-text tiddler=\"$:/config/modern-notebook/wide-filter\" field=\"text\" default=\"[tag[Wide]] [field:page-width[wide]]\" tag=\"input\" class=\"mn-search-input\"/>\n\t</div>\n\t<div class=\"mn-object-prop-bar\">\n\t\t<label class=\"mn-prop-label\" style=\"min-width:240px;\">Auto-Displayed Property Pill Fields:</label>\n\t\t<$edit-text tiddler=\"$:/config/modern-notebook/default-property-fields\" field=\"text\" default=\"status priority mood rating media-type creator due-date\" tag=\"input\" class=\"mn-search-input\"/>\n\t</div>\n</div>\n\n<div class=\"mn-card\" style=\"margin-bottom:1rem;\">\n\t<h4 class=\"mn-nav-heading\">2. Layout Dimensions & Responsive Breakpoints</h4>\n\t<div class=\"mn-object-prop-bar\">\n\t\t<label class=\"mn-prop-label\" style=\"min-width:240px;\">Centered Reading Column Width:</label>\n\t\t<$edit-text tiddler=\"$:/config/modern-notebook/reading-width\" field=\"text\" default=\"72ch\" tag=\"input\" class=\"mn-search-input\"/>\n\t</div>\n\t<div class=\"mn-object-prop-bar\">\n\t\t<label class=\"mn-prop-label\" style=\"min-width:240px;\">Wide Container Max Width:</label>\n\t\t<$edit-text tiddler=\"$:/config/modern-notebook/wide-width\" field=\"text\" default=\"1180px\" tag=\"input\" class=\"mn-search-input\"/>\n\t</div>\n\t<div class=\"mn-object-prop-bar\">\n\t\t<label class=\"mn-prop-label\" style=\"min-width:240px;\">Mobile Zoomin Breakpoint (px):</label>\n\t\t<$edit-text tiddler=\"$:/config/modern-notebook/mobile-breakpoint\" field=\"text\" default=\"1024\" tag=\"input\" class=\"mn-search-input\"/>\n\t</div>\n</div>\n\n<$button class=\"mn-pill-btn\">\n\t<$action-deletetiddler $filter=\"[prefix[$:/config/modern-notebook/]] [prefix[$:/state/modern-notebook/]]\"/>\n\t\u21ba Reset Modern Notebook Settings to Defaults\n</$button>\n"}, "$:/plugins/mblackman/modern-notebook/styles/core.css": {"title": "$:/plugins/mblackman/modern-notebook/styles/core.css", "tags": "$:/tags/Stylesheet", "type": "text/css", "text": "/*=============================================================================\n  Modern Notebook Theme & Layout for TiddlyWiki v5.4.0+\n  100% Generic & Configurable Architecture\n  Uses native v5.4.0 Core CSS Variables (--tpc-* palette & --tp-* metrics)\n=============================================================================*/\n@layer tokens, layout, tiddler, components, utilities, mobile;\n\n@layer tokens {\n\t:root {\n\t\t--mn-bg-app: var(--tp-color-page-background, #f4f6f9);\n\t\t--mn-bg-surface: var(--tp-color-background, #ffffff);\n\t\t--mn-bg-elevated: color-mix(in srgb, var(--tp-color-background, #ffffff) 93%, var(--tp-color-foreground, #0f172a) 7%);\n\t\t--mn-bg-subtle: color-mix(in srgb, var(--tp-color-background, #ffffff) 96%, var(--tp-color-foreground, #0f172a) 4%);\n\t\t--mn-border-subtle: color-mix(in srgb, var(--tp-color-foreground, #0f172a) 11%, transparent);\n\t\t--mn-border-strong: color-mix(in srgb, var(--tp-color-foreground, #0f172a) 22%, transparent);\n\t\t--mn-text-main: var(--tp-color-foreground, #0f172a);\n\t\t--mn-text-muted: var(--tp-color-muted-foreground, #64748b);\n\t\t--mn-accent: var(--tp-color-primary, #2563eb);\n\t\t--mn-accent-soft: color-mix(in srgb, var(--tp-color-primary, #2563eb) 14%, transparent);\n\t\t--mn-tag-bg: var(--tp-color-tag-background, #e2e8f0);\n\t\t--mn-tag-fg: var(--tp-color-tag-foreground, #1e293b);\n\t\t--mn-left-width: 260px;\n\t\t--mn-right-width: 320px;\n\t\t--mn-reading-width: var(--tp-tiddler-width, 72ch);\n\t\t--mn-wide-width: 1180px;\n\t\t--mn-topbar-height: 52px;\n\t\t--mn-pillstrip-height: 42px;\n\t\t--mn-bottombar-height: 60px;\n\t\t--mn-radius-card: 12px;\n\t\t--mn-radius-sm: 8px;\n\t\t--mn-radius-pill: 9999px;\n\t\t--mn-shadow-card: 0 1px 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.03);\n\t\t--mn-shadow-sheet: 0 -8px 30px rgba(15, 23, 42, 0.18);\n\t\t--mn-transition: var(--tp-animation-duration, 180ms) cubic-bezier(0.2, 0, 0, 1);\n\t}\n}\n\n@layer layout {\n\t.mn-app-shell {\n\t\tposition: relative;\n\t\tdisplay: flex;\n\t\tflex-direction: column;\n\t\tmin-height: 100dvh;\n\t\tbackground: var(--mn-bg-app);\n\t\tcolor: var(--mn-text-main);\n\t\tfont-size: var(--tp-body-font-size, 15px);\n\t\tline-height: var(--tp-body-line-height, 1.6);\n\t\tisolation: isolate;\n\t}\n\n\t.mn-topbar {\n\t\tposition: sticky;\n\t\ttop: 0;\n\t\tz-index: 420;\n\t\theight: var(--mn-topbar-height);\n\t\tdisplay: flex;\n\t\talign-items: center;\n\t\tjustify-content: space-between;\n\t\tgap: 1rem;\n\t\tpadding: 0 1rem;\n\t\tbackground: color-mix(in srgb, var(--mn-bg-surface) 92%, transparent);\n\t\tbackdrop-filter: blur(12px);\n\t\tborder-bottom: 1px solid var(--mn-border-subtle);\n\t}\n\n\t.mn-topbar-left,\n\t.mn-topbar-right {\n\t\tdisplay: flex;\n\t\talign-items: center;\n\t\tgap: 0.5rem;\n\t}\n\n\t.mn-topbar-center {\n\t\tflex: 1;\n\t\tmax-width: 520px;\n\t\tdisplay: flex;\n\t\talign-items: center;\n\t\tgap: 0.5rem;\n\t}\n\n\t.mn-workspace-grid {\n\t\tposition: relative;\n\t\tz-index: 1;\n\t\tdisplay: grid;\n\t\tgrid-template-columns: var(--mn-left-width) minmax(0, 1fr) var(--mn-right-width);\n\t\tflex: 1;\n\t\talign-items: start;\n\t\ttransition: grid-template-columns var(--mn-transition);\n\t}\n\n\t.mn-left-collapsed .mn-workspace-grid {\n\t\tgrid-template-columns: 0px minmax(0, 1fr) var(--mn-right-width);\n\t}\n\n\t.mn-right-collapsed .mn-workspace-grid {\n\t\tgrid-template-columns: var(--mn-left-width) minmax(0, 1fr) 0px;\n\t}\n\n\t.mn-left-collapsed.mn-right-collapsed .mn-workspace-grid {\n\t\tgrid-template-columns: 0px minmax(0, 1fr) 0px;\n\t}\n\n\t.mn-panel-left,\n\t.mn-panel-right {\n\t\tposition: sticky;\n\t\ttop: var(--mn-topbar-height);\n\t\tz-index: 200;\n\t\theight: calc(100dvh - var(--mn-topbar-height));\n\t\toverflow-y: auto;\n\t\toverflow-x: hidden;\n\t\tbackground: var(--mn-bg-surface);\n\t}\n\n\t.mn-panel-left {\n\t\tborder-right: 1px solid var(--mn-border-subtle);\n\t}\n\n\t.mn-panel-right {\n\t\tborder-left: 1px solid var(--mn-border-subtle);\n\t}\n\n\t.mn-left-collapsed .mn-panel-left,\n\t.mn-right-collapsed .mn-panel-right {\n\t\tborder: none;\n\t\tpointer-events: none;\n\t\topacity: 0;\n\t}\n\n\t.mn-story-container {\n\t\tposition: relative;\n\t\tz-index: 1;\n\t\tpadding: 2rem 1.75rem 5rem;\n\t\twidth: 100%;\n\t\tmin-width: 0;\n\t}\n}\n\n@layer tiddler {\n\t/* Centered Reading Column for Standard Tiddlers (z-index: 1 so menus always float above) */\n\t.mn-story-container .tc-tiddler-frame {\n\t\tposition: relative;\n\t\tz-index: 1;\n\t\tmax-width: var(--mn-reading-width);\n\t\tmargin: 0 auto 1.5rem;\n\t\tpadding: 2.25rem 2.5rem;\n\t\tbackground: var(--mn-bg-surface);\n\t\tborder: 1px solid var(--mn-border-subtle);\n\t\tborder-radius: var(--mn-radius-card);\n\t\tbox-shadow: var(--mn-shadow-card);\n\t}\n\n\t/* Generic Wide Mode: triggered by .mn-wide-view or user-configured wide tag/field */\n\t.mn-story-container .tc-tiddler-frame:has(.mn-wide-view),\n\t.mn-story-container .tc-tiddler-frame.mn-tiddler-wide {\n\t\tmax-width: var(--mn-wide-width);\n\t}\n\n\t/* Generic Inline Object Property Header Bar */\n\t.mn-object-prop-bar {\n\t\tdisplay: flex;\n\t\tflex-wrap: wrap;\n\t\talign-items: center;\n\t\tgap: 0.5rem;\n\t\tmargin: 0.65rem 0 1.25rem;\n\t\tpadding: 0.5rem 0.75rem;\n\t\tbackground: var(--mn-bg-subtle);\n\t\tborder: 1px solid var(--mn-border-subtle);\n\t\tborder-radius: var(--mn-radius-sm);\n\t\tfont-size: 0.85em;\n\t}\n}\n\n@layer components {\n\t.mn-nav-section {\n\t\tpadding: 0.85rem 0.85rem 0.5rem;\n\t}\n\n\t.mn-nav-heading {\n\t\tfont-size: 0.72rem;\n\t\tfont-weight: 700;\n\t\ttext-transform: uppercase;\n\t\tletter-spacing: 0.06em;\n\t\tcolor: var(--mn-text-muted);\n\t\tmargin: 0 0 0.5rem;\n\t\tdisplay: flex;\n\t\talign-items: center;\n\t\tjustify-content: space-between;\n\t}\n\n\t.mn-nav-item {\n\t\tdisplay: flex;\n\t\talign-items: center;\n\t\tjustify-content: space-between;\n\t\tgap: 0.5rem;\n\t\tpadding: 0.45rem 0.65rem;\n\t\tborder-radius: var(--mn-radius-sm);\n\t\tcolor: var(--mn-text-main);\n\t\ttext-decoration: none;\n\t\tfont-size: 0.9em;\n\t\ttransition: background var(--mn-transition);\n\t}\n\n\t.mn-nav-item:hover {\n\t\tbackground: var(--mn-bg-elevated);\n\t}\n\n\t.mn-nav-item-active {\n\t\tbackground: var(--mn-accent-soft);\n\t\tcolor: var(--mn-accent);\n\t\tfont-weight: 600;\n\t}\n\n\t.mn-card {\n\t\tbackground: var(--mn-bg-surface);\n\t\tborder: 1px solid var(--mn-border-subtle);\n\t\tborder-top: 3px solid var(--mn-card-accent, var(--mn-accent));\n\t\tborder-radius: var(--mn-radius-card);\n\t\tpadding: 1.1rem 1.25rem;\n\t\tbox-shadow: var(--mn-shadow-card);\n\t\tdisplay: flex;\n\t\tflex-direction: column;\n\t\tgap: 0.75rem;\n\t}\n\n\t.mn-card-header {\n\t\tdisplay: flex;\n\t\talign-items: flex-start;\n\t\tjustify-content: space-between;\n\t\tgap: 0.75rem;\n\t}\n\n\t.mn-card-title {\n\t\tfont-weight: 600;\n\t\tfont-size: 1.05em;\n\t\tcolor: var(--mn-text-main);\n\t\ttext-decoration: none;\n\t}\n\n\t.mn-badge {\n\t\tdisplay: inline-flex;\n\t\talign-items: center;\n\t\tpadding: 0.15rem 0.55rem;\n\t\tborder-radius: var(--mn-radius-pill);\n\t\tfont-size: 0.75rem;\n\t\tfont-weight: 600;\n\t\tbackground: var(--mn-accent-soft);\n\t\tcolor: var(--mn-accent);\n\t}\n\n\t.mn-prop-pill {\n\t\tdisplay: inline-flex;\n\t\talign-items: center;\n\t\tgap: 0.35rem;\n\t\tpadding: 0.2rem 0.55rem;\n\t\tbackground: var(--mn-bg-surface);\n\t\tborder: 1px solid var(--mn-border-subtle);\n\t\tborder-radius: var(--mn-radius-pill);\n\t\tfont-size: 0.8rem;\n\t}\n\n\t.mn-prop-label {\n\t\tcolor: var(--mn-text-muted);\n\t\tfont-weight: 500;\n\t}\n\n\t.mn-search-input {\n\t\twidth: 100%;\n\t\tpadding: 0.45rem 0.85rem;\n\t\tborder-radius: var(--mn-radius-pill);\n\t\tborder: 1px solid var(--mn-border-subtle);\n\t\tbackground: var(--mn-bg-subtle);\n\t\tcolor: var(--mn-text-main);\n\t\tfont-size: 0.9em;\n\t}\n\n\t.mn-btn-primary {\n\t\tdisplay: inline-flex;\n\t\talign-items: center;\n\t\tgap: 0.4rem;\n\t\tpadding: 0.45rem 0.9rem;\n\t\tborder-radius: var(--mn-radius-sm);\n\t\tbackground: var(--mn-accent);\n\t\tcolor: #ffffff;\n\t\tborder: none;\n\t\tfont-weight: 600;\n\t\tfont-size: 0.88em;\n\t\tcursor: pointer;\n\t}\n\n\t.mn-pill-btn {\n\t\tpadding: 0.3rem 0.75rem;\n\t\tborder-radius: var(--mn-radius-pill);\n\t\tborder: 1px solid var(--mn-border-subtle);\n\t\tbackground: var(--mn-bg-surface);\n\t\tcolor: var(--mn-text-muted);\n\t\tfont-size: 0.82rem;\n\t\tfont-weight: 500;\n\t\tcursor: pointer;\n\t}\n\n\t.mn-pill-active {\n\t\tbackground: var(--mn-accent);\n\t\tcolor: #ffffff;\n\t\tborder-color: var(--mn-accent);\n\t}\n\n\t/* Generic Hero, Auto-Grid, Poster Grid & Progress Primitives */\n\t.mn-hero {\n\t\tdisplay: flex;\n\t\talign-items: center;\n\t\tjustify-content: space-between;\n\t\tflex-wrap: wrap;\n\t\tgap: 1rem;\n\t\tpadding: 1.25rem 1.5rem;\n\t\tmargin-bottom: 1.25rem;\n\t\tbackground: linear-gradient(135deg, var(--mn-accent-soft), var(--mn-bg-subtle));\n\t\tborder: 1px solid var(--mn-border-subtle);\n\t\tborder-radius: var(--mn-radius-card);\n\t}\n\n\t.mn-grid {\n\t\tdisplay: grid;\n\t\tgrid-template-columns: repeat(auto-fill, minmax(var(--mn-grid-min, 280px), 1fr));\n\t\tgap: 1rem;\n\t\tmargin-top: 1rem;\n\t}\n\n\t.mn-progress-track {\n\t\twidth: 100%;\n\t\theight: 7px;\n\t\tbackground: var(--mn-bg-elevated);\n\t\tborder-radius: var(--mn-radius-pill);\n\t\toverflow: hidden;\n\t\tmargin-top: 0.3rem;\n\t}\n\n\t.mn-progress-fill {\n\t\theight: 100%;\n\t\tbackground: var(--mn-accent);\n\t\tborder-radius: var(--mn-radius-pill);\n\t\ttransition: width var(--mn-transition);\n\t}\n}\n\n@layer mobile {\n\t/* Open Tiddler Pill Switcher Strip on Mobile \u2014 pinned directly below topbar, above tiddlers */\n\t.mn-mobile-pill-strip {\n\t\tposition: sticky;\n\t\ttop: var(--mn-topbar-height);\n\t\tz-index: 410;\n\t\tdisplay: flex;\n\t\talign-items: center;\n\t\tgap: 0.45rem;\n\t\tpadding: 0.45rem 0.75rem;\n\t\toverflow-x: auto;\n\t\tbackground: color-mix(in srgb, var(--mn-bg-surface) 95%, transparent);\n\t\tbackdrop-filter: blur(10px);\n\t\tborder-bottom: 1px solid var(--mn-border-subtle);\n\t\tscrollbar-width: none;\n\t}\n\n\t.mn-mobile-tab-chip {\n\t\tdisplay: inline-flex;\n\t\talign-items: center;\n\t\tgap: 0.35rem;\n\t\tpadding: 0.28rem 0.65rem;\n\t\tborder-radius: var(--mn-radius-pill);\n\t\tbackground: var(--mn-bg-subtle);\n\t\tborder: 1px solid var(--mn-border-subtle);\n\t\tfont-size: 0.8rem;\n\t\twhite-space: nowrap;\n\t}\n\n\t.mn-mobile-tab-chip-active {\n\t\tbackground: var(--mn-accent-soft);\n\t\tborder-color: var(--mn-accent);\n\t\tcolor: var(--mn-accent);\n\t\tfont-weight: 600;\n\t}\n\n\t/* Fixed Thumb-Zone Bottom Bar \u2014 high z-index (480) so it NEVER renders under tiddlers */\n\t.mn-mobile-bottombar {\n\t\tposition: fixed;\n\t\tbottom: 0;\n\t\tleft: 0;\n\t\tright: 0;\n\t\tz-index: 480;\n\t\theight: calc(var(--mn-bottombar-height) + env(safe-area-inset-bottom, 0px));\n\t\tpadding-bottom: env(safe-area-inset-bottom, 0px);\n\t\tbackground: color-mix(in srgb, var(--mn-bg-surface) 96%, transparent);\n\t\tbackdrop-filter: blur(16px);\n\t\tborder-top: 1px solid var(--mn-border-subtle);\n\t\tdisplay: flex;\n\t\talign-items: center;\n\t\tjustify-content: space-around;\n\t\tbox-shadow: 0 -2px 12px rgba(15, 23, 42, 0.06);\n\t}\n\n\t.mn-mobile-nav-btn {\n\t\tflex: 1;\n\t\tdisplay: flex;\n\t\tflex-direction: column;\n\t\talign-items: center;\n\t\tjustify-content: center;\n\t\tgap: 0.15rem;\n\t\theight: 100%;\n\t\tbackground: transparent;\n\t\tborder: none;\n\t\tcolor: var(--mn-text-muted);\n\t\tfont-size: 0.68rem;\n\t\tfont-weight: 600;\n\t\tcursor: pointer;\n\t}\n\n\t/* Mobile Left Drawer Backdrop & Overlay */\n\t.mn-mobile-drawer-backdrop {\n\t\tposition: fixed;\n\t\tinset: 0;\n\t\tz-index: 460;\n\t\tbackground: rgba(15, 23, 42, 0.4);\n\t}\n\n\t/* Slide-Up Bottom Sheet for Zoomed Tiddler Options */\n\t.mn-backdrop {\n\t\tposition: fixed;\n\t\tinset: 0;\n\t\tz-index: 520;\n\t\tbackground: rgba(15, 23, 42, 0.45);\n\t\tdisplay: flex;\n\t\tflex-direction: column;\n\t\tjustify-content: flex-end;\n\t}\n\n\t.mn-bottom-sheet {\n\t\tbackground: var(--mn-bg-surface);\n\t\tborder-radius: 18px 18px 0 0;\n\t\tpadding: 1.15rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom, 0px));\n\t\tmax-height: 82dvh;\n\t\toverflow-y: auto;\n\t\tbox-shadow: var(--mn-shadow-sheet);\n\t}\n\n\t.mn-sheet-action-grid {\n\t\tdisplay: grid;\n\t\tgrid-template-columns: repeat(auto-fill, minmax(110px, 1fr));\n\t\tgap: 0.6rem;\n\t\tmargin: 1rem 0;\n\t}\n\n\t.mn-sheet-action-item {\n\t\tdisplay: flex;\n\t\talign-items: center;\n\t\tjustify-content: center;\n\t\tmin-height: 44px;\n\t\tpadding: 0.5rem;\n\t\tbackground: var(--mn-bg-subtle);\n\t\tborder: 1px solid var(--mn-border-subtle);\n\t\tborder-radius: var(--mn-radius-sm);\n\t}\n\n\t@media (max-width: 1023px) {\n\t\t.mn-workspace-grid {\n\t\t\tgrid-template-columns: minmax(0, 1fr) !important;\n\t\t}\n\n\t\t.mn-panel-left {\n\t\t\tposition: fixed !important;\n\t\t\ttop: var(--mn-topbar-height) !important;\n\t\t\tleft: 0 !important;\n\t\t\tbottom: var(--mn-bottombar-height) !important;\n\t\t\theight: auto !important;\n\t\t\tz-index: 470 !important;\n\t\t\twidth: min(84vw, 300px) !important;\n\t\t\tbox-shadow: 8px 0 24px rgba(15, 23, 42, 0.22);\n\t\t\ttransition: transform var(--mn-transition), opacity var(--mn-transition);\n\t\t}\n\n\t\t.mn-left-collapsed .mn-panel-left {\n\t\t\ttransform: translateX(-105%);\n\t\t\topacity: 0;\n\t\t\tpointer-events: none;\n\t\t}\n\n\t\t.mn-story-container {\n\t\t\tpadding: 0.85rem 0.75rem calc(var(--mn-bottombar-height) + 2.5rem);\n\t\t}\n\n\t\t.mn-story-container .tc-tiddler-frame {\n\t\t\tpadding: 1.25rem 1.1rem;\n\t\t\tmargin-bottom: 0.75rem;\n\t\t}\n\n\t\t/* Hide top-right toolbar clutter on mobile; use Bottom Sheet (\u2022\u2022\u2022) instead */\n\t\t.mn-story-container .tc-tiddler-controls {\n\t\t\tdisplay: none;\n\t\t}\n\t}\n}\n"}, "$:/plugins/mblackman/modern-notebook/ui/Layout": {"title": "$:/plugins/mblackman/modern-notebook/ui/Layout", "tags": "$:/tags/Layout", "name": "Modern Notebook", "description": "Generic 3-column centered reading workspace with configurable shortcuts and mobile Zoomin bottom bar", "type": "text/vnd.tiddlywiki", "text": "\\whitespace trim\n\\import [subfilter{$:/core/config/GlobalImportFilter}]\n\n\\function .breakpoint() [{$:/config/modern-notebook/mobile-breakpoint}!is[blank]else[1024]]\n\\function .is-mobile() [{$:/info/browser/window/system/main/client/width}compare:number:lt<.breakpoint>then[yes]else[no]]\n\\function .active-storyview()\n[{$:/config/modern-notebook/storyview-override}!is[blank]!match[auto]]\n~[.is-mobile[]match[yes]then[zoomin]else[classic]]\n\\end\n\n\\function .container-classes()\ntc-page-container mn-app-shell\n[{$:/state/modern-notebook/left-panel}match[no]then[mn-left-collapsed]else[mn-left-open]]\n[{$:/state/modern-notebook/right-panel}match[no]then[mn-right-collapsed]else[mn-right-open]]\n[.is-mobile[]match[yes]then[mn-is-mobile]else[mn-is-desktop]]\n+[join[ ]]\n\\end\n\n\\procedure redirected-navigate-actions()\n<$action-setfield $tiddler=\"$:/HistoryList\" current-tiddler=<<event-navigateTo>> $timestamp=\"no\"/>\n<%if [.is-mobile[]match[yes]] %>\n\t<$action-setfield $tiddler=\"$:/state/modern-notebook/left-panel\" text=\"no\" $timestamp=\"no\"/>\n<%endif%>\n<$action-navigate $to=<<event-navigateTo>> $scroll=\"yes\"/>\n\\end\n\n<$navigator\n\tstory=\"$:/StoryList\"\n\thistory=\"$:/HistoryList\"\n\topenLinkFromInsideRiver={{$:/config/Navigation/openLinkFromInsideRiver}}\n\topenLinkFromOutsideRiver={{$:/config/Navigation/openLinkFromOutsideRiver}}\n\trelinkOnRename={{$:/config/RelinkOnRename}}\n>\n\t<$messagecatcher $tm-navigate=<<redirected-navigate-actions>>>\n\t\t<$dropzone enable=<<tv-enable-drag-and-drop>>>\n\t\t\t<div class=<<.container-classes>> style=`--mn-reading-width: ${ [{$:/config/modern-notebook/reading-width}!is[blank]else[72ch]] }$; --mn-wide-width: ${ [{$:/config/modern-notebook/wide-width}!is[blank]else[1180px]] }$;`>\n\t\t\t\t<!-- Sticky Top Command Header (z-index: 420) -->\n\t\t\t\t<header class=\"mn-topbar tc-adjust-top-of-scroll\">\n\t\t\t\t\t{{$:/plugins/mblackman/modern-notebook/ui/TopBar}}\n\t\t\t\t</header>\n\n\t\t\t\t<!-- Mobile Horizontal Open-Tiddler Switcher Strip (z-index: 410) -->\n\t\t\t\t<%if [.is-mobile[]match[yes]] %>\n\t\t\t\t\t{{$:/plugins/mblackman/modern-notebook/ui/MobilePillStrip}}\n\t\t\t\t<%endif%>\n\n\t\t\t\t<!-- Mobile Drawer Backdrop when Left Nav is Open on Mobile -->\n\t\t\t\t<%if [.is-mobile[]match[yes]] [{$:/state/modern-notebook/left-panel}!match[no]] +[count[]match[2]] %>\n\t\t\t\t\t<$button set=\"$:/state/modern-notebook/left-panel\" setTo=\"no\" class=\"mn-mobile-drawer-backdrop tc-btn-invisible\" aria-label=\"Close navigation drawer\"/>\n\t\t\t\t<%endif%>\n\n\t\t\t\t<!-- Three-Zone Workspace Grid -->\n\t\t\t\t<div class=\"mn-workspace-grid\">\n\t\t\t\t\t<aside class=\"mn-panel-left\">\n\t\t\t\t\t\t{{$:/plugins/mblackman/modern-notebook/ui/LeftNav}}\n\t\t\t\t\t</aside>\n\n\t\t\t\t\t<main class=\"mn-story-container\">\n\t\t\t\t\t\t<$list\n\t\t\t\t\t\t\tfilter=\"[list[$:/StoryList]]\"\n\t\t\t\t\t\t\thistory=\"$:/HistoryList\"\n\t\t\t\t\t\t\ttemplate={{$:/config/ui/ViewTemplate}}\n\t\t\t\t\t\t\teditTemplate={{$:/config/ui/EditTemplate}}\n\t\t\t\t\t\t\tstoryview=<<.active-storyview>>\n\t\t\t\t\t\t\temptyMessage={{$:/config/EmptyStoryMessage}}\n\t\t\t\t\t\t/>\n\t\t\t\t\t</main>\n\n\t\t\t\t\t<%if [.is-mobile[]match[no]] %>\n\t\t\t\t\t\t<aside class=\"mn-panel-right\">\n\t\t\t\t\t\t\t{{$:/plugins/mblackman/modern-notebook/ui/RightInspector}}\n\t\t\t\t\t\t</aside>\n\t\t\t\t\t<%endif%>\n\t\t\t\t</div>\n\n\t\t\t\t<!-- Fixed Mobile Bottom Bar & Zoomed Tiddler Options Sheet (z-index: 480/520) -->\n\t\t\t\t<%if [.is-mobile[]match[yes]] %>\n\t\t\t\t\t{{$:/plugins/mblackman/modern-notebook/ui/MobileBar}}\n\t\t\t\t<%endif%>\n\t\t\t</div>\n\t\t</$dropzone>\n\t</$messagecatcher>\n</$navigator>\n"}, "$:/plugins/mblackman/modern-notebook/ui/TopBar": {"title": "$:/plugins/mblackman/modern-notebook/ui/TopBar", "type": "text/vnd.tiddlywiki", "text": "\\whitespace trim\n<div class=\"mn-topbar-left\">\n\t<$button\n\t\tset=\"$:/state/modern-notebook/left-panel\"\n\t\tsetTo={{{ [{$:/state/modern-notebook/left-panel}match[no]then[yes]else[no]] }}}\n\t\tclass=\"mn-pill-btn\"\n\t\ttooltip=\"Toggle Left Navigation Rail\"\n\t>\n\t\t\u2630\n\t</$button>\n\t<span class=\"mn-site-brand\">\n\t\t<$link to={{$:/HistoryList!!current-tiddler}} class=\"mn-card-title\">\n\t\t\t<$text text={{{ [{$:/SiteTitle}!is[blank]else[TiddlyWiki]] }}}/>\n\t\t</$link>\n\t</span>\n</div>\n\n<div class=\"mn-topbar-center\">\n\t<$edit-text\n\t\ttiddler=\"$:/temp/volatile/modern-notebook/global-search\"\n\t\tfield=\"text\"\n\t\ttag=\"input\"\n\t\ttype=\"search\"\n\t\tplaceholder=\"Search or jump to tiddler...\"\n\t\tclass=\"mn-search-input\"\n\t/>\n</div>\n\n<div class=\"mn-topbar-right\">\n\t<$button message=\"tm-new-tiddler\" class=\"mn-btn-primary\" tooltip=\"Create New Tiddler\">\n\t\t+ New\n\t</$button>\n\t<$button to=\"$:/ControlPanel\" class=\"mn-pill-btn\" tooltip=\"Open Control Panel\">\n\t\t\u2699\n\t</$button>\n\t<$button\n\t\tset=\"$:/state/modern-notebook/right-panel\"\n\t\tsetTo={{{ [{$:/state/modern-notebook/right-panel}match[no]then[yes]else[no]] }}}\n\t\tclass=\"mn-pill-btn\"\n\t\ttooltip=\"Toggle Right Context Inspector\"\n\t>\n\t\t\u25e8\n\t</$button>\n</div>\n"}, "$:/plugins/mblackman/modern-notebook/ui/LeftNav": {"title": "$:/plugins/mblackman/modern-notebook/ui/LeftNav", "type": "text/vnd.tiddlywiki", "text": "\\whitespace trim\n\\function .pinned-filter() [{$:/config/modern-notebook/pinned-filter}!is[blank]else[[all[shadows+tiddlers]tag[$:/tags/Pinned]!has[draft.of]]]]\n\n<!-- Section 1: User-Configurable Pinned Shortcuts (Tag any tiddler $:/tags/Pinned or customize filter in Settings) -->\n<section class=\"mn-nav-section\">\n\t<h3 class=\"mn-nav-heading\">\n\t\t<span><$text text={{{ [{$:/config/modern-notebook/pinned-heading}!is[blank]else[Pinned Shortcuts]] }}}/></span>\n\t\t<$button to=\"$:/ControlPanel\" class=\"tc-btn-invisible\" tooltip=\"Customize pinned shortcuts in Settings\">\u2699</$button>\n\t</h3>\n\t<$list filter=\"[subfilter<.pinned-filter>]\" variable=\"pinItem\" emptyMessage=\"<p class='mn-prop-label'>Tag any tiddler <code>$:/tags/Pinned</code> to pin it here.</p>\">\n\t\t<$button\n\t\t\tto=<<pinItem>>\n\t\t\tclass={{{ [[mn-nav-item tc-btn-invisible]] [{$:/HistoryList!!current-tiddler}match<pinItem>then[mn-nav-item-active]] +[join[ ]] }}}\n\t\t>\n\t\t\t<span>\n\t\t\t\t<%if [<pinItem>get[icon]!is[blank]] %>\n\t\t\t\t\t<$transclude $tiddler={{{ [<pinItem>get[icon]] }}}/>\n\t\t\t\t<%endif%>\n\t\t\t\t<$view tiddler=<<pinItem>> field=\"caption\"><$text text=<<pinItem>>/></$view>\n\t\t\t</span>\n\t\t</$button>\n\t</$list>\n</section>\n\n<!-- Section 2: Open Story Switcher -->\n<section class=\"mn-nav-section\">\n\t<h3 class=\"mn-nav-heading\">\n\t\t<span>Open Tiddlers (<$count filter=\"[list[$:/StoryList]]\"/>)</span>\n\t\t<$button message=\"tm-close-all-tiddlers\" class=\"tc-btn-invisible\" tooltip=\"Close all open tiddlers\">Clear</$button>\n\t</h3>\n\t<$list filter=\"[list[$:/StoryList]]\" variable=\"openItem\">\n\t\t<div class={{{ [[mn-nav-item]] [{$:/HistoryList!!current-tiddler}match<openItem>then[mn-nav-item-active]] +[join[ ]] }}}>\n\t\t\t<$link to=<<openItem>> class=\"mn-card-title\">\n\t\t\t\t<$view tiddler=<<openItem>> field=\"caption\"><$text text=<<openItem>>/></$view>\n\t\t\t</$link>\n\t\t\t<$button message=\"tm-close-tiddler\" param=<<openItem>> class=\"tc-btn-invisible\" tooltip=\"Close tiddler\">\u2715</$button>\n\t\t</div>\n\t</$list>\n</section>\n\n<!-- Section 3: Extensible Custom LeftNav Sections ($:/tags/ModernNotebook/LeftNav) -->\n<$list filter=\"[all[shadows+tiddlers]tag[$:/tags/ModernNotebook/LeftNav]!has[draft.of]]\" variable=\"navSection\">\n\t<section class=\"mn-nav-section\">\n\t\t<$transclude $tiddler=<<navSection>> mode=\"block\"/>\n\t</section>\n</$list>\n\n<!-- Section 4: Generic Tag Explorer (Filter configurable via $:/config/modern-notebook/tag-explorer-filter) -->\n<section class=\"mn-nav-section\">\n\t<h3 class=\"mn-nav-heading\">Tags</h3>\n\t<$let tagFilter={{{ [{$:/config/modern-notebook/tag-explorer-filter}!is[blank]else[[tags[]!is[system]sort[title]limit[25]]]] }}}>\n\t\t<$list filter=\"[subfilter<tagFilter>]\" variable=\"tagItem\">\n\t\t\t<div class=\"mn-nav-item\">\n\t\t\t\t<$macrocall $name=\"tag-pill\" tag=<<tagItem>>/>\n\t\t\t\t<span class=\"mn-prop-label\"><$count filter=\"[all[tiddlers]tag<tagItem>]\"/></span>\n\t\t\t</div>\n\t\t</$list>\n\t</$let>\n</section>\n"}, "$:/plugins/mblackman/modern-notebook/ui/RightInspector": {"title": "$:/plugins/mblackman/modern-notebook/ui/RightInspector", "type": "text/vnd.tiddlywiki", "text": "\\whitespace trim\n<$let activeTiddler={{{ [{$:/HistoryList!!current-tiddler}!is[blank]] ~[list[$:/StoryList]first[]] }}}>\n\t<$tiddler tiddler=<<activeTiddler>>>\n\t\t<section class=\"mn-nav-section\">\n\t\t\t<h3 class=\"mn-nav-heading\">Active Context Inspector</h3>\n\t\t\t<div class=\"mn-card-title\"><$view field=\"caption\"><$view field=\"title\"/></$view></div>\n\t\t\t<div class=\"mn-prop-label\">Modified <$view field=\"modified\" format=\"relativedate\"/></div>\n\n\t\t\t<!-- Generic Inspector Mode Tabs -->\n\t\t\t<div class=\"mn-object-prop-bar\">\n\t\t\t\t<$list filter=\"Backlinks Outline Fields [all[shadows+tiddlers]tag[$:/tags/ModernNotebook/InspectorTab]!has[draft.of]]\" variable=\"tabItem\">\n\t\t\t\t\t<$button\n\t\t\t\t\t\tset=\"$:/state/modern-notebook/inspector-tab\"\n\t\t\t\t\t\tsetTo=<<tabItem>>\n\t\t\t\t\t\tselectedClass=\"mn-pill-active\"\n\t\t\t\t\t\tclass=\"mn-pill-btn\"\n\t\t\t\t\t>\n\t\t\t\t\t\t<$view tiddler=<<tabItem>> field=\"caption\"><$text text=<<tabItem>>/></$view>\n\t\t\t\t\t</$button>\n\t\t\t\t</$list>\n\t\t\t</div>\n\n\t\t\t<!-- Tab 1: Backlinks & Transclusions -->\n\t\t\t<%if [{$:/state/modern-notebook/inspector-tab}!is[blank]else[Backlinks]match[Backlinks]] %>\n\t\t\t\t<h4 class=\"mn-nav-heading\">Linked From (<$count filter=\"[<activeTiddler>backlinks[]!is[system]]\"/>)</h4>\n\t\t\t\t<$list filter=\"[<activeTiddler>backlinks[]!is[system]sort[title]]\" emptyMessage=\"<p class='mn-prop-label'>No incoming links yet.</p>\">\n\t\t\t\t\t<div class=\"mn-nav-item\">\n\t\t\t\t\t\t<$link to=<<currentTiddler>>/>\n\t\t\t\t\t</div>\n\t\t\t\t</$list>\n\t\t\t<%endif%>\n\n\t\t\t<!-- Tab 2: Table of Contents / Outline -->\n\t\t\t<%if [{$:/state/modern-notebook/inspector-tab}match[Outline]] %>\n\t\t\t\t<h4 class=\"mn-nav-heading\">Sub-Tiddlers & TOC</h4>\n\t\t\t\t<$macrocall $name=\"toc\" tag=<<activeTiddler>>/>\n\t\t\t<%endif%>\n\n\t\t\t<!-- Tab 3: Inline Fields & Properties -->\n\t\t\t<%if [{$:/state/modern-notebook/inspector-tab}match[Fields]] %>\n\t\t\t\t<h4 class=\"mn-nav-heading\">Tiddler Fields</h4>\n\t\t\t\t<$list filter=\"[<activeTiddler>fields[]!match[text]!match[title]!match[created]!match[modified]!match[bag]!match[revision]]\" variable=\"fieldName\">\n\t\t\t\t\t<div class=\"mn-object-prop-bar\">\n\t\t\t\t\t\t<span class=\"mn-prop-label\"><$text text=<<fieldName>>/>:</span>\n\t\t\t\t\t\t<$edit-text tiddler=<<activeTiddler>> field=<<fieldName>> tag=\"input\" class=\"mn-search-input\"/>\n\t\t\t\t\t</div>\n\t\t\t\t</$list>\n\t\t\t<%endif%>\n\n\t\t\t<!-- Extensible Custom Inspector Tabs ($:/tags/ModernNotebook/InspectorTab) -->\n\t\t\t<$list filter=\"[all[shadows+tiddlers]tag[$:/tags/ModernNotebook/InspectorTab]!has[draft.of]]\" variable=\"customTab\">\n\t\t\t\t<%if [{$:/state/modern-notebook/inspector-tab}match<customTab>] %>\n\t\t\t\t\t<$transclude $tiddler=<<customTab>> mode=\"block\"/>\n\t\t\t\t<%endif%>\n\t\t\t</$list>\n\t\t</section>\n\t</$tiddler>\n</$let>\n"}, "$:/plugins/mblackman/modern-notebook/ui/MobilePillStrip": {"title": "$:/plugins/mblackman/modern-notebook/ui/MobilePillStrip", "type": "text/vnd.tiddlywiki", "text": "\\whitespace trim\n<nav class=\"mn-mobile-pill-strip\" aria-label=\"Open Tiddlers Switcher\">\n\t<$list filter=\"[list[$:/StoryList]]\" variable=\"storyItem\">\n\t\t<span class={{{ [[mn-mobile-tab-chip]] [{$:/HistoryList!!current-tiddler}match<storyItem>then[mn-mobile-tab-chip-active]] +[join[ ]] }}}>\n\t\t\t<$button to=<<storyItem>> class=\"tc-btn-invisible\">\n\t\t\t\t<$view tiddler=<<storyItem>> field=\"caption\"><$text text=<<storyItem>>/></$view>\n\t\t\t</$button>\n\t\t\t<$button message=\"tm-close-tiddler\" param=<<storyItem>> class=\"tc-btn-invisible\" aria-label=\"Close tiddler\">\u2715</$button>\n\t\t</span>\n\t</$list>\n</nav>\n"}, "$:/plugins/mblackman/modern-notebook/ui/MobileBar": {"title": "$:/plugins/mblackman/modern-notebook/ui/MobileBar", "type": "text/vnd.tiddlywiki", "text": "\\whitespace trim\n\\function .mobile-shortcut-list() [{$:/config/modern-notebook/mobile-shortcuts}!is[blank]] ~[[all[shadows+tiddlers]tag[$:/tags/ModernNotebook/BottomBar]!has[draft.of]]]\n\n<nav class=\"mn-mobile-bottombar\" aria-label=\"Mobile Primary Controls\">\n\t<!-- 1. Left Drawer Menu Toggle -->\n\t<$button\n\t\tset=\"$:/state/modern-notebook/left-panel\"\n\t\tsetTo={{{ [{$:/state/modern-notebook/left-panel}match[no]then[yes]else[no]] }}}\n\t\tclass=\"mn-mobile-nav-btn\"\n\t>\n\t\t<span>\u2630</span>\n\t\t<span>Menu</span>\n\t</$button>\n\n\t<!-- 2. User-Configurable Middle Shortcut Slots (configured via $:/config/modern-notebook/mobile-shortcuts or $:/tags/ModernNotebook/BottomBar) -->\n\t<$list filter=\"[enlist{$:/config/modern-notebook/mobile-shortcuts}] [all[shadows+tiddlers]tag[$:/tags/ModernNotebook/BottomBar]!has[draft.of]] +[unique[]limit[2]]\" variable=\"shortcutItem\">\n\t\t<$button to=<<shortcutItem>> class=\"mn-mobile-nav-btn\">\n\t\t\t<span><$view tiddler=<<shortcutItem>> field=\"mn-icon\">\u2605</$view></span>\n\t\t\t<span><$view tiddler=<<shortcutItem>> field=\"caption\"><$text text=<<shortcutItem>>/></$view></span>\n\t\t</$button>\n\t</$list>\n\n\t<!-- 3. Generic New Tiddler / Quick Capture Button -->\n\t<$button message=\"tm-new-tiddler\" class=\"mn-mobile-nav-btn\">\n\t\t<span>\uff0b</span>\n\t\t<span>New</span>\n\t</$button>\n\n\t<!-- 4. Zoomed Tiddler Options Sheet Trigger -->\n\t<$button\n\t\tset=\"$:/state/modern-notebook/mobile-action-sheet\"\n\t\tsetTo={{{ [{$:/state/modern-notebook/mobile-action-sheet}match[open]then[closed]else[open]] }}}\n\t\tclass=\"mn-mobile-nav-btn\"\n\t>\n\t\t<span>\u2022\u2022\u2022</span>\n\t\t<span>Options</span>\n\t</$button>\n</nav>\n\n<!-- Slide-Up Bottom Sheet for Zoomed Tiddler Options & Inspector -->\n<%if [{$:/state/modern-notebook/mobile-action-sheet}match[open]] %>\n\t<div class=\"mn-backdrop\">\n\t\t<section class=\"mn-bottom-sheet\">\n\t\t\t<$let zoomedTiddler={{{ [{$:/HistoryList!!current-tiddler}!is[blank]] ~[list[$:/StoryList]first[]] }}}>\n\t\t\t\t<$tiddler tiddler=<<zoomedTiddler>>>\n\t\t\t\t\t<header class=\"mn-card-header\">\n\t\t\t\t\t\t<div>\n\t\t\t\t\t\t\t<div class=\"mn-nav-heading\">Zoomed Tiddler Options</div>\n\t\t\t\t\t\t\t<div class=\"mn-card-title\"><$view field=\"caption\"><$view field=\"title\"/></$view></div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<$button set=\"$:/state/modern-notebook/mobile-action-sheet\" setTo=\"closed\" class=\"mn-pill-btn\">Done \u2715</$button>\n\t\t\t\t\t</header>\n\n\t\t\t\t\t<!-- All ViewToolbar Buttons Rendered as Touch Grid -->\n\t\t\t\t\t<div class=\"mn-sheet-action-grid\">\n\t\t\t\t\t\t<$list filter=\"[all[shadows+tiddlers]tag[$:/tags/ViewToolbar]!has[draft.of]]\" variable=\"toolbarItem\">\n\t\t\t\t\t\t\t<div class=\"mn-sheet-action-item\">\n\t\t\t\t\t\t\t\t<$transclude $tiddler=<<toolbarItem>>/>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</$list>\n\t\t\t\t\t</div>\n\n\t\t\t\t\t<!-- Quick Switcher & Inspector Inside Mobile Sheet -->\n\t\t\t\t\t<div class=\"mn-sheet-context\">\n\t\t\t\t\t\t{{$:/plugins/mblackman/modern-notebook/ui/RightInspector}}\n\t\t\t\t\t</div>\n\t\t\t\t</$tiddler>\n\t\t\t</$let>\n\t\t</section>\n\t</div>\n<%endif%>\n"}, "$:/plugins/mblackman/modern-notebook/widgets/ui-primitives": {"title": "$:/plugins/mblackman/modern-notebook/widgets/ui-primitives", "tags": "$:/tags/Global", "type": "text/vnd.tiddlywiki", "text": "\\whitespace trim\n\n<!-- Generic Hero Banner Widget ($mn.hero) -->\n\\widget $mn.hero(title:\"\", subtitle:\"\")\n<section class=\"mn-hero\">\n\t<div>\n\t\t<%if [<title>!is[blank]] %>\n\t\t\t<h2 style=\"margin:0;\"><$text text=<<title>>/></h2>\n\t\t<%endif%>\n\t\t<%if [<subtitle>!is[blank]] %>\n\t\t\t<div class=\"mn-prop-label\"><$text text=<<subtitle>>/></div>\n\t\t<%endif%>\n\t\t<$slot $name=\"info\"/>\n\t</div>\n\t<div style=\"display:flex;gap:0.5rem;flex-wrap:wrap;\">\n\t\t<$slot $name=\"actions\"/>\n\t</div>\n</section>\n\\end $mn.hero\n\n<!-- Generic Responsive Grid Widget ($mn.grid) -->\n\\widget $mn.grid(min:\"280px\", wide:\"yes\")\n<div class={{{ [[mn-grid]] [<wide>match[yes]then[mn-wide-view]] +[join[ ]] }}} style=`--mn-grid-min: $(min)$;`>\n\t<$slot $name=\"ts-raw\"/>\n</div>\n\\end $mn.grid\n\n<!-- Reusable Card Component ($mn.card) -->\n\\widget $mn.card(class:\"\", badge:\"\", accent:\"\")\n<article class={{{ [[mn-card]] [<class>] +[join[ ]] }}} style={{{ [<accent>!is[blank]addprefix[--mn-card-accent:]addsuffix[;]] }}}>\n\t<header class=\"mn-card-header\">\n\t\t<div class=\"mn-card-title-group\">\n\t\t\t<$slot $name=\"header\">\n\t\t\t\t<$link to=<<currentTiddler>> class=\"mn-card-title\">\n\t\t\t\t\t<$view field=\"caption\"><$view field=\"title\"/></$view>\n\t\t\t\t</$link>\n\t\t\t</$slot>\n\t\t</div>\n\t\t<%if [<badge>!is[blank]] %>\n\t\t\t<span class=\"mn-badge\"><$text text=<<badge>>/></span>\n\t\t<%endif%>\n\t</header>\n\t<div class=\"mn-card-body\">\n\t\t<$slot $name=\"ts-raw\"/>\n\t</div>\n\t<footer class=\"mn-card-footer\">\n\t\t<$slot $name=\"footer\"/>\n\t</footer>\n</article>\n\\end $mn.card\n\n<!-- Inline Property Pill ($mn.prop-pill) -->\n\\widget $mn.prop-pill(field:\"status\", label:\"\", values:\"\")\n<div class=\"mn-prop-pill\">\n\t<span class=\"mn-prop-label\"><$text text={{{ [<label>!is[blank]else<field>] }}}/>:</span>\n\t<%if [<values>!is[blank]] %>\n\t\t<$select field=<<field>> class=\"mn-prop-select\">\n\t\t\t<$list filter=\"[enlist<values>]\" variable=\"opt\">\n\t\t\t\t<option value=<<opt>>><$text text=<<opt>>/></option>\n\t\t\t</$list>\n\t\t</$select>\n\t<%else%>\n\t\t<span class=\"mn-prop-value\"><$view field=<<field>>/></span>\n\t<%endif%>\n</div>\n\\end $mn.prop-pill\n\n<!-- Generic Progress Bar Widget ($mn.progress) -->\n\\widget $mn.progress(done:\"0\", total:\"1\", label:\"Progress\")\n\\function .calc-pct() [<total>match[0]then[0]] ~[<done>multiply[100]divide<total>round[]]\n<div>\n\t<div style=\"display:flex;justify-content:space-between;font-size:0.8rem;\">\n\t\t<span class=\"mn-prop-label\"><$text text=<<label>>/> (<$text text=<<done>>/>/<$text text=<<total>>/>)</span>\n\t\t<strong><$text text=<<.calc-pct>>/>%</strong>\n\t</div>\n\t<div class=\"mn-progress-track\">\n\t\t<div class=\"mn-progress-fill\" style=`width: ${ [.calc-pct[]] }$%;`/>\n\t</div>\n</div>\n\\end $mn.progress\n"}, "$:/plugins/mblackman/modern-notebook/ui/ObjectPropertyHeader": {"title": "$:/plugins/mblackman/modern-notebook/ui/ObjectPropertyHeader", "tags": "$:/tags/ViewTemplate", "list-after": "$:/core/ui/ViewTemplate/subtitle", "type": "text/vnd.tiddlywiki", "text": "\\whitespace trim\n\\function .prop-fields() [{!!mn-fields}!is[blank]] ~[{$:/config/modern-notebook/default-property-fields}!is[blank]else[status priority mood rating media-type creator due-date]]\n\n<%if [all[current]fields[]subfilter<.prop-fields>count[]compare:number:gt[0]] %>\n\t<div class=\"mn-object-prop-bar\">\n\t\t<$list filter=\"[enlist<.prop-fields>]\" variable=\"propField\">\n\t\t\t<%if [all[current]has<propField>] %>\n\t\t\t\t<$mn.prop-pill\n\t\t\t\t\tfield=<<propField>>\n\t\t\t\t\tvalues={{{ [[$:/config/modern-notebook/field-options/]addsuffix<propField>get[text]] }}}\n\t\t\t\t/>\n\t\t\t<%endif%>\n\t\t</$list>\n\t</div>\n<%endif%>\n"}, "$:/plugins/mblackman/modern-notebook/ui/WideViewWrapper": {"title": "$:/plugins/mblackman/modern-notebook/ui/WideViewWrapper", "tags": "$:/tags/ViewTemplateBodyFilter", "list-before": "$:/config/ViewTemplateBodyFilters/default", "type": "text/vnd.tiddlywiki", "text": "[field:page-width[wide]then[$:/plugins/mblackman/modern-notebook/templates/wide-body]] ~[tag[Wide]then[$:/plugins/mblackman/modern-notebook/templates/wide-body]]"}, "$:/plugins/mblackman/modern-notebook/templates/wide-body": {"title": "$:/plugins/mblackman/modern-notebook/templates/wide-body", "type": "text/vnd.tiddlywiki", "text": "\\whitespace trim\n<%if [all[current]field:page-width[wide]] [all[current]subfilter{$:/config/modern-notebook/wide-filter}] +[limit[1]] %>\n\t<div class=\"mn-wide-view\">\n\t\t<$transclude $tiddler=\"$:/core/ui/ViewTemplate/body/default\"/>\n\t</div>\n<%endif%>\n"}};
+
+// Initial simulated TiddlyWiki Store ($tw.wiki)
+const defaultTiddlers = [
+  {
+    title: "Journal Dashboard",
+    caption: "Journal",
+    mnIcon: "&#128211;",
+    tags: ["$:/tags/Pinned", "$:/tags/ModernNotebook/BottomBar", "Wide", "JournalDashboard", "Dashboard"],
+    modified: "2026-10-16 00:05",
+    type: "dashboard-journal",
+    body: "User-space dashboard tiddler pinned via $:/tags/Pinned and $:/tags/ModernNotebook/BottomBar."
+  },
+  {
+    title: "Project Dashboard",
+    caption: "Projects",
+    mnIcon: "&#128203;",
+    tags: ["$:/tags/Pinned", "Wide", "ProjectDashboard", "Dashboard"],
+    modified: "2026-10-16 00:04",
+    type: "dashboard-project",
+    body: "User-space project dashboard pinned via $:/tags/Pinned (not hardcoded in the theme)."
+  },
+  {
+    title: "Media Hub",
+    caption: "Media",
+    mnIcon: "&#127916;",
+    tags: ["$:/tags/Pinned", "$:/tags/ModernNotebook/BottomBar", "Wide", "MediaDashboard", "Dashboard"],
+    modified: "2026-10-16 00:03",
+    type: "dashboard-media",
+    body: "User-space media hub pinned via $:/tags/Pinned and $:/tags/ModernNotebook/BottomBar."
+  },
+  {
+    title: "2026-10-15",
+    tags: ["Journal"],
+    mood: "Focused",
+    location: "Centennial, CO",
+    modified: "2026-10-15 23:45",
+    backlinks: ["Journal Dashboard", "Modern Notebook Theme Spec"],
+    revisions: [
+      { rev: "c8a4f12", time: "23:45", summary: "Added notes on TW v5.4 CSS variables & Zoomin mobile bar" },
+      { rev: "91b2e04", time: "21:10", summary: "Initial evening journal entry after Octarine Engine build check" }
+    ],
+    body: "Scoped out the new **Modern Notebook** theme architecture for TiddlyWiki v5.4.0+. Moving from Nicolas Petton's Notebook theme to a 3-column CSS Grid on desktop (`Left Nav + 72ch Reading Column + Right Context Inspector`) while switching `<1024px` viewports to the `zoomin` single-tiddler storyview with a thumb-zone bottom bar."
+  },
+  {
+    title: "2026-10-12",
+    tags: ["Journal"],
+    mood: "Energized",
+    location: "Centennial, CO",
+    modified: "2026-10-12 19:20",
+    backlinks: ["Journal Dashboard"],
+    revisions: [
+      { rev: "7d31a09", time: "19:20", summary: "Logged weekend coffee dial-in and convention prep" }
+    ],
+    body: "Dialed in a new single-origin dark roast on the AeroPress and reviewed upcoming Fightin49ers Toastmasters meeting agenda items."
+  },
+  {
+    title: "Modern Notebook Theme",
+    tags: ["Project"],
+    status: "Active",
+    priority: "P0",
+    color: "#2563eb",
+    dueDate: "2026-10-25",
+    modified: "2026-10-16 00:10",
+    backlinks: ["Project Dashboard", "2026-10-15"],
+    revisions: [
+      { rev: "f04e81a", time: "00:10", summary: "Completed Milestones 1-4 shadow tiddlers" },
+      { rev: "a32c118", time: "23:55", summary: "Defined --tpc-* token layer" }
+    ],
+    body: "Custom TiddlyWiki v5.4.0+ theme and `$:/tags/Layout` plugin combining a centered reading column with flanking panels on desktop and a single-tiddler `zoomin` view on mobile."
+  },
+  {
+    title: "Octarine Engine Renderer",
+    tags: ["Project"],
+    status: "Active",
+    priority: "P1",
+    color: "#8b5cf6",
+    dueDate: "2026-11-15",
+    modified: "2026-10-14 22:15",
+    backlinks: ["Project Dashboard"],
+    revisions: [
+      { rev: "e19b442", time: "22:15", summary: "Updated frame graph pass timings" }
+    ],
+    body: "C++ custom game engine architecture and CI/CD build pipeline optimizations."
+  },
+  {
+    title: "Timelord v1.2 Update",
+    tags: ["Project"],
+    status: "Next Up",
+    priority: "P2",
+    color: "#10b981",
+    dueDate: "2026-11-30",
+    modified: "2026-10-10 18:00",
+    backlinks: ["Project Dashboard"],
+    revisions: [
+      { rev: "b72d001", time: "18:00", summary: "Added right-inspector hook support" }
+    ],
+    body: "Enhance Timelord revision history plugin to embed cleanly inside the Modern Notebook Right Context Inspector tab."
+  },
+  {
+    title: "Build CSS Grid 3-column PageTemplate",
+    tags: ["Task", "Modern Notebook Theme", "Done"],
+    modified: "2026-10-16 00:06",
+    body: "Implement $:/plugins/mblackman/modern-notebook/ui/Layout with left rail, 72ch reading column, and right inspector."
+  },
+  {
+    title: "Wire Mobile Zoomin Pill Strip & Bottom Action Sheet",
+    tags: ["Task", "Modern Notebook Theme", "Done"],
+    modified: "2026-10-16 00:08",
+    body: "Bind storyview to $:/info/browser/window/system/main/client/width and expose ViewToolbar inside the slide-up sheet."
+  },
+  {
+    title: "Test Media Search Widget Drawer in TidGi",
+    tags: ["Task", "Modern Notebook Theme"],
+    modified: "2026-10-16 00:09",
+    body: "Verify $:/plugins/mblackman/media-importer/ui/SearchWidget transclusion inside the Media Hub template."
+  },
+  {
+    title: "Profile shader compilation cache in CI",
+    tags: ["Task", "Octarine Engine Renderer", "Done"],
+    modified: "2026-10-14 21:00",
+    body: "Verify GitHub Actions build cache hit rate."
+  },
+  {
+    title: "Add Vulkan descriptor indexing fallback",
+    tags: ["Task", "Octarine Engine Renderer"],
+    modified: "2026-10-14 21:30",
+    body: "Test across desktop and Linux targets."
+  },
+  {
+    title: "Metaphor: ReFantazio",
+    tags: ["Media"],
+    mediaType: "Game",
+    creator: "Atlus / Studio Zero",
+    status: "In Progress",
+    rating: "★★★★★",
+    accent: "#ef4444",
+    modified: "2026-10-15 20:00",
+    backlinks: ["Media Hub"],
+    body: "Tracked via `tiddlywiki-media-importer`. Archetype system and UI art direction are great inspiration for bold typography and snappy transitions."
+  },
+  {
+    title: "Delicious in Dungeon (Vol. 14)",
+    tags: ["Media"],
+    mediaType: "Manga",
+    creator: "Ryoko Kui",
+    status: "Completed",
+    rating: "★★★★★",
+    accent: "#f59e0b",
+    modified: "2026-10-11 16:30",
+    backlinks: ["Media Hub"],
+    body: "Finished the final volume of the manga series. World-building and ecology notes archived."
+  },
+  {
+    title: "Going Postal (Discworld)",
+    tags: ["Media"],
+    mediaType: "Book",
+    creator: "Terry Pratchett",
+    status: "Completed",
+    rating: "★★★★★",
+    accent: "#3b82f6",
+    modified: "2026-10-08 21:15",
+    backlinks: ["Media Hub"],
+    body: "Re-read Moist von Lipwig's clacks vs. post office showdown."
+  },
+  {
+    title: "Frieren: Beyond Journey's End",
+    tags: ["Media"],
+    mediaType: "Anime",
+    creator: "Madhouse",
+    status: "Completed",
+    rating: "★★★★★",
+    accent: "#06b6d4",
+    modified: "2026-10-04 22:00",
+    backlinks: ["Media Hub"],
+    body: "Tracked episodes and soundtrack notes."
+  }
+];
+
+// External catalog candidates for the simulated Media Search Widget
+const externalMediaCatalog = [
+  { title: "Baldur's Gate 3", mediaType: "Game", creator: "Larian Studios", status: "Completed", rating: "★★★★★", accent: "#a855f7", body: "Imported via Media Search Widget from IGDB/Steam metadata." },
+  { title: "Witch Hat Atelier", mediaType: "Manga", creator: "Kamome Shirahama", status: "In Progress", rating: "★★★★★", accent: "#14b8a6", body: "Imported via Media Search Widget with volume and cover metadata." },
+  { title: "Project Hail Mary", mediaType: "Book", creator: "Andy Weir", status: "Completed", rating: "★★★★★", accent: "#f97316", body: "Imported via Media Search Widget from OpenLibrary metadata." },
+  { title: "Ghost in the Shell (1995)", mediaType: "Movie", creator: "Mamoru Oshii", status: "Completed", rating: "★★★★★", accent: "#6366f1", body: "Imported via Media Search Widget from TMDB metadata." }
+];
+
+const state = {
+  viewMode: "desktop", // "desktop" | "mobile" | "code"
+  darkMode: false,
+  leftNavOpen: true,
+  rightInspectorOpen: true,
+  inspectorTab: "Backlinks", // "Backlinks" | "Outline" | "Fields" | "History"
+  storyList: ["Journal Dashboard", "Project Dashboard", "Media Hub", "2026-10-15"],
+  activeTiddler: "Journal Dashboard",
+  globalSearch: "",
+  journalSearch: "",
+  projectStatusFilter: "All",
+  mediaSearch: "",
+  mediaTypeFilter: "All",
+  mediaImporterOpen: false,
+  externalSearchQuery: "",
+  mobileActionSheetOpen: false,
+  selectedSourceTiddler: Object.keys(SHADOW_TIDDLERS)[3], // default to ui/Layout
+  readingWidth: "72ch",
+  dashboardWidth: "1180px",
+  tiddlers: JSON.parse(JSON.stringify(defaultTiddlers))
+};
+
+function showToast(msg) {
+  const banner = document.getElementById("toastBanner");
+  if (!banner) return;
+  banner.textContent = msg;
+  banner.classList.remove("hidden");
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(() => {
+    banner.classList.add("hidden");
+  }, 2600);
+}
+
+function getTiddler(title) {
+  return state.tiddlers.find(t => t.title === title);
+}
+
+function navigateToTiddler(title) {
+  if (!state.storyList.includes(title)) {
+    state.storyList.unshift(title);
+  }
+  state.activeTiddler = title;
+  if (state.viewMode === "mobile") {
+    state.leftNavOpen = false;
+  }
+  renderApp();
+}
+
+function closeTiddler(title) {
+  state.storyList = state.storyList.filter(t => t !== title);
+  if (state.activeTiddler === title) {
+    state.activeTiddler = state.storyList[0] || "";
+  }
+  renderApp();
+}
+
+function downloadJsonFile(filename, dataObj) {
+  const blob = new Blob([JSON.stringify(dataObj, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast("Downloaded " + filename + " — drag into TiddlyWiki to import!");
+}
+
+function copyText(text, label) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      showToast("Copied " + label + " to clipboard");
+    }).catch(() => fallbackCopy(text, label));
+  } else {
+    fallbackCopy(text, label);
+  }
+}
+
+function fallbackCopy(text, label) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand("copy");
+    showToast("Copied " + label + " to clipboard");
+  } catch (e) {
+    showToast("Copy ready");
+  }
+  document.body.removeChild(ta);
+}
+
+function escapeHtml(str) {
+  return String(str || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+// Compute Project Task Metrics (Mirrors \function .project.pct in UI Primitives)
+function getProjectStats(projTitle) {
+  const tasks = state.tiddlers.filter(t => t.tags.includes("Task") && t.tags.includes(projTitle));
+  const done = tasks.filter(t => t.tags.includes("Done")).length;
+  const total = tasks.length;
+  const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+  return { tasks, done, total, pct };
+}
+
+function renderTopBar(isMobile) {
+  return `
+    <header class="mn-surface border-b px-3 py-2 flex items-center justify-between gap-2 sticky top-0 z-30">
+      <div class="flex items-center gap-2">
+        <button data-action="toggle-left-nav" type="button" class="px-2.5 py-1 rounded-lg border mn-subtle text-xs font-semibold hover:opacity-80" title="Toggle Left Navigation">
+          &#9776; ${isMobile ? "" : "Nav"}
+        </button>
+        <span class="font-bold text-sm tracking-tight truncate max-w-[140px] sm:max-w-none">
+          Modern Notebook <span class="text-xs font-normal" style="color: var(--mn-text-muted);">/ ${escapeHtml(state.activeTiddler || "Empty")}</span>
+        </span>
+      </div>
+      <div class="flex-1 max-w-md mx-2">
+        <input id="globalSearchInput" type="search" value="${escapeHtml(state.globalSearch)}" placeholder="Search notes, dashboards, or media ($:/temp/volatile/)..." class="w-full px-3 py-1 rounded-full border mn-subtle text-xs">
+      </div>
+      <div class="flex items-center gap-1.5">
+        <button data-action="open-control-panel" type="button" class="px-2 py-1 rounded-lg border mn-subtle text-xs font-semibold hover:border-blue-500" title="Open TiddlyWiki $:/ControlPanel & Layout Options">
+          &#9881; ${isMobile ? "" : "TW Options"}
+        </button>
+        <button data-action="open-new-modal" type="button" class="px-2.5 py-1 rounded-lg bg-blue-600 text-white text-xs font-semibold hover:bg-blue-500">
+          + New
+        </button>
+        ${!isMobile ? `
+          <button data-action="toggle-right-inspector" type="button" class="px-2.5 py-1 rounded-lg border mn-subtle text-xs font-semibold hover:opacity-80" title="Toggle Right Context Inspector">
+            Inspector &#9704;
+          </button>
+        ` : ""}
+      </div>
+    </header>
+  `;
+}
+
+function renderLeftNav() {
+  const pinnedTiddlers = state.tiddlers.filter(t => t.tags.includes("$:/tags/Pinned"));
+  const allTags = ["Journal", "Project", "Task", "Media", "Wide"];
+  return `
+    <div class="p-3 space-y-5 text-xs">
+      <div>
+        <div class="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider mb-2" style="color: var(--mn-text-muted);">
+          <span>Pinned ($:/tags/Pinned)</span>
+          <button data-action="open-control-panel" type="button" class="text-[10px] text-blue-500 hover:underline">Customize &#9881;</button>
+        </div>
+        <div class="space-y-1">
+          ${pinnedTiddlers.length ? pinnedTiddlers.map(p => {
+            const active = state.activeTiddler === p.title;
+            const icon = p.mnIcon || "&#128204;";
+            return `
+              <div class="flex items-center justify-between px-2.5 py-1.5 rounded-lg transition ${active ? "bg-blue-600/15 text-blue-600 font-semibold" : "hover:bg-slate-500/10"}">
+                <button data-nav-tiddler="${escapeHtml(p.title)}" type="button" class="flex-1 text-left truncate">
+                  <span>${icon} ${escapeHtml(p.caption || p.title)}</span>
+                </button>
+                <button data-toggle-pin="${escapeHtml(p.title)}" type="button" class="ml-1.5 px-1 rounded opacity-60 hover:opacity-100 text-[10px]" title="Unpin from Left Nav">&times;</button>
+              </div>
+            `;
+          }).join("") : `<p class="text-[11px] opacity-70">No pinned tiddlers. Click &#128204; Pin on any tiddler or configure in Settings.</p>`}
+        </div>
+      </div>
+
+      <div>
+        <div class="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider mb-2" style="color: var(--mn-text-muted);">
+          <span>Open Story (${state.storyList.length})</span>
+          <button data-action="Keep-only-active" type="button" class="text-[10px] hover:underline" style="color: var(--mn-accent);">Focus Active</button>
+        </div>
+        <div class="space-y-1">
+          ${state.storyList.map(title => {
+            const active = state.activeTiddler === title;
+            return `
+              <div class="flex items-center justify-between px-2.5 py-1.5 rounded-lg ${active ? "bg-blue-600/15 text-blue-600 font-semibold" : "hover:bg-slate-500/10"}">
+                <button data-nav-tiddler="${escapeHtml(title)}" type="button" class="truncate text-left flex-1">${escapeHtml(title)}</button>
+                <button data-close-tiddler="${escapeHtml(title)}" type="button" class="ml-1.5 px-1 rounded hover:bg-red-500/20 text-[11px]" title="Close tiddler">&times;</button>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      </div>
+
+      <div>
+        <div class="text-[11px] font-bold uppercase tracking-wider mb-2" style="color: var(--mn-text-muted);">Tag Explorer</div>
+        <div class="flex flex-wrap gap-1.5">
+          ${allTags.map(tag => {
+            const count = state.tiddlers.filter(t => t.tags.includes(tag)).length;
+            return `
+              <button data-filter-tag="${escapeHtml(tag)}" type="button" class="px-2.5 py-1 rounded-full border mn-subtle text-[11px] font-medium hover:border-blue-500">
+                #${escapeHtml(tag)} <span class="opacity-60">(${count})</span>
+              </button>
+            `;
+          }).join("")}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderRightInspector() {
+  const t = getTiddler(state.activeTiddler) || state.tiddlers[0];
+  if (!t) {
+    return `<div class="p-4 text-xs" style="color: var(--mn-text-muted);">Select a tiddler to inspect its context.</div>`;
+  }
+  const tabs = ["Backlinks", "Outline", "Fields", "History"];
+  const backlinks = t.backlinks || state.tiddlers.filter(other => other.body && other.body.includes(t.title)).map(o => o.title);
+  const subItems = state.tiddlers.filter(other => other.tags.includes(t.title));
+  const revisions = t.revisions || [{ rev: "head-01", time: t.modified, summary: "Current saved state in TiddlyWiki store" }];
+
+  let tabContent = "";
+  if (state.inspectorTab === "Backlinks") {
+    tabContent = `
+      <div class="space-y-1.5">
+        <div class="text-[11px] font-semibold" style="color: var(--mn-text-muted);">Linked From (${backlinks.length})</div>
+        ${backlinks.length ? backlinks.map(bl => `
+          <button data-nav-tiddler="${escapeHtml(bl)}" type="button" class="w-full text-left px-2.5 py-2 rounded-lg border mn-subtle hover:border-blue-500 transition flex items-center justify-between">
+            <span class="font-medium">${escapeHtml(bl)}</span>
+            <span class="text-[10px]" style="color: var(--mn-accent);">Open &rarr;</span>
+          </button>
+        `).join("") : `<p class="text-xs opacity-70">No backlinks pointing to this tiddler yet.</p>`}
+      </div>
+    `;
+  } else if (state.inspectorTab === "Outline") {
+    tabContent = `
+      <div class="space-y-1.5">
+        <div class="text-[11px] font-semibold" style="color: var(--mn-text-muted);">Tagged Under "${escapeHtml(t.title)}" (${subItems.length})</div>
+        ${subItems.length ? subItems.map(item => `
+          <button data-nav-tiddler="${escapeHtml(item.title)}" type="button" class="w-full text-left px-2.5 py-1.5 rounded-lg border mn-subtle hover:border-blue-500 text-xs">
+            &bull; ${escapeHtml(item.title)}
+          </button>
+        `).join("") : `<p class="text-xs opacity-70">No child tiddlers tagged with this title.</p>`}
+      </div>
+    `;
+  } else if (state.inspectorTab === "Fields") {
+    tabContent = `
+      <div class="space-y-2">
+        <div class="text-[11px] font-semibold" style="color: var(--mn-text-muted);">Live Tiddler Fields ($:/tags/EditTemplate)</div>
+        <div class="p-2 rounded-lg border mn-subtle">
+          <div class="text-[10px] uppercase font-bold opacity-60">Tags</div>
+          <div class="font-mono text-xs mt-0.5">${escapeHtml(t.tags.join(" "))}</div>
+        </div>
+        ${t.status ? `
+          <div class="p-2 rounded-lg border mn-subtle">
+            <div class="text-[10px] uppercase font-bold opacity-60">status</div>
+            <div class="font-mono text-xs mt-0.5">${escapeHtml(t.status)}</div>
+          </div>
+        ` : ""}
+        ${t.mood ? `
+          <div class="p-2 rounded-lg border mn-subtle">
+            <div class="text-[10px] uppercase font-bold opacity-60">mood</div>
+            <div class="font-mono text-xs mt-0.5">${escapeHtml(t.mood)}</div>
+          </div>
+        ` : ""}
+        ${t.mediaType ? `
+          <div class="p-2 rounded-lg border mn-subtle">
+            <div class="text-[10px] uppercase font-bold opacity-60">media-type</div>
+            <div class="font-mono text-xs mt-0.5">${escapeHtml(t.mediaType)}</div>
+          </div>
+        ` : ""}
+      </div>
+    `;
+  } else if (state.inspectorTab === "History") {
+    tabContent = `
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-semibold" style="color: var(--mn-text-muted);">Timelord Revision History</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-500 font-semibold">Active Hook</span>
+        </div>
+        ${revisions.map(r => `
+          <div class="p-2.5 rounded-lg border mn-subtle space-y-1">
+            <div class="flex items-center justify-between font-mono text-[11px]">
+              <span class="text-blue-500 font-semibold">#${escapeHtml(r.rev)}</span>
+              <span class="opacity-60">${escapeHtml(r.time)}</span>
+            </div>
+            <div class="text-xs">${escapeHtml(r.summary)}</div>
+          </div>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  return `
+    <div class="p-3.5 space-y-4 text-xs">
+      <div class="border-b pb-3" style="border-color: var(--mn-border-subtle);">
+        <div class="text-[10px] font-bold uppercase tracking-wider" style="color: var(--mn-text-muted);">Context Inspector ($:/HistoryList)</div>
+        <div class="font-bold text-sm mt-1">${escapeHtml(t.title)}</div>
+        <div class="text-[11px] mt-0.5" style="color: var(--mn-text-muted);">Modified ${escapeHtml(t.modified)}</div>
+      </div>
+
+      <div class="grid grid-cols-4 gap-1 p-1 rounded-lg mn-subtle border">
+        ${tabs.map(tab => `
+          <button data-inspector-tab="${tab}" type="button" class="py-1 px-1.5 rounded text-[11px] font-semibold transition ${state.inspectorTab === tab ? "bg-blue-600 text-white" : "hover:opacity-80"}">
+            ${tab}
+          </button>
+        `).join("")}
+      </div>
+
+      ${tabContent}
+    </div>
+  `;
+}
+
+function renderJournalDashboard() {
+  const entries = state.tiddlers.filter(t =>
+    t.tags.includes("Journal") &&
+    (!state.journalSearch || t.title.toLowerCase().includes(state.journalSearch.toLowerCase()) || (t.body && t.body.toLowerCase().includes(state.journalSearch.toLowerCase())) || (t.mood && t.mood.toLowerCase().includes(state.journalSearch.toLowerCase())))
+  );
+  return `
+    <div class="space-y-4">
+      <div class="p-4 rounded-xl border mn-subtle flex flex-wrap items-center justify-between gap-3" style="background: linear-gradient(135deg, var(--mn-accent-soft), transparent);">
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-blue-500">Cascade: $:/plugins/mblackman/modern-notebook/templates/journal-dashboard</span>
+          <h3 class="text-lg font-bold mt-0.5">Daily Journal &amp; Reflections</h3>
+          <p class="text-xs" style="color: var(--mn-text-muted);">Friday, Oct 16, 2026 &bull; ${entries.length} entries shown</p>
+        </div>
+        <button data-action="quick-journal" type="button" class="px-3.5 py-2 rounded-lg bg-blue-600 text-white text-xs font-semibold hover:bg-blue-500 shadow-xs">
+          + Start Today's Entry (2026-10-16)
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <input id="journalSearchInput" type="search" value="${escapeHtml(state.journalSearch)}" placeholder="Filter journal entries by keyword or mood ($:/temp/volatile/modern-notebook/journal-search)..." class="w-full px-3.5 py-1.5 rounded-full border mn-subtle text-xs">
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+        ${entries.map(e => `
+          <div class="p-4 rounded-xl border mn-surface shadow-xs flex flex-col justify-between gap-3 border-t-4 border-t-blue-500">
+            <div>
+              <div class="flex items-center justify-between gap-2">
+                <button data-nav-tiddler="${escapeHtml(e.title)}" type="button" class="font-bold text-sm hover:text-blue-500 text-left">${escapeHtml(e.title)}</button>
+                <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-500/15 text-blue-500">${escapeHtml(e.mood || "Journal")}</span>
+              </div>
+              <p class="text-xs mt-2 leading-relaxed" style="color: var(--mn-text-main);">${escapeHtml(e.body)}</p>
+            </div>
+            <div class="flex items-center justify-between text-[11px] pt-2 border-t" style="border-color: var(--mn-border-subtle); color: var(--mn-text-muted);">
+              <span>&#128205; ${escapeHtml(e.location || "Centennial, CO")}</span>
+              <button data-nav-tiddler="${escapeHtml(e.title)}" type="button" class="font-semibold text-blue-500 hover:underline">Read in 72ch Column &rarr;</button>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderProjectDashboard() {
+  const statuses = ["All", "Active", "Next Up", "On Hold", "Completed"];
+  const projects = state.tiddlers.filter(t =>
+    t.tags.includes("Project") &&
+    (state.projectStatusFilter === "All" || t.status === state.projectStatusFilter)
+  );
+
+  return `
+    <div class="space-y-4">
+      <div class="p-4 rounded-xl border mn-subtle flex flex-wrap items-center justify-between gap-3" style="background: linear-gradient(135deg, var(--mn-accent-soft), transparent);">
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-blue-500">Cascade: $:/plugins/mblackman/modern-notebook/templates/project-dashboard</span>
+          <h3 class="text-lg font-bold mt-0.5">Project &amp; Task Command Center</h3>
+          <p class="text-xs" style="color: var(--mn-text-muted);">Live task completion computed via TW v5.3/v5.4 <code>\\function .project.pct</code></p>
+        </div>
+        <div class="flex items-center gap-1.5 flex-wrap">
+          ${statuses.map(st => `
+            <button data-project-filter="${st}" type="button" class="px-2.5 py-1 rounded-full text-xs font-semibold border transition ${state.projectStatusFilter === st ? "bg-blue-600 text-white border-blue-600" : "mn-surface hover:border-blue-500"}">
+              ${st}
+            </button>
+          `).join("")}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+        ${projects.map(p => {
+          const stats = getProjectStats(p.title);
+          return `
+            <div class="p-4 rounded-xl border mn-surface shadow-xs flex flex-col justify-between gap-3" style="border-top: 4px solid ${p.color || "#2563eb"};">
+              <div class="space-y-2.5">
+                <div class="flex items-start justify-between gap-2">
+                  <button data-nav-tiddler="${escapeHtml(p.title)}" type="button" class="font-bold text-sm hover:text-blue-500 text-left">${escapeHtml(p.title)}</button>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/15 text-blue-500">${escapeHtml(p.priority || "P1")}</span>
+                </div>
+                <p class="text-xs opacity-80">${escapeHtml(p.body)}</p>
+
+                <!-- Inline Property Pill Select -->
+                <div class="flex items-center gap-2 text-xs">
+                  <span class="text-[11px] font-medium" style="color: var(--mn-text-muted);">Status:</span>
+                  <select data-project-status-select="${escapeHtml(p.title)}" class="px-2 py-0.5 rounded-full border mn-subtle text-xs font-semibold">
+                    ${["Active", "Next Up", "On Hold", "Completed"].map(opt => `
+                      <option value="${opt}" ${p.status === opt ? "selected" : ""}>${opt}</option>
+                    `).join("")}
+                  </select>
+                </div>
+
+                <!-- Progress Bar -->
+                <div>
+                  <div class="flex justify-between text-[11px] mb-1">
+                    <span style="color: var(--mn-text-muted);">Tasks (${stats.done}/${stats.total})</span>
+                    <span class="font-bold">${stats.pct}%</span>
+                  </div>
+                  <div class="w-full h-2 rounded-full mn-subtle overflow-hidden">
+                    <div class="h-full bg-blue-600 transition-all duration-300" style="width: ${stats.pct}%;"></div>
+                  </div>
+                </div>
+
+                <!-- Interactive Task Checkboxes -->
+                <div class="space-y-1.5 pt-1">
+                  ${stats.tasks.map(task => {
+                    const isDone = task.tags.includes("Done");
+                    return `
+                      <label class="flex items-center gap-2 text-xs cursor-pointer">
+                        <input data-toggle-task="${escapeHtml(task.title)}" type="checkbox" ${isDone ? "checked" : ""} class="rounded border-slate-400">
+                        <span class="${isDone ? "line-through opacity-50" : ""}">${escapeHtml(task.title)}</span>
+                      </label>
+                    `;
+                  }).join("")}
+                </div>
+              </div>
+              <div class="text-[11px] pt-2 border-t flex justify-between" style="border-color: var(--mn-border-subtle); color: var(--mn-text-muted);">
+                <span>Target: ${escapeHtml(p.dueDate || "TBD")}</span>
+                <button data-nav-tiddler="${escapeHtml(p.title)}" type="button" class="text-blue-500 font-semibold hover:underline">Inspect &rarr;</button>
+              </div>
+            </div>
+          `;
+        }).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderMediaHub() {
+  const types = ["All", "Game", "Manga", "Book", "Anime", "Movie"];
+  const items = state.tiddlers.filter(t =>
+    t.tags.includes("Media") &&
+    (state.mediaTypeFilter === "All" || t.mediaType === state.mediaTypeFilter) &&
+    (!state.mediaSearch || t.title.toLowerCase().includes(state.mediaSearch.toLowerCase()) || (t.creator && t.creator.toLowerCase().includes(state.mediaSearch.toLowerCase())))
+  );
+
+  return `
+    <div class="space-y-4">
+      <div class="p-4 rounded-xl border mn-subtle flex flex-wrap items-center justify-between gap-3" style="background: linear-gradient(135deg, var(--mn-accent-soft), transparent);">
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-blue-500">Cascade: $:/plugins/mblackman/modern-notebook/templates/media-hub</span>
+          <h3 class="text-lg font-bold mt-0.5">Media Library &amp; Search Widget Hub</h3>
+          <p class="text-xs" style="color: var(--mn-text-muted);">Wraps <code>$:/plugins/mblackman/media-importer/ui/SearchWidget</code> with a 2:3 poster gallery</p>
+        </div>
+        <button data-action="toggle-media-importer" type="button" class="px-3.5 py-2 rounded-lg bg-blue-600 text-white text-xs font-semibold hover:bg-blue-500">
+          &#128269; ${state.mediaImporterOpen ? "Hide Media Search Widget" : "Open Media Search Widget"}
+        </button>
+      </div>
+
+      ${state.mediaImporterOpen ? `
+        <div class="p-4 rounded-xl border-2 border-blue-500/40 mn-surface space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-blue-500/15 text-blue-500">Transcluded Widget: $:/plugins/mblackman/media-importer/ui/SearchWidget</span>
+              <h4 class="font-bold text-sm mt-1">External Media Importer Search</h4>
+            </div>
+            <button data-action="toggle-media-importer" type="button" class="text-xs px-2 py-1 rounded border mn-subtle">Close &times;</button>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5">
+            ${externalMediaCatalog.map(ext => {
+              const alreadyImported = state.tiddlers.some(t => t.title === ext.title);
+              return `
+                <div class="p-3 rounded-lg border mn-subtle flex flex-col justify-between gap-2 text-xs">
+                  <div>
+                    <span class="text-[10px] font-bold uppercase text-blue-500">${escapeHtml(ext.mediaType)}</span>
+                    <div class="font-bold mt-0.5">${escapeHtml(ext.title)}</div>
+                    <div class="text-[11px] opacity-70">${escapeHtml(ext.creator)}</div>
+                  </div>
+                  <button data-import-media="${escapeHtml(ext.title)}" type="button" ${alreadyImported ? "disabled" : ""} class="w-full py-1.5 rounded font-semibold text-xs ${alreadyImported ? "bg-emerald-500/20 text-emerald-500 cursor-default" : "bg-blue-600 text-white hover:bg-blue-500"}">
+                    ${alreadyImported ? "✓ Imported to Wiki" : "+ Import Tiddler"}
+                  </button>
+                </div>
+              `;
+            }).join("")}
+          </div>
+        </div>
+      ` : ""}
+
+      <div class="flex flex-wrap items-center gap-2">
+        <input id="mediaSearchInput" type="search" value="${escapeHtml(state.mediaSearch)}" placeholder="Filter library by title or creator ($:/temp/volatile/modern-notebook/media-filter)..." class="flex-1 min-w-[200px] px-3.5 py-1.5 rounded-full border mn-subtle text-xs">
+        <div class="flex items-center gap-1 flex-wrap">
+          ${types.map(tp => `
+            <button data-media-type="${tp}" type="button" class="px-2.5 py-1 rounded-full text-xs font-semibold border transition ${state.mediaTypeFilter === tp ? "bg-blue-600 text-white border-blue-600" : "mn-surface hover:border-blue-500"}">
+              ${tp}
+            </button>
+          `).join("")}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        ${items.map(m => `
+          <div class="rounded-xl border mn-surface overflow-hidden shadow-xs flex flex-col justify-between hover:-translate-y-0.5 transition">
+            <button data-nav-tiddler="${escapeHtml(m.title)}" type="button" class="relative aspect-[2/3] w-full flex flex-col items-center justify-center p-4 text-white text-center" style="background: linear-gradient(145deg, ${m.accent || "#3b82f6"}, #0f172a);">
+              <span class="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-black/40 backdrop-blur-xs">${escapeHtml(m.mediaType)}</span>
+              <span class="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-white/20 backdrop-blur-xs">${escapeHtml(m.status)}</span>
+              <div class="font-bold text-sm leading-snug drop-shadow">${escapeHtml(m.title)}</div>
+              <div class="text-[11px] opacity-80 mt-1">${escapeHtml(m.creator)}</div>
+            </button>
+            <div class="p-3 text-xs flex items-center justify-between">
+              <span class="font-semibold text-amber-500">${escapeHtml(m.rating || "★★★★★")}</span>
+              <button data-nav-tiddler="${escapeHtml(m.title)}" type="button" class="text-[11px] font-semibold text-blue-500 hover:underline">Open Note &rarr;</button>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderTiddlerCard(title, isMobile) {
+  const t = getTiddler(title);
+  if (!t) return "";
+  const isWide = t.tags.includes("Dashboard") || t.type?.startsWith("dashboard-");
+  const isActive = state.activeTiddler === t.title;
+
+  let bodyHtml = "";
+  if (t.title === "Journal Dashboard" || t.tags.includes("JournalDashboard")) {
+    bodyHtml = renderJournalDashboard();
+  } else if (t.title === "Project Dashboard" || t.tags.includes("ProjectDashboard")) {
+    bodyHtml = renderProjectDashboard();
+  } else if (t.title === "Media Hub" || t.tags.includes("MediaDashboard")) {
+    bodyHtml = renderMediaHub();
+  } else {
+    bodyHtml = `
+      <!-- Object Property Header ($:/plugins/mblackman/modern-notebook/ui/ObjectPropertyHeader) -->
+      <div class="flex flex-wrap items-center gap-2 my-3 px-3 py-2 rounded-lg border mn-subtle text-xs">
+        ${t.tags.map(tg => `<span class="px-2 py-0.5 rounded-full font-semibold bg-blue-500/15 text-blue-500">#${escapeHtml(tg)}</span>`).join("")}
+        ${t.status ? `<span class="px-2 py-0.5 rounded-full border mn-surface"><strong>Status:</strong> ${escapeHtml(t.status)}</span>` : ""}
+        ${t.mood ? `<span class="px-2 py-0.5 rounded-full border mn-surface"><strong>Mood:</strong> ${escapeHtml(t.mood)}</span>` : ""}
+        ${t.mediaType ? `<span class="px-2 py-0.5 rounded-full border mn-surface"><strong>Type:</strong> ${escapeHtml(t.mediaType)}</span>` : ""}
+        ${t.rating ? `<span class="px-2 py-0.5 rounded-full border mn-surface text-amber-500">${escapeHtml(t.rating)}</span>` : ""}
+      </div>
+      <div class="text-sm leading-relaxed space-y-2">
+        <p>${escapeHtml(t.body)}</p>
+      </div>
+    `;
+  }
+
+  return `
+    <article data-focus-tiddler="${escapeHtml(t.title)}" class="${isWide ? "mn-wide-col" : "mn-reading-col"} mn-surface border rounded-xl p-5 sm:p-6 shadow-xs mb-5 transition ${isActive ? "ring-2 ring-blue-500/40" : ""}">
+      <header class="flex items-start justify-between gap-3 pb-3 border-b" style="border-color: var(--mn-border-subtle);">
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h2 class="text-lg sm:text-xl font-bold tracking-tight">${escapeHtml(t.title)}</h2>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded mn-subtle">${isWide ? "1180px Wide Cascade" : "72ch Centered Column"}</span>
+          </div>
+          <div class="text-[11px] mt-0.5" style="color: var(--mn-text-muted);">Modified ${escapeHtml(t.modified)}</div>
+        </div>
+        <div class="flex items-center gap-1 flex-wrap">
+          <button data-toggle-pin="${escapeHtml(t.title)}" type="button" class="px-2 py-1 rounded border mn-subtle text-xs font-medium hover:border-blue-500 ${t.tags.includes("$:/tags/Pinned") ? "text-blue-500 border-blue-500/40" : ""}" title="Toggle $:/tags/Pinned shortcut in Left Nav">&#128204; ${t.tags.includes("$:/tags/Pinned") ? "Pinned" : "Pin"}</button>
+          <button data-edit-tiddler="${escapeHtml(t.title)}" type="button" class="px-2 py-1 rounded border mn-subtle text-xs font-medium hover:border-blue-500" title="Edit Tiddler ($:/core/ui/Buttons/edit)">&#9998; Edit</button>
+          <button data-fold-tiddler="${escapeHtml(t.title)}" type="button" class="px-2 py-1 rounded border mn-subtle text-xs font-medium hover:border-blue-500" title="Fold/Unfold Tiddler Body ($:/core/ui/Buttons/fold)">${t.folded ? "&#9660; Unfold" : "&#9650; Fold"}</button>
+          ${!isMobile ? `
+            <button data-inspect-tiddler="${escapeHtml(t.title)}" type="button" class="px-2 py-1 rounded border mn-subtle text-xs font-medium hover:border-blue-500" title="Tiddler Info & Backlinks ($:/core/ui/Buttons/info)">&#9432; Info</button>
+            <button data-close-tiddler="${escapeHtml(t.title)}" type="button" class="px-2 py-1 rounded border mn-subtle text-xs font-medium hover:bg-red-500/10" title="Close Tiddler ($:/core/ui/Buttons/close)">&times;</button>
+          ` : `
+            <button data-action="toggle-mobile-sheet" type="button" class="px-2.5 py-1 rounded bg-blue-600 text-white text-xs font-semibold" title="All Zoomed Tiddler Options">&#8943; TW Options</button>
+          `}
+        </div>
+      </header>
+      <div class="mt-4 ${t.folded ? "hidden" : ""}">
+        ${bodyHtml}
+      </div>
+    </article>
+  `;
+}
+
+function renderCodeInspectorView() {
+  const titles = Object.keys(SHADOW_TIDDLERS);
+  const current = SHADOW_TIDDLERS[state.selectedSourceTiddler] || SHADOW_TIDDLERS[titles[0]];
+  return `
+    <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 min-h-[720px]">
+      <aside class="lg:col-span-4 border-r mn-surface p-4 space-y-3 overflow-y-auto" style="border-color: var(--mn-border-subtle);">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="font-bold text-sm">Packaged Shadow Tiddlers (${titles.length})</h2>
+            <p class="text-xs" style="color: var(--mn-text-muted);">All 4 Milestones built &amp; ready for TW v5.4.0+</p>
+          </div>
+        </div>
+        <div class="space-y-1">
+          ${titles.map(fullTitle => {
+            const shortName = fullTitle.replace("$:/plugins/mblackman/modern-notebook/", "");
+            const active = state.selectedSourceTiddler === fullTitle;
+            const tagBadge = SHADOW_TIDDLERS[fullTitle].tags || SHADOW_TIDDLERS[fullTitle].type || "template";
+            return `
+              <button data-select-source="${escapeHtml(fullTitle)}" type="button" class="w-full text-left p-2.5 rounded-lg border transition flex items-center justify-between gap-2 text-xs ${active ? "bg-blue-600 text-white border-blue-600 font-semibold" : "mn-subtle hover:border-blue-500"}">
+                <span class="font-mono truncate">${escapeHtml(shortName)}</span>
+                <span class="text-[10px] opacity-75 truncate max-w-[120px]">${escapeHtml(tagBadge)}</span>
+              </button>
+            `;
+          }).join("")}
+        </div>
+      </aside>
+
+      <main class="lg:col-span-8 p-5 flex flex-col gap-3 mn-surface">
+        <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b" style="border-color: var(--mn-border-subtle);">
+          <div>
+            <div class="font-mono text-sm font-bold text-blue-500">${escapeHtml(current.title)}</div>
+            <div class="text-xs mt-0.5" style="color: var(--mn-text-muted);">
+              Type: <code>${escapeHtml(current.type)}</code>
+              ${current.tags ? ` &bull; System Tag: <code>${escapeHtml(current.tags)}</code>` : ""}
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="btnCopyTiddlerCode" type="button" class="px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-semibold hover:bg-blue-500">
+              Copy Tiddler Source
+            </button>
+          </div>
+        </div>
+        <pre class="flex-1 p-4 rounded-xl mn-subtle border overflow-auto text-xs leading-relaxed"><code>${escapeHtml(current.text)}</code></pre>
+      </main>
+    </div>
+  `;
+}
+
+function renderApp() {
+  const root = document.getElementById("studioViewport");
+  if (!root) return;
+
+  // Update top mode buttons
+  const btnDesktop = document.getElementById("btnModeDesktop");
+  const btnMobile = document.getElementById("btnModeMobile");
+  const btnCode = document.getElementById("btnModeCode");
+  [btnDesktop, btnMobile, btnCode].forEach(b => {
+    if (!b) return;
+    b.className = "px-2.5 py-1 rounded-md font-medium text-slate-300 hover:text-white transition";
+  });
+  const activeBtn = state.viewMode === "desktop" ? btnDesktop : state.viewMode === "mobile" ? btnMobile : btnCode;
+  if (activeBtn) {
+    activeBtn.className = "px-2.5 py-1 rounded-md font-medium bg-blue-600 text-white transition";
+  }
+
+  if (state.viewMode === "code") {
+    root.innerHTML = renderCodeInspectorView();
+    attachEvents();
+    return;
+  }
+
+  const isMobile = state.viewMode === "mobile";
+  const filteredByGlobal = state.globalSearch
+    ? state.tiddlers.filter(t => t.title.toLowerCase().includes(state.globalSearch.toLowerCase()) || (t.body && t.body.toLowerCase().includes(state.globalSearch.toLowerCase()))).map(t => t.title)
+    : state.storyList;
+
+  const visibleTiddlers = isMobile
+    ? [state.activeTiddler || filteredByGlobal[0]].filter(Boolean)
+    : filteredByGlobal;
+
+  if (isMobile) {
+    const activeObj = getTiddler(state.activeTiddler) || state.tiddlers[0];
+    const bottomBarShortcuts = state.tiddlers.filter(t => t.tags.includes("$:/tags/ModernNotebook/BottomBar"));
+    root.innerHTML = `
+      <div class="p-0 sm:p-2 flex-1 flex flex-col">
+        <div class="mobile-frame-sim">
+          <!-- Top Bar & Open-Tiddler Pill Strip (z-30, always above scrolling tiddler content) -->
+          <div class="relative z-30 shrink-0">
+            ${renderTopBar(true)}
+            <div class="mn-surface border-b px-2.5 py-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+              ${state.storyList.map(st => {
+                const active = state.activeTiddler === st;
+                return `
+                  <div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs whitespace-nowrap border ${active ? "bg-blue-600 text-white border-blue-600 font-semibold" : "mn-subtle"}">
+                    <button data-nav-tiddler="${escapeHtml(st)}" type="button">${escapeHtml(st)}</button>
+                    <button data-close-tiddler="${escapeHtml(st)}" type="button" class="ml-1 opacity-75 hover:opacity-100">&times;</button>
+                  </div>
+                `;
+              }).join("")}
+            </div>
+          </div>
+
+          <!-- Single-Tiddler Zoomin Scroll Container (z-0, scrolls cleanly between top and bottom bars) -->
+          <div class="flex-1 p-3 overflow-y-auto relative z-0">
+            ${visibleTiddlers.map(t => renderTiddlerCard(t, true)).join("")}
+          </div>
+
+          <!-- Mobile Thumb-Zone Bottom Bar (z-40, dynamically renders user-configured $:/tags/ModernNotebook/BottomBar shortcuts) -->
+          <nav class="mn-surface border-t h-14 flex items-center justify-around text-[11px] font-semibold relative z-40 shrink-0 shadow-lg">
+            <button data-action="toggle-left-nav" type="button" class="flex-1 flex flex-col items-center justify-center h-full hover:text-blue-500 ${state.leftNavOpen ? "text-blue-500" : ""}">
+              <span>&#9776;</span><span>Menu</span>
+            </button>
+            ${bottomBarShortcuts.slice(0, 3).map(sc => {
+              const isAct = state.activeTiddler === sc.title;
+              return `
+                <button data-nav-tiddler="${escapeHtml(sc.title)}" type="button" class="flex-1 flex flex-col items-center justify-center h-full hover:text-blue-500 ${isAct ? "text-blue-500 font-bold" : ""}">
+                  <span>${sc.mnIcon || "&#9733;"}</span>
+                  <span class="truncate max-w-[68px]">${escapeHtml(sc.caption || sc.title)}</span>
+                </button>
+              `;
+            }).join("")}
+            <button data-action="open-new-modal" type="button" class="flex-1 flex flex-col items-center justify-center h-full text-blue-500 font-bold">
+              <span>&#65291;</span><span>Capture</span>
+            </button>
+            <button data-action="toggle-mobile-sheet" type="button" class="flex-1 flex flex-col items-center justify-center h-full hover:text-blue-500">
+              <span>&bull;&bull;&bull;</span><span>Options</span>
+            </button>
+          </nav>
+
+          <!-- Slide-over Left Menu Drawer on Mobile (absolute inset-0 z-50 so it ALWAYS overlays above tiddlers) -->
+          ${state.leftNavOpen ? `
+            <div class="absolute inset-0 z-50 flex">
+              <div class="w-64 mn-surface border-r h-full shadow-2xl overflow-y-auto">${renderLeftNav()}</div>
+              <button data-action="toggle-left-nav" type="button" class="flex-1 bg-slate-950/50 backdrop-blur-xs" aria-label="Close drawer"></button>
+            </div>
+          ` : ""}
+
+          <!-- Slide-Up Zoomed Tiddler Options Bottom Sheet -->
+          ${state.mobileActionSheetOpen && activeObj ? `
+            <div class="absolute inset-0 bg-slate-950/60 z-50 flex flex-col justify-end">
+              <div class="mn-surface rounded-t-2xl p-4 border-t max-h-[80%] overflow-y-auto space-y-3 shadow-2xl">
+                <div class="flex items-center justify-between pb-2 border-b" style="border-color: var(--mn-border-subtle);">
+                  <div>
+                    <div class="text-[10px] font-bold uppercase text-blue-500">Zoomed Tiddler Actions ($:/tags/ViewToolbar)</div>
+                    <div class="font-bold text-sm">${escapeHtml(activeObj.title)}</div>
+                  </div>
+                  <button data-action="toggle-mobile-sheet" type="button" class="px-2.5 py-1 rounded-full border mn-subtle text-xs font-semibold">Done &times;</button>
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-xs font-semibold">
+                  <button data-sheet-action="Edit Tiddler" type="button" class="p-2.5 rounded-lg border mn-subtle hover:border-blue-500">&#9998; Edit</button>
+                  <button data-sheet-action="Fold Tiddler" type="button" class="p-2.5 rounded-lg border mn-subtle hover:border-blue-500">&#9650; Fold</button>
+                  <button data-sheet-action="Clone Tiddler" type="button" class="p-2.5 rounded-lg border mn-subtle hover:border-blue-500">&#10697; Clone</button>
+                  <button data-sheet-action="Copy Permalink" type="button" class="p-2.5 rounded-lg border mn-subtle hover:border-blue-500">&#128279; Link</button>
+                  <button data-sheet-action="Timelord Diff" type="button" class="p-2.5 rounded-lg border mn-subtle hover:border-blue-500">&#128337; Timelord</button>
+                  <button data-close-tiddler="${escapeHtml(activeObj.title)}" type="button" class="p-2.5 rounded-lg border mn-subtle text-red-500 hover:bg-red-500/10">&times; Close</button>
+                </div>
+                <div class="pt-2 border-t" style="border-color: var(--mn-border-subtle);">
+                  ${renderRightInspector()}
+                </div>
+              </div>
+            </div>
+          ` : ""}
+        </div>
+      </div>
+    `;
+  } else {
+    root.innerHTML = `
+      <div class="flex-1 flex flex-col">
+        ${renderTopBar(false)}
+        <div class="flex-1 grid" style="grid-template-columns: ${state.leftNavOpen ? "250px" : "0px"} minmax(0, 1fr) ${state.rightInspectorOpen ? "310px" : "0px"};">
+          <aside class="mn-surface border-r overflow-y-auto ${state.leftNavOpen ? "" : "hidden"}" style="border-color: var(--mn-border-subtle);">
+            ${renderLeftNav()}
+          </aside>
+          <main class="p-4 sm:p-6 overflow-y-auto">
+            ${visibleTiddlers.length ? visibleTiddlers.map(t => renderTiddlerCard(t, false)).join("") : `
+              <div class="mn-reading-col p-8 rounded-xl border mn-surface text-center space-y-3">
+                <div class="text-sm font-semibold">Story River is currently empty</div>
+                <button data-nav-tiddler="Journal Dashboard" type="button" class="px-3.5 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-semibold">Open Journal Dashboard</button>
+              </div>
+            `}
+          </main>
+          <aside class="mn-surface border-l overflow-y-auto ${state.rightInspectorOpen ? "" : "hidden"}" style="border-color: var(--mn-border-subtle);">
+            ${renderRightInspector()}
+          </aside>
+        </div>
+      </div>
+    `;
+  }
+
+  attachEvents();
+}
+
+function attachEvents() {
+  // Search inputs
+  const globalInput = document.getElementById("globalSearchInput");
+  if (globalInput) {
+    globalInput.addEventListener("input", e => {
+      state.globalSearch = e.target.value;
+      renderApp();
+      const el = document.getElementById("globalSearchInput");
+      if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+    });
+  }
+
+  const journalInput = document.getElementById("journalSearchInput");
+  if (journalInput) {
+    journalInput.addEventListener("input", e => {
+      state.journalSearch = e.target.value;
+      renderApp();
+      const el = document.getElementById("journalSearchInput");
+      if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+    });
+  }
+
+  const mediaInput = document.getElementById("mediaSearchInput");
+  if (mediaInput) {
+    mediaInput.addEventListener("input", e => {
+      state.mediaSearch = e.target.value;
+      renderApp();
+      const el = document.getElementById("mediaSearchInput");
+      if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+    });
+  }
+
+  // Navigate to tiddler
+  document.querySelectorAll("[data-nav-tiddler]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const target = btn.getAttribute("data-nav-tiddler");
+      navigateToTiddler(target);
+    });
+  });
+
+  // Close tiddler
+  document.querySelectorAll("[data-close-tiddler]").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      closeTiddler(btn.getAttribute("data-close-tiddler"));
+      state.mobileActionSheetOpen = false;
+    });
+  });
+
+  // Edit existing tiddler in modal
+  document.querySelectorAll("[data-edit-tiddler]").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      const targetTitle = btn.getAttribute("data-edit-tiddler");
+      const t = getTiddler(targetTitle);
+      if (!t) return;
+      document.getElementById("modalTitle").textContent = "Edit Tiddler: " + t.title;
+      document.getElementById("inputTiddlerTitle").value = t.title;
+      document.getElementById("inputTiddlerTag").value = t.tags[0] || "Note";
+      document.getElementById("inputTiddlerMeta").value = t.status || t.mood || t.mediaType || "";
+      document.getElementById("inputTiddlerBody").value = t.body || "";
+      document.getElementById("modalOverlay").classList.remove("hidden");
+      document.getElementById("modalOverlay").classList.add("flex");
+    });
+  });
+
+  // Fold / Unfold tiddler body
+  document.querySelectorAll("[data-fold-tiddler]").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      const targetTitle = btn.getAttribute("data-fold-tiddler");
+      const t = getTiddler(targetTitle);
+      if (t) {
+        t.folded = !t.folded;
+        renderApp();
+      }
+    });
+  });
+
+  // Inspect tiddler
+  document.querySelectorAll("[data-inspect-tiddler]").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      state.activeTiddler = btn.getAttribute("data-inspect-tiddler");
+      state.rightInspectorOpen = true;
+      renderApp();
+    });
+  });
+
+  // Inspector tabs
+  document.querySelectorAll("[data-inspector-tab]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      state.inspectorTab = btn.getAttribute("data-inspector-tab");
+      renderApp();
+    });
+  });
+
+  // Project status filter tabs
+  document.querySelectorAll("[data-project-filter]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      state.projectStatusFilter = btn.getAttribute("data-project-filter");
+      renderApp();
+    });
+  });
+
+  // Project inline status select
+  document.querySelectorAll("[data-project-status-select]").forEach(sel => {
+    sel.addEventListener("change", e => {
+      const projTitle = sel.getAttribute("data-project-status-select");
+      const proj = getTiddler(projTitle);
+      if (proj) {
+        proj.status = e.target.value;
+        showToast("Updated " + projTitle + " status to " + proj.status);
+        renderApp();
+      }
+    });
+  });
+
+  // Toggle task completion checkbox
+  document.querySelectorAll("[data-toggle-task]").forEach(chk => {
+    chk.addEventListener("change", () => {
+      const taskTitle = chk.getAttribute("data-toggle-task");
+      const task = getTiddler(taskTitle);
+      if (task) {
+        if (task.tags.includes("Done")) {
+          task.tags = task.tags.filter(t => t !== "Done");
+        } else {
+          task.tags.push("Done");
+        }
+        renderApp();
+      }
+    });
+  });
+
+  // Media type filter
+  document.querySelectorAll("[data-media-type]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      state.mediaTypeFilter = btn.getAttribute("data-media-type");
+      renderApp();
+    });
+  });
+
+  // Import external media
+  document.querySelectorAll("[data-import-media]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const title = btn.getAttribute("data-import-media");
+      const candidate = externalMediaCatalog.find(c => c.title === title);
+      if (candidate && !getTiddler(title)) {
+        state.tiddlers.unshift({
+          title: candidate.title,
+          tags: ["Media"],
+          mediaType: candidate.mediaType,
+          creator: candidate.creator,
+          status: candidate.status,
+          rating: candidate.rating,
+          accent: candidate.accent,
+          modified: "2026-10-16 00:12",
+          backlinks: ["Media Hub"],
+          body: candidate.body
+        });
+        showToast("Imported \"" + title + "\" into Media Hub!");
+        renderApp();
+      }
+    });
+  });
+
+  // Filter by tag from LeftNav
+  document.querySelectorAll("[data-filter-tag]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const tag = btn.getAttribute("data-filter-tag");
+      const matches = state.tiddlers.filter(t => t.tags.includes(tag)).map(t => t.title);
+      if (matches.length) {
+        matches.forEach(m => {
+          if (!state.storyList.includes(m)) state.storyList.push(m);
+        });
+        state.activeTiddler = matches[0];
+        showToast("Opened " + matches.length + " tiddlers tagged #" + tag);
+        renderApp();
+      }
+    });
+  });
+
+  // Generic data-action buttons
+  document.querySelectorAll("[data-action]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const act = btn.getAttribute("data-action");
+      if (act === "toggle-left-nav") {
+        state.leftNavOpen = !state.leftNavOpen;
+        renderApp();
+      } else if (act === "toggle-right-inspector") {
+        state.rightInspectorOpen = !state.rightInspectorOpen;
+        renderApp();
+      } else if (act === "Keep-only-active") {
+        if (state.activeTiddler) {
+          state.storyList = [state.activeTiddler];
+          renderApp();
+        }
+      } else if (act === "toggle-media-importer") {
+        state.mediaImporterOpen = !state.mediaImporterOpen;
+        renderApp();
+      } else if (act === "toggle-mobile-sheet") {
+        state.mobileActionSheetOpen = !state.mobileActionSheetOpen;
+        renderApp();
+      } else if (act === "open-control-panel") {
+        document.getElementById("controlPanelOverlay").classList.remove("hidden");
+        document.getElementById("controlPanelOverlay").classList.add("flex");
+      } else if (act === "open-new-modal") {
+        document.getElementById("modalTitle").textContent = "Create New Tiddler";
+        document.getElementById("inputTiddlerTitle").value = "";
+        document.getElementById("inputTiddlerBody").value = "";
+        document.getElementById("modalOverlay").classList.remove("hidden");
+        document.getElementById("modalOverlay").classList.add("flex");
+      } else if (act === "quick-journal") {
+        const today = "2026-10-16";
+        if (!getTiddler(today)) {
+          state.tiddlers.unshift({
+            title: today,
+            tags: ["Journal"],
+            mood: "Focused",
+            location: "Centennial, CO",
+            modified: "2026-10-16 00:12",
+            backlinks: ["Journal Dashboard"],
+            body: "Started today's journal entry via the Modern Notebook Journal Dashboard hero button."
+          });
+        }
+        navigateToTiddler(today);
+        showToast("Opened today's journal entry (2026-10-16)");
+      }
+    });
+  });
+
+  // Mobile sheet toolbar actions
+  document.querySelectorAll("[data-sheet-action]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const actName = btn.getAttribute("data-sheet-action");
+      if (actName === "Timelord Diff") {
+        state.inspectorTab = "History";
+        renderApp();
+      } else {
+        showToast(actName + " triggered for \"" + state.activeTiddler + "\"");
+      }
+    });
+  });
+
+  // Code inspector source selector
+  document.querySelectorAll("[data-select-source]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      state.selectedSourceTiddler = btn.getAttribute("data-select-source");
+      renderApp();
+    });
+  });
+
+  // Populate dynamic Shortcut Manager inside $:/ControlPanel modal
+  const smList = document.getElementById("shortcutManagerList");
+  if (smList) {
+    smList.innerHTML = state.tiddlers.map(t => {
+      const isPinned = t.tags.includes("$:/tags/Pinned");
+      const isBottom = t.tags.includes("$:/tags/ModernNotebook/BottomBar");
+      const isWide = t.tags.includes("Wide") || t.tags.includes("Dashboard");
+      return `
+        <div class="flex flex-wrap items-center justify-between gap-2 p-2 rounded-lg border mn-surface">
+          <span class="font-semibold truncate max-w-[180px]">${escapeHtml(t.title)}</span>
+          <div class="flex items-center gap-1.5">
+            <button data-toggle-pin="${escapeHtml(t.title)}" type="button" class="px-2 py-0.5 rounded text-[11px] font-semibold border ${isPinned ? "bg-blue-600 text-white border-blue-600" : "mn-subtle"}">
+              ${isPinned ? "✓ Left Nav Pin" : "+ Left Nav"}
+            </button>
+            <button data-toggle-bottombar="${escapeHtml(t.title)}" type="button" class="px-2 py-0.5 rounded text-[11px] font-semibold border ${isBottom ? "bg-emerald-600 text-white border-emerald-600" : "mn-subtle"}">
+              ${isBottom ? "✓ Mobile Bar" : "+ Mobile Bar"}
+            </button>
+            <button data-toggle-wide="${escapeHtml(t.title)}" type="button" class="px-2 py-0.5 rounded text-[11px] font-semibold border ${isWide ? "bg-purple-600 text-white border-purple-600" : "mn-subtle"}">
+              ${isWide ? "1180px Wide" : "72ch"}
+            </button>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  // Toggle Left Nav Pin ($:/tags/Pinned)
+  document.querySelectorAll("[data-toggle-pin]").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      const targetTitle = btn.getAttribute("data-toggle-pin");
+      const t = getTiddler(targetTitle);
+      if (!t) return;
+      if (t.tags.includes("$:/tags/Pinned")) {
+        t.tags = t.tags.filter(tg => tg !== "$:/tags/Pinned");
+        showToast('Unpinned "' + targetTitle + '" from Left Nav');
+      } else {
+        t.tags.push("$:/tags/Pinned");
+        showToast('Pinned "' + targetTitle + '" to Left Nav ($:/tags/Pinned)');
+      }
+      renderApp();
+    });
+  });
+
+  // Toggle Mobile Bottom Bar Shortcut ($:/tags/ModernNotebook/BottomBar)
+  document.querySelectorAll("[data-toggle-bottombar]").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      const targetTitle = btn.getAttribute("data-toggle-bottombar");
+      const t = getTiddler(targetTitle);
+      if (!t) return;
+      if (t.tags.includes("$:/tags/ModernNotebook/BottomBar")) {
+        t.tags = t.tags.filter(tg => tg !== "$:/tags/ModernNotebook/BottomBar");
+        showToast('Removed "' + targetTitle + '" from Mobile Bottom Bar');
+      } else {
+        t.tags.push("$:/tags/ModernNotebook/BottomBar");
+        if (!t.mnIcon) t.mnIcon = "&#9733;";
+        showToast('Added "' + targetTitle + '" to Mobile Bottom Bar');
+      }
+      renderApp();
+    });
+  });
+
+  // Toggle Wide Mode (Wide tag / page-width: wide)
+  document.querySelectorAll("[data-toggle-wide]").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      const targetTitle = btn.getAttribute("data-toggle-wide");
+      const t = getTiddler(targetTitle);
+      if (!t) return;
+      if (t.tags.includes("Wide") || t.tags.includes("Dashboard")) {
+        t.tags = t.tags.filter(tg => tg !== "Wide" && tg !== "Dashboard");
+        delete t.type;
+        showToast('Set "' + targetTitle + '" to 72ch centered reading column');
+      } else {
+        t.tags.push("Wide");
+        showToast('Set "' + targetTitle + '" to 1180px wide container');
+      }
+      renderApp();
+    });
+  });
+
+  const btnCopyCode = document.getElementById("btnCopyTiddlerCode");
+  if (btnCopyCode) {
+    btnCopyCode.addEventListener("click", () => {
+      const current = SHADOW_TIDDLERS[state.selectedSourceTiddler];
+      if (current) {
+        copyText(current.text, current.title);
+      }
+    });
+  }
+}
+
+// Top-level studio toolbar listeners
+document.getElementById("btnModeDesktop").addEventListener("click", () => {
+  state.viewMode = "desktop";
+  state.leftNavOpen = true;
+  renderApp();
+});
+
+document.getElementById("btnModeMobile").addEventListener("click", () => {
+  state.viewMode = "mobile";
+  state.leftNavOpen = false;
+  renderApp();
+});
+
+document.getElementById("btnModeCode").addEventListener("click", () => {
+  state.viewMode = "code";
+  renderApp();
+});
+
+document.getElementById("btnTogglePalette").addEventListener("click", () => {
+  state.darkMode = !state.darkMode;
+  document.documentElement.classList.toggle("dark-palette", state.darkMode);
+  document.getElementById("paletteLabel").textContent = state.darkMode ? "Dark" : "Light";
+});
+
+document.getElementById("btnDownloadPlugin").addEventListener("click", () => {
+  downloadJsonFile("modern-notebook-plugin.json", PACKAGED_PLUGIN_DATA);
+});
+
+document.getElementById("btnDownloadDashboards").addEventListener("click", () => {
+  downloadJsonFile("starter-dashboards.json", STARTER_DASHBOARDS_DATA);
+});
+
+document.getElementById("btnCloseModal").addEventListener("click", () => {
+  document.getElementById("modalOverlay").classList.add("hidden");
+  document.getElementById("modalOverlay").classList.remove("flex");
+});
+
+document.getElementById("btnCancelModal").addEventListener("click", () => {
+  document.getElementById("modalOverlay").classList.add("hidden");
+  document.getElementById("modalOverlay").classList.remove("flex");
+});
+
+document.getElementById("btnSaveTiddler").addEventListener("click", () => {
+  const title = document.getElementById("inputTiddlerTitle").value.trim() || ("New Note " + (state.tiddlers.length + 1));
+  const tag = document.getElementById("inputTiddlerTag").value;
+  const meta = document.getElementById("inputTiddlerMeta").value.trim();
+  const body = document.getElementById("inputTiddlerBody").value.trim() || "Created in Modern Notebook Theme Studio.";
+
+  const newTid = {
+    title,
+    tags: [tag],
+    modified: "2026-10-16 00:14",
+    body
+  };
+  if (tag === "Journal") newTid.mood = meta || "Focused";
+  if (tag === "Project") { newTid.status = meta || "Active"; newTid.priority = "P1"; }
+  if (tag === "Media") { newTid.mediaType = meta || "Game"; newTid.status = "In Progress"; newTid.rating = "★★★★★"; }
+
+  const existingIdx = state.tiddlers.findIndex(t => t.title === title);
+  if (existingIdx !== -1) {
+    state.tiddlers[existingIdx] = Object.assign({}, state.tiddlers[existingIdx], newTid);
+  } else {
+    state.tiddlers.unshift(newTid);
+  }
+  document.getElementById("modalOverlay").classList.add("hidden");
+  document.getElementById("modalOverlay").classList.remove("flex");
+  navigateToTiddler(title);
+  showToast("Created \"" + title + "\" and opened in story river");
+});
+
+document.getElementById("btnDownloadHtml").addEventListener("click", () => {
+  const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+  const blob = new Blob([htmlContent], { type: "text/html;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "modern_notebook_mobile_preview.html";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast("Downloaded standalone modern_notebook_mobile_preview.html!");
+});
+
+function syncViewportMode() {
+  if (state.viewMode === "code") return;
+  if (window.innerWidth < 1024 && state.viewMode !== "mobile") {
+    state.viewMode = "mobile";
+    state.leftNavOpen = false;
+  }
+}
+
+window.addEventListener("resize", () => {
+  const prev = state.viewMode;
+  syncViewportMode();
+  if (state.viewMode !== prev) renderApp();
+});
+
+
+document.getElementById("btnOpenControlPanel").addEventListener("click", () => {
+  document.getElementById("controlPanelOverlay").classList.remove("hidden");
+  document.getElementById("controlPanelOverlay").classList.add("flex");
+});
+
+document.getElementById("btnCloseControlPanel").addEventListener("click", () => {
+  document.getElementById("controlPanelOverlay").classList.add("hidden");
+  document.getElementById("controlPanelOverlay").classList.remove("flex");
+});
+
+document.getElementById("btnOpenTwCompiler").addEventListener("click", () => {
+  document.getElementById("twCompilerOverlay").classList.remove("hidden");
+  document.getElementById("twCompilerOverlay").classList.add("flex");
+});
+
+document.getElementById("btnCloseTwCompiler").addEventListener("click", () => {
+  document.getElementById("twCompilerOverlay").classList.add("hidden");
+  document.getElementById("twCompilerOverlay").classList.remove("flex");
+});
+
+document.getElementById("selectReadingWidth").addEventListener("change", e => {
+  document.documentElement.style.setProperty("--mn-reading-width", e.target.value);
+  showToast("Updated --mn-reading-width to " + e.target.value);
+});
+
+document.getElementById("selectDashboardWidth").addEventListener("change", e => {
+  document.documentElement.style.setProperty("--mn-dashboard-width", e.target.value);
+  showToast("Updated --mn-dashboard-width to " + e.target.value);
+});
+
+document.querySelectorAll("[data-set-storyview]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const mode = btn.getAttribute("data-set-storyview");
+    if (mode === "zoomin") {
+      state.viewMode = "mobile";
+    } else if (mode === "classic") {
+      state.viewMode = "desktop";
+    } else {
+      state.viewMode = window.innerWidth < 1024 ? "mobile" : "desktop";
+    }
+    document.getElementById("controlPanelOverlay").classList.add("hidden");
+    document.getElementById("controlPanelOverlay").classList.remove("flex");
+    renderApp();
+    showToast("Switched active storyview mode to " + mode);
+  });
+});
+
+document.querySelectorAll("[data-tw-pagecontrol]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const ctrl = btn.getAttribute("data-tw-pagecontrol");
+    document.getElementById("controlPanelOverlay").classList.add("hidden");
+    document.getElementById("controlPanelOverlay").classList.remove("flex");
+    if (ctrl.startsWith("New Tiddler")) {
+      document.getElementById("modalTitle").textContent = "Create New Tiddler";
+      document.getElementById("modalOverlay").classList.remove("hidden");
+      document.getElementById("modalOverlay").classList.add("flex");
+    } else if (ctrl.startsWith("New Journal")) {
+      const today = "2026-10-16";
+      if (!getTiddler(today)) {
+        state.tiddlers.unshift({ title: today, tags: ["Journal"], mood: "Focused", location: "Centennial, CO", modified: "2026-10-16 00:30", body: "New journal entry." });
+      }
+      navigateToTiddler(today);
+    } else if (ctrl.startsWith("Palette")) {
+      document.getElementById("btnTogglePalette").click();
+    } else if (ctrl.startsWith("Save Wiki")) {
+      document.getElementById("btnDownloadHtml").click();
+    } else {
+      showToast("Triggered TiddlyWiki control: " + ctrl);
+    }
+  });
+});
+
+// Inject Modern Notebook plugin + layout + starter dashboards into any real TiddlyWiki .html file
+document.getElementById("inputTwHtmlFile").addEventListener("change", e => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const rawHtml = String(ev.target.result || "");
+    const injectedTiddlers = [
+      PACKAGED_PLUGIN_DATA[0],
+      ...STARTER_DASHBOARDS_DATA,
+      { title: "$:/layout", text: "$:/plugins/mblackman/modern-notebook/ui/Layout" },
+      { title: "$:/DefaultTiddlers", text: "[[Journal Dashboard]] [[Project Dashboard]] [[Media Hub]]" }
+    ];
+
+    let updatedHtml = rawHtml;
+    const storeRegex = /(<script\s+class=["']tiddlywiki-tiddler-store["']\s+type=["']application\/json["']>)([\s\S]*?)(<\/script>)/i;
+    const match = rawHtml.match(storeRegex);
+
+    if (match) {
+      try {
+        const storeArr = JSON.parse(match[2]);
+        const filteredArr = storeArr.filter(t => !injectedTiddlers.some(inj => inj.title === t.title));
+        filteredArr.push(...injectedTiddlers);
+        const newStoreJson = JSON.stringify(filteredArr, null, 2).replace(/<\//g, "<\\/");
+        updatedHtml = rawHtml.replace(storeRegex, (_, openTag, _oldJson, closeTag) => openTag + newStoreJson + closeTag);
+      } catch (err) {
+        showToast("Could not parse JSON store in file: " + err.message);
+        return;
+      }
+    } else {
+      showToast("Please select a TiddlyWiki v5.2.0+ .html file containing a tiddlywiki-tiddler-store block.");
+      return;
+    }
+
+    const blob = new Blob([updatedHtml], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "tiddlywiki-modern-notebook.html";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    const statusBox = document.getElementById("compilerStatusBox");
+    statusBox.textContent = "Success! Built and downloaded tiddlywiki-modern-notebook.html with the Modern Notebook plugin & layout pre-activated.";
+    statusBox.classList.remove("hidden");
+    showToast("Built & downloaded real TiddlyWiki HTML file!");
+  };
+  reader.readAsText(file);
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+  if (window.innerWidth < 1024) {
+    state.viewMode = "mobile";
+    state.leftNavOpen = false;
+  }
+  renderApp();
+});
+</script>
+</body>
+</html>

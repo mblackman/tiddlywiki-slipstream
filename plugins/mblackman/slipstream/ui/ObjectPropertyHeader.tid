@@ -1,0 +1,19 @@
+title: $:/plugins/mblackman/slipstream/ui/ObjectPropertyHeader
+tags: $:/tags/ViewTemplate
+list-after: $:/core/ui/ViewTemplate/subtitle
+type: text/vnd.tiddlywiki
+
+\whitespace trim
+\function .prop-fields() [{!!ss-fields}!is[blank]] ~[{!!mn-fields}!is[blank]] ~[{$:/config/slipstream/default-property-fields}!is[blank]else[status priority mood rating media-type creator due-date]]
+\function .present-prop-fields() [enlist<.prop-fields>] :filter[all[current]has<currentTiddler>]
+
+<%if [.present-prop-fields[]count[]compare:number:gt[0]] %>
+	<div class="mn-object-prop-bar">
+		<$list filter="[.present-prop-fields[]]" variable="propField">
+			<$ss.prop-pill
+				field=<<propField>>
+				values={{{ [[$:/config/slipstream/field-options/]addsuffix<propField>get[text]] }}}
+			/>
+		</$list>
+	</div>
+<%endif%>

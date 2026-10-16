@@ -1,0 +1,6 @@
+title: $:/plugins/mblackman/slipstream/ui/WideViewWrapper
+tags: $:/tags/ViewTemplateBodyFilter
+list-before: $:/config/ViewTemplateBodyFilters/default
+type: text/vnd.tiddlywiki
+
+[field:page-width[wide]then[$:/plugins/mblackman/slipstream/templates/wide-body]] ~[tag[Wide]then[$:/plugins/mblackman/slipstream/templates/wide-body]] ~[subfilter{$:/config/slipstream/wide-filter}then[$:/plugins/mblackman/slipstream/templates/wide-body]]

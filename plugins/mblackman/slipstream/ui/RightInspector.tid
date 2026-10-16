@@ -1,0 +1,63 @@
+title: $:/plugins/mblackman/slipstream/ui/RightInspector
+type: text/vnd.tiddlywiki
+
+\whitespace trim
+<$let activeTiddler={{{ [{$:/HistoryList!!current-tiddler}!is[blank]is[tiddler]] ~[{$:/HistoryList!!current-tiddler}!is[blank]is[shadow]] ~[list[$:/StoryList]first[]] }}}>
+	<$tiddler tiddler=<<activeTiddler>>>
+		<section class="mn-nav-section">
+			<h3 class="mn-nav-heading">Active Context Inspector</h3>
+			<div class="mn-card-title"><$view field="caption"><$view field="title"/></$view></div>
+			<%if [all[current]has[modified]] %>
+				<div class="mn-prop-label">Modified <$view field="modified" format="relativedate"/></div>
+			<%endif%>
+
+			<!-- Generic Inspector Mode Tabs -->
+			<div class="mn-object-prop-bar">
+				<$list filter="Backlinks Outline Fields [all[shadows+tiddlers]tag[$:/tags/Slipstream/InspectorTab]!has[draft.of]] [all[shadows+tiddlers]tag[$:/tags/ModernNotebook/InspectorTab]!has[draft.of]] +[unique[]]" variable="tabItem">
+					<$button
+						set="$:/state/slipstream/inspector-tab"
+						setTo=<<tabItem>>
+						selectedClass="mn-pill-active"
+						class={{{ [[mn-pill-btn]] [{$:/state/slipstream/inspector-tab}!is[blank]else[Backlinks]match<tabItem>then[mn-pill-active]] +[join[ ]] }}}
+					>
+						<$view tiddler=<<tabItem>> field="caption"><$text text=<<tabItem>>/></$view>
+					</$button>
+				</$list>
+			</div>
+
+			<!-- Tab 1: Backlinks & Transclusions -->
+			<%if [{$:/state/slipstream/inspector-tab}!is[blank]else[Backlinks]match[Backlinks]] %>
+				<h4 class="mn-nav-heading">Linked From (<$count filter="[<activeTiddler>backlinks[]!is[system]]"/>)</h4>
+				<$list filter="[<activeTiddler>backlinks[]!is[system]sort[title]]" emptyMessage="<p class='mn-prop-label'>No incoming links yet.</p>">
+					<div class="mn-nav-item">
+						<$link to=<<currentTiddler>>/>
+					</div>
+				</$list>
+			<%endif%>
+
+			<!-- Tab 2: Table of Contents / Outline -->
+			<%if [{$:/state/slipstream/inspector-tab}match[Outline]] %>
+				<h4 class="mn-nav-heading">Sub-Tiddlers & TOC</h4>
+				<$macrocall $name="toc" tag=<<activeTiddler>>/>
+			<%endif%>
+
+			<!-- Tab 3: Inline Fields & Properties -->
+			<%if [{$:/state/slipstream/inspector-tab}match[Fields]] %>
+				<h4 class="mn-nav-heading">Tiddler Fields</h4>
+				<$list filter="[<activeTiddler>fields[]!match[text]!match[title]!match[created]!match[modified]!match[bag]!match[revision]sort[title]]" variable="fieldName">
+					<div class="mn-object-prop-bar">
+						<span class="mn-prop-label"><$text text=<<fieldName>>/>:</span>
+						<$edit-text tiddler=<<activeTiddler>> field=<<fieldName>> tag="input" class="mn-search-input"/>
+					</div>
+				</$list>
+			<%endif%>
+
+			<!-- Extensible Custom Inspector Tabs ($:/tags/Slipstream/InspectorTab) -->
+			<$list filter="[all[shadows+tiddlers]tag[$:/tags/Slipstream/InspectorTab]!has[draft.of]] [all[shadows+tiddlers]tag[$:/tags/ModernNotebook/InspectorTab]!has[draft.of]] +[unique[]]" variable="customTab">
+				<%if [{$:/state/slipstream/inspector-tab}match<customTab>] %>
+					<$transclude $tiddler=<<customTab>> mode="block"/>
+				<%endif%>
+			</$list>
+		</section>
+	</$tiddler>
+</$let>

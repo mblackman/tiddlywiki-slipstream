@@ -1,0 +1,7 @@
+title: Verify Mobile Zoomin Sheet
+tags: [[Slipstream v1 Launch]] Task
+status: In Progress
+created: 20261016120000000
+modified: 20261016133000000
+
+Test the slide-up bottom action sheet (`•••`) and open-tiddler pill strip at viewports `< 1024px`.

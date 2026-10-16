@@ -1,0 +1,71 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  release:
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build plugin, demo, and CPL library
+        run: npm run build-all
+
+      - name: Verify plugin.info version matches tag
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          PLUGIN_VERSION=$(node -p "JSON.parse(require('fs').readFileSync('./plugins/mblackman/slipstream/plugin.info', 'utf8')).version")
+          echo "Tag version:    $TAG"
+          echo "Plugin version: $PLUGIN_VERSION"
+          if [ "$TAG" != "$PLUGIN_VERSION" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match plugin.info version $PLUGIN_VERSION"
+            exit 1
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/slipstream.tid
+            build/slipstream-plugin.json
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./build
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

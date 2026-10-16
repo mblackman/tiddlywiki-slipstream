@@ -1,0 +1,49 @@
+title: $:/plugins/mblackman/slipstream/settings
+tags: $:/tags/ControlPanel/SettingsTab
+caption: Slipstream
+type: text/vnd.tiddlywiki
+
+\whitespace trim
+<h3>Slipstream Layout & Navigation Settings</h3>
+<p class="mn-prop-label">Customize your pinned shortcuts, mobile bottom bar slots, reading widths, and property pills without modifying theme code.</p>
+
+<div class="mn-card" style="margin-bottom:1rem;">
+	<h4 class="mn-nav-heading">1. Navigation & Shortcut Customization</h4>
+	<div class="mn-object-prop-bar">
+		<label class="mn-prop-label" style="min-width:240px;">Left Nav Pinned Filter:</label>
+		<$edit-text tiddler="$:/config/slipstream/pinned-filter" field="text" default="[all[shadows+tiddlers]tag[$:/tags/Pinned]!has[draft.of]]" tag="input" class="mn-search-input"/>
+	</div>
+	<div class="mn-object-prop-bar">
+		<label class="mn-prop-label" style="min-width:240px;">Mobile Bottom Bar Shortcuts (Title List):</label>
+		<$edit-text tiddler="$:/config/slipstream/mobile-shortcuts" field="text" default="" placeholder="e.g. [[Journal Dashboard]] [[Media Hub]]" tag="input" class="mn-search-input"/>
+	</div>
+	<div class="mn-object-prop-bar">
+		<label class="mn-prop-label" style="min-width:240px;">Wide Tiddler Filter (<code>1180px</code>):</label>
+		<$edit-text tiddler="$:/config/slipstream/wide-filter" field="text" default="[tag[Wide]] [field:page-width[wide]]" tag="input" class="mn-search-input"/>
+	</div>
+	<div class="mn-object-prop-bar">
+		<label class="mn-prop-label" style="min-width:240px;">Auto-Displayed Property Pill Fields:</label>
+		<$edit-text tiddler="$:/config/slipstream/default-property-fields" field="text" default="status priority mood rating media-type creator due-date" tag="input" class="mn-search-input"/>
+	</div>
+</div>
+
+<div class="mn-card" style="margin-bottom:1rem;">
+	<h4 class="mn-nav-heading">2. Layout Dimensions & Responsive Breakpoints</h4>
+	<div class="mn-object-prop-bar">
+		<label class="mn-prop-label" style="min-width:240px;">Centered Reading Column Width:</label>
+		<$edit-text tiddler="$:/config/slipstream/reading-width" field="text" default="72ch" tag="input" class="mn-search-input"/>
+	</div>
+	<div class="mn-object-prop-bar">
+		<label class="mn-prop-label" style="min-width:240px;">Wide Container Max Width:</label>
+		<$edit-text tiddler="$:/config/slipstream/wide-width" field="text" default="1180px" tag="input" class="mn-search-input"/>
+	</div>
+	<div class="mn-object-prop-bar">
+		<label class="mn-prop-label" style="min-width:240px;">Mobile Zoomin Breakpoint (px):</label>
+		<$edit-text tiddler="$:/config/slipstream/mobile-breakpoint" field="text" default="1024" tag="input" class="mn-search-input"/>
+	</div>
+</div>
+
+<$button class="mn-pill-btn">
+	<$action-deletetiddler $filter="[prefix[$:/config/slipstream/]] [prefix[$:/state/slipstream/]] [prefix[$:/config/modern-notebook/]] [prefix[$:/state/modern-notebook/]]"/>
+	↺ Reset Slipstream Settings to Defaults
+</$button>

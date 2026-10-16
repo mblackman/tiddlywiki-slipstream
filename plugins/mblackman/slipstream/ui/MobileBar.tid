@@ -1,0 +1,78 @@
+title: $:/plugins/mblackman/slipstream/ui/MobileBar
+type: text/vnd.tiddlywiki
+
+\whitespace trim
+<nav class="mn-mobile-bottombar" aria-label="Mobile Primary Controls">
+	<!-- 1. Left Drawer Menu Toggle -->
+	<$button
+		set="$:/state/slipstream/left-panel"
+		setTo={{{ [{$:/state/slipstream/left-panel}match[no]then[yes]else[no]] }}}
+		class="mn-mobile-nav-btn"
+	>
+		<span>☰</span>
+		<span>Menu</span>
+	</$button>
+
+	<!-- 2. User-Configurable Middle Shortcut Slots (configured via $:/config/slipstream/mobile-shortcuts or $:/tags/Slipstream/BottomBar) -->
+	<$list filter="[enlist{$:/config/slipstream/mobile-shortcuts}] [all[shadows+tiddlers]tag[$:/tags/Slipstream/BottomBar]!has[draft.of]] [all[shadows+tiddlers]tag[$:/tags/ModernNotebook/BottomBar]!has[draft.of]] +[unique[]limit[2]]" variable="shortcutItem">
+		<$button to=<<shortcutItem>> class="mn-mobile-nav-btn">
+			<span>
+				<%if [<shortcutItem>get[ss-icon]!is[blank]] %>
+					<$text text={{{ [<shortcutItem>get[ss-icon]] }}}/>
+				<%else%>
+					<$view tiddler=<<shortcutItem>> field="mn-icon">★</$view>
+				<%endif%>
+			</span>
+			<span><$view tiddler=<<shortcutItem>> field="caption"><$text text=<<shortcutItem>>/></$view></span>
+		</$button>
+	</$list>
+
+	<!-- 3. Generic New Tiddler / Quick Capture Button -->
+	<$button message="tm-new-tiddler" class="mn-mobile-nav-btn">
+		<span>＋</span>
+		<span>New</span>
+	</$button>
+
+	<!-- 4. Zoomed Tiddler Options Sheet Trigger -->
+	<$button
+		set="$:/state/slipstream/mobile-action-sheet"
+		setTo={{{ [{$:/state/slipstream/mobile-action-sheet}match[open]then[closed]else[open]] }}}
+		class="mn-mobile-nav-btn"
+	>
+		<span>•••</span>
+		<span>Options</span>
+	</$button>
+</nav>
+
+<!-- Slide-Up Bottom Sheet for Zoomed Tiddler Options & Inspector -->
+<%if [{$:/state/slipstream/mobile-action-sheet}match[open]] %>
+	<div class="mn-backdrop">
+		<section class="mn-bottom-sheet">
+			<$let zoomedTiddler={{{ [{$:/HistoryList!!current-tiddler}!is[blank]] ~[list[$:/StoryList]first[]] }}}>
+				<$tiddler tiddler=<<zoomedTiddler>>>
+					<header class="mn-card-header">
+						<div>
+							<div class="mn-nav-heading">Zoomed Tiddler Options</div>
+							<div class="mn-card-title"><$view field="caption"><$view field="title"/></$view></div>
+						</div>
+						<$button set="$:/state/slipstream/mobile-action-sheet" setTo="closed" class="mn-pill-btn">Done ✕</$button>
+					</header>
+
+					<!-- All ViewToolbar Buttons Rendered as Touch Grid -->
+					<div class="mn-sheet-action-grid">
+						<$list filter="[all[shadows+tiddlers]tag[$:/tags/ViewToolbar]!has[draft.of]]" variable="toolbarItem">
+							<div class="mn-sheet-action-item">
+								<$transclude $tiddler=<<toolbarItem>>/>
+							</div>
+						</$list>
+					</div>
+
+					<!-- Quick Switcher & Inspector Inside Mobile Sheet -->
+					<div class="mn-sheet-context">
+						{{$:/plugins/mblackman/slipstream/ui/RightInspector}}
+					</div>
+				</$tiddler>
+			</$let>
+		</section>
+	</div>
+<%endif%>

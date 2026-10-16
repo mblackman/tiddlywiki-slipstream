@@ -1,0 +1,26 @@
+[
+  {
+    "title": "Journal Dashboard",
+    "tags": "$:/tags/Pinned $:/tags/Slipstream/BottomBar Wide",
+    "caption": "Journal",
+    "ss-icon": "\ud83d\udcd3",
+    "page-width": "wide",
+    "text": "<$ss.hero title=\"Daily Journal\" subtitle=\"User-space dashboard using generic $ss.hero and $ss.grid widgets\"/>\n<$ss.grid min=\"300px\">\n<$list filter=\"[all[tiddlers]tag[Journal]!sort[created]limit[12]]\">\n<$ss.card badge={{!!mood}}><$transclude mode=\"block\"/></$ss.card>\n</$list>\n</$ss.grid>"
+  },
+  {
+    "title": "Project Dashboard",
+    "tags": "$:/tags/Pinned Wide",
+    "caption": "Projects",
+    "ss-icon": "\ud83d\udccb",
+    "page-width": "wide",
+    "text": "<$ss.hero title=\"Projects\" subtitle=\"User-space dashboard using generic $ss.card and $ss.progress widgets\"/>\n<$ss.grid min=\"280px\">\n<$list filter=\"[all[tiddlers]tag[Project]sort[priority]]\">\n<$ss.card badge={{!!status}} accent={{!!color}}><$transclude mode=\"block\"/></$ss.card>\n</$list>\n</$ss.grid>"
+  },
+  {
+    "title": "Media Hub",
+    "tags": "$:/tags/Pinned $:/tags/Slipstream/BottomBar Wide",
+    "caption": "Media",
+    "ss-icon": "\ud83c\udfac",
+    "page-width": "wide",
+    "text": "<$ss.hero title=\"Media Library\" subtitle=\"User-space media hub using generic $ss.grid and $ss.card widgets\"/>\n<$ss.grid min=\"160px\">\n<$list filter=\"[all[tiddlers]tag[Media]!sort[modified]limit[24]]\">\n<$ss.card badge={{!!media-type}}><$transclude mode=\"block\"/></$ss.card>\n</$list>\n</$ss.grid>"
+  }
+]

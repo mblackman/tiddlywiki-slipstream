@@ -1,0 +1,26 @@
+{
+  "name": "tiddlywiki-slipstream",
+  "version": "0.1.0",
+  "description": "Slipstream — A modern, generic 3-column desktop and mobile Zoomin layout theme and UI primitive toolkit for TiddlyWiki v5.4.0+",
+  "main": "npm run build-all",
+  "scripts": {
+    "dev": "node scripts/dev.js",
+    "serve": "npm run ensure-debug && cross-env TIDDLYWIKI_PLUGIN_PATH=plugins tiddlywiki debug --listen port=8080",
+    "clean-serve": "npm run clean-debug && npm run serve",
+    "clean-debug": "node -e \"const fs = require('fs'); fs.rmSync('debug', {recursive: true, force: true}); fs.cpSync('demo', 'debug', {recursive: true});\"",
+    "ensure-debug": "node -e \"const fs = require('fs'); if (!fs.existsSync('debug')) fs.cpSync('demo', 'debug', {recursive: true});\"",
+    "build-all": "npm run build-plugin && npm run build-demo && npm run build-library",
+    "build-plugin": "node scripts/build-plugin.js",
+    "build-demo": "cross-env TIDDLYWIKI_PLUGIN_PATH=plugins tiddlywiki demo --output build --build index",
+    "build-library": "cross-env TIDDLYWIKI_PLUGIN_PATH=plugins tiddlywiki demo --output build/library --build library",
+    "test": "jest --forceExit"
+  },
+  "author": "Matt Blackman",
+  "license": "MIT",
+  "devDependencies": {
+    "cross-env": "^10.1.0",
+    "esbuild": "^0.28.2",
+    "jest": "^30.5.2",
+    "tiddlywiki": "^5.4.1"
+  }
+}

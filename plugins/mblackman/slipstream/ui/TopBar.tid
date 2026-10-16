@@ -1,0 +1,64 @@
+title: $:/plugins/mblackman/slipstream/ui/TopBar
+type: text/vnd.tiddlywiki
+
+\whitespace trim
+<div class="mn-topbar-left">
+	<$button
+		set="$:/state/slipstream/left-panel"
+		setTo={{{ [{$:/state/slipstream/left-panel}match[no]then[yes]else[no]] }}}
+		class="mn-pill-btn"
+		tooltip="Toggle Left Navigation Rail"
+	>
+		☰
+	</$button>
+	<span class="mn-site-brand">
+		<$link to={{{ [{$:/HistoryList!!current-tiddler}!is[blank]] ~[list[$:/StoryList]first[]] }}} class="mn-card-title">
+			<$text text={{{ [{$:/SiteTitle}!is[blank]else[TiddlyWiki]] }}}/>
+		</$link>
+	</span>
+</div>
+
+<div class="mn-topbar-center">
+	<$edit-text
+		tiddler="$:/temp/volatile/slipstream/global-search"
+		field="text"
+		tag="input"
+		type="search"
+		placeholder="Search or jump to tiddler..."
+		class="mn-search-input"
+	/>
+	<%if [{$:/temp/volatile/slipstream/global-search}minlength[1]] %>
+		<div class="mn-search-dropdown">
+			<div class="mn-nav-heading">
+				<span>Search Results</span>
+				<$button set="$:/temp/volatile/slipstream/global-search" setTo="" class="tc-btn-invisible">✕</$button>
+			</div>
+			<$list
+				filter="[all[tiddlers]!is[system]!has[draft.of]search{$:/temp/volatile/slipstream/global-search}sort[title]limit[12]]"
+				emptyMessage="<div class='mn-prop-label' style='padding:0.4rem 0.65rem;'>No matching tiddlers found.</div>"
+			>
+				<$button to=<<currentTiddler>> class="mn-nav-item tc-btn-invisible">
+					<span><$view field="caption"><$view field="title"/></$view></span>
+					<span class="mn-prop-label"><$view field="modified" format="relativedate"/></span>
+				</$button>
+			</$list>
+		</div>
+	<%endif%>
+</div>
+
+<div class="mn-topbar-right">
+	<$button message="tm-new-tiddler" class="mn-btn-primary" tooltip="Create New Tiddler">
+		+ New
+	</$button>
+	<$button to="$:/ControlPanel" class="mn-pill-btn" tooltip="Open Control Panel">
+		⚙
+	</$button>
+	<$button
+		set="$:/state/slipstream/right-panel"
+		setTo={{{ [{$:/state/slipstream/right-panel}match[no]then[yes]else[no]] }}}
+		class="mn-pill-btn"
+		tooltip="Toggle Right Context Inspector"
+	>
+		◨
+	</$button>
+</div>

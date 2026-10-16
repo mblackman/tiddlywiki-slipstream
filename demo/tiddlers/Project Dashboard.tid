@@ -1,0 +1,32 @@
+title: Project Dashboard
+tags: $:/tags/Pinned Wide
+caption: Projects
+ss-icon: 📋
+page-width: wide
+modified: 20261016133000000
+created: 20261016120000000
+
+\function .proj.total(proj) [all[tiddlers]tag<proj>tag[Task]count[]]
+\function .proj.done(proj) [all[tiddlers]tag<proj>tag[Task]tag[Done]count[]]
+
+<$ss.hero title="Active Projects" subtitle="User-space dashboard built with generic $ss.card, $ss.prop-pill, and $ss.progress primitives">
+	<$fill $name="actions">
+		<$button class="mn-btn-primary">
+			<$action-sendmessage $message="tm-new-tiddler" tags="Project" status="Active" priority="P1"/>
+			+ New Project
+		</$button>
+	</$fill>
+</$ss.hero>
+
+<$ss.grid min="300px">
+	<$list filter="[all[tiddlers]tag[Project]!has[draft.of]sort[priority]]">
+		<$ss.card badge={{!!status}} accent={{!!color}}>
+			<div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+				<$ss.prop-pill field="status" label="Status" values="Active [[Next Up]] [[On Hold]] Completed"/>
+				<$ss.prop-pill field="priority" label="Priority" values="P0 P1 P2 P3"/>
+			</div>
+			<$ss.progress done={{{ [.proj.done<currentTiddler>] }}} total={{{ [.proj.total<currentTiddler>] }}} label="Tasks"/>
+			<$transclude mode="block"/>
+		</$ss.card>
+	</$list>
+</$ss.grid>

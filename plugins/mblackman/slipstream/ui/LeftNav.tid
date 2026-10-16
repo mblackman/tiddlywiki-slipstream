@@ -1,0 +1,66 @@
+title: $:/plugins/mblackman/slipstream/ui/LeftNav
+type: text/vnd.tiddlywiki
+
+\whitespace trim
+\function .pinned-filter() [{$:/config/slipstream/pinned-filter}!is[blank]else[[all[shadows+tiddlers]tag[$:/tags/Pinned]!has[draft.of]]]]
+
+<!-- Section 1: User-Configurable Pinned Shortcuts (Tag any tiddler $:/tags/Pinned or customize filter in Settings) -->
+<section class="mn-nav-section">
+	<h3 class="mn-nav-heading">
+		<span><$text text={{{ [{$:/config/slipstream/pinned-heading}!is[blank]else[Pinned Shortcuts]] }}}/></span>
+		<$button to="$:/ControlPanel" class="tc-btn-invisible" tooltip="Customize pinned shortcuts in Settings">⚙</$button>
+	</h3>
+	<$list filter="[subfilter<.pinned-filter>]" variable="pinItem" emptyMessage="<p class='mn-prop-label'>Tag any tiddler <code>$:/tags/Pinned</code> to pin it here.</p>">
+		<$button
+			to=<<pinItem>>
+			class={{{ [[mn-nav-item tc-btn-invisible]] [{$:/HistoryList!!current-tiddler}match<pinItem>then[mn-nav-item-active]] +[join[ ]] }}}
+		>
+			<span style="display:inline-flex;align-items:center;gap:0.4rem;">
+				<%if [<pinItem>get[ss-icon]!is[blank]] %>
+					<span><$text text={{{ [<pinItem>get[ss-icon]] }}}/></span>
+				<%elseif [<pinItem>get[mn-icon]!is[blank]] %>
+					<span><$text text={{{ [<pinItem>get[mn-icon]] }}}/></span>
+				<%elseif [<pinItem>get[icon]!is[blank]] %>
+					<$transclude $tiddler={{{ [<pinItem>get[icon]] }}}/>
+				<%endif%>
+				<$view tiddler=<<pinItem>> field="caption"><$text text=<<pinItem>>/></$view>
+			</span>
+		</$button>
+	</$list>
+</section>
+
+<!-- Section 2: Open Story Switcher -->
+<section class="mn-nav-section">
+	<h3 class="mn-nav-heading">
+		<span>Open Tiddlers (<$count filter="[list[$:/StoryList]]"/>)</span>
+		<$button message="tm-close-all-tiddlers" class="tc-btn-invisible" tooltip="Close all open tiddlers">Clear</$button>
+	</h3>
+	<$list filter="[list[$:/StoryList]]" variable="openItem">
+		<div class={{{ [[mn-nav-item]] [{$:/HistoryList!!current-tiddler}match<openItem>then[mn-nav-item-active]] +[join[ ]] }}}>
+			<$link to=<<openItem>> class="mn-card-title">
+				<$view tiddler=<<openItem>> field="caption"><$text text=<<openItem>>/></$view>
+			</$link>
+			<$button message="tm-close-tiddler" param=<<openItem>> class="tc-btn-invisible" tooltip="Close tiddler">✕</$button>
+		</div>
+	</$list>
+</section>
+
+<!-- Section 3: Extensible Custom LeftNav Sections ($:/tags/Slipstream/LeftNav or $:/tags/ModernNotebook/LeftNav) -->
+<$list filter="[all[shadows+tiddlers]tag[$:/tags/Slipstream/LeftNav]!has[draft.of]] [all[shadows+tiddlers]tag[$:/tags/ModernNotebook/LeftNav]!has[draft.of]] +[unique[]]" variable="navSection">
+	<section class="mn-nav-section">
+		<$transclude $tiddler=<<navSection>> mode="block"/>
+	</section>
+</$list>
+
+<!-- Section 4: Generic Tag Explorer (Filter configurable via $:/config/slipstream/tag-explorer-filter) -->
+<section class="mn-nav-section">
+	<h3 class="mn-nav-heading">Tags</h3>
+	<$let tagFilter={{{ [{$:/config/slipstream/tag-explorer-filter}!is[blank]else[[tags[]!is[system]sort[title]limit[25]]]] }}}>
+		<$list filter="[subfilter<tagFilter>]" variable="tagItem">
+			<div class="mn-nav-item">
+				<$macrocall $name="tag-pill" tag=<<tagItem>>/>
+				<span class="mn-prop-label"><$count filter="[all[tiddlers]tag<tagItem>]"/></span>
+			</div>
+		</$list>
+	</$let>
+</section>

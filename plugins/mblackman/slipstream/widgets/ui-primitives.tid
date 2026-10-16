@@ -1,0 +1,119 @@
+title: $:/plugins/mblackman/slipstream/widgets/ui-primitives
+tags: $:/tags/Global
+type: text/vnd.tiddlywiki
+
+\whitespace trim
+
+<!-- Generic Hero Banner Widget ($ss.hero & $mn.hero) -->
+\widget $ss.hero(title:"", subtitle:"")
+<section class="mn-hero">
+	<div>
+		<%if [<title>!is[blank]] %>
+			<h2 style="margin:0;"><$text text=<<title>>/></h2>
+		<%endif%>
+		<%if [<subtitle>!is[blank]] %>
+			<div class="mn-prop-label"><$text text=<<subtitle>>/></div>
+		<%endif%>
+		<$slot $name="info"/>
+	</div>
+	<div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+		<$slot $name="actions"/>
+	</div>
+</section>
+\end $ss.hero
+
+\widget $mn.hero(title:"", subtitle:"")
+<$ss.hero title=<<title>> subtitle=<<subtitle>>>
+	<$fill $name="info"><$slot $name="info"/></$fill>
+	<$fill $name="actions"><$slot $name="actions"/></$fill>
+</$ss.hero>
+\end $mn.hero
+
+<!-- Generic Responsive Grid Widget ($ss.grid & $mn.grid) -->
+\widget $ss.grid(min:"280px", wide:"yes")
+<div class={{{ [[mn-grid]] [<wide>match[yes]then[mn-wide-view]] +[join[ ]] }}} style=`--mn-grid-min: $(min)$;`>
+	<$slot $name="ts-raw"/>
+</div>
+\end $ss.grid
+
+\widget $mn.grid(min:"280px", wide:"yes")
+<$ss.grid min=<<min>> wide=<<wide>>>
+	<$slot $name="ts-raw"/>
+</$ss.grid>
+\end $mn.grid
+
+<!-- Reusable Card Component ($ss.card & $mn.card) -->
+\widget $ss.card(class:"", badge:"", accent:"")
+<article class={{{ [[mn-card]] [<class>] +[join[ ]] }}} style={{{ [<accent>!is[blank]addprefix[--mn-card-accent:]addsuffix[;]] }}}>
+	<header class="mn-card-header">
+		<div class="mn-card-title-group">
+			<$slot $name="header">
+				<$link to=<<currentTiddler>> class="mn-card-title">
+					<$view field="caption"><$view field="title"/></$view>
+				</$link>
+			</$slot>
+		</div>
+		<%if [<badge>!is[blank]] %>
+			<span class="mn-badge"><$text text=<<badge>>/></span>
+		<%endif%>
+	</header>
+	<div class="mn-card-body">
+		<$slot $name="ts-raw"/>
+	</div>
+	<footer class="mn-card-footer">
+		<$slot $name="footer"/>
+	</footer>
+</article>
+\end $ss.card
+
+\widget $mn.card(class:"", badge:"", accent:"")
+<$ss.card class=<<class>> badge=<<badge>> accent=<<accent>>>
+	<$fill $name="header">
+		<$slot $name="header">
+			<$link to=<<currentTiddler>> class="mn-card-title">
+				<$view field="caption"><$view field="title"/></$view>
+			</$link>
+		</$slot>
+	</$fill>
+	<$slot $name="ts-raw"/>
+	<$fill $name="footer"><$slot $name="footer"/></$fill>
+</$ss.card>
+\end $mn.card
+
+<!-- Inline Property Pill ($ss.prop-pill & $mn.prop-pill) -->
+\widget $ss.prop-pill(field:"status", label:"", values:"")
+<div class="mn-prop-pill">
+	<span class="mn-prop-label"><$text text={{{ [<label>!is[blank]else<field>] }}}/>:</span>
+	<%if [<values>!is[blank]] %>
+		<$select field=<<field>> class="mn-prop-select">
+			<$list filter="[enlist<values>]" variable="opt">
+				<option value=<<opt>>><$text text=<<opt>>/></option>
+			</$list>
+		</$select>
+	<%else%>
+		<span class="mn-prop-value"><$view field=<<field>>/></span>
+	<%endif%>
+</div>
+\end $ss.prop-pill
+
+\widget $mn.prop-pill(field:"status", label:"", values:"")
+<$ss.prop-pill field=<<field>> label=<<label>> values=<<values>>/>
+\end $mn.prop-pill
+
+<!-- Generic Progress Bar Widget ($ss.progress & $mn.progress) -->
+\widget $ss.progress(done:"0", total:"1", label:"Progress")
+\function .calc-pct() [<total>match[0]then[0]] ~[<done>multiply[100]divide<total>round[]]
+<div>
+	<div style="display:flex;justify-content:space-between;font-size:0.8rem;">
+		<span class="mn-prop-label"><$text text=<<label>>/> (<$text text=<<done>>/>/<$text text=<<total>>/>)</span>
+		<strong><$text text=<<.calc-pct>>/>%</strong>
+	</div>
+	<div class="mn-progress-track">
+		<div class="mn-progress-fill" style=`width: ${ [.calc-pct[]] }$%;`/>
+	</div>
+</div>
+\end $ss.progress
+
+\widget $mn.progress(done:"0", total:"1", label:"Progress")
+<$ss.progress done=<<done>> total=<<total>> label=<<label>>/>
+\end $mn.progress

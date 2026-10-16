@@ -1,0 +1,28 @@
+title: Welcome to Slipstream
+tags: $:/tags/Pinned Guide
+caption: Welcome
+ss-icon: 🌊
+status: Active
+priority: P0
+modified: 20261016133000000
+created: 20261016120000000
+
+!! Welcome to **Slipstream** (`$:/plugins/mblackman/slipstream`)
+
+**Slipstream** is a modern, cross-device layout and UI primitive plugin for **TiddlyWiki v5.4.0+**. It combines an uncluttered `72ch` centered reading column with a collapsible **Left Navigation Rail**, a context-aware **Right Inspector**, and a thumb-friendly **Mobile `zoomin` Experience** below `1024px`.
+
+---
+
+### Key Features You Can Test Right Now
+
+1. **Three-Column Desktop Workspace (`>= 1024px`)**:
+   * Click `☰` (top-left) to collapse or expand the **Left Navigation Rail**.
+   * Click `◨` (top-right) to collapse or expand the **Right Context Inspector** (bound to `{$:/HistoryList!!current-tiddler}`).
+2. **Wide Mode Breakout (`1180px`)**:
+   * Standard prose notes stay centered at `72ch`, while dashboards tagged `Wide` (or with field `page-width: wide`) such as [[Journal Dashboard]], [[Project Dashboard]], and [[Media Hub]] automatically expand to `1180px`.
+3. **Inline Object Property Pills**:
+   * Notice the `status: Active` and `priority: P0` pills directly beneath this tiddler's subtitle! Any tiddler with fields listed in `$:/config/slipstream/default-property-fields` (or a per-tiddler `ss-fields` field) renders interactive property pills automatically.
+4. **Mobile Single-Tiddler (`zoomin`) Mode (`< 1024px`)**:
+   * Resize your browser window narrower than `1024px` (or open DevTools device emulation) to see the story river automatically switch from `classic` to `zoomin`, revealing the **Open Tiddler Pill Strip**, **Fixed Bottom Navigation Bar**, and slide-up **Zoomed Tiddler Options Sheet (`•••`)**.
+5. **100% Generic & Configurable**:
+   * Open [[$:/ControlPanel]] → **Settings** → **Slipstream** to customize pinned filters, mobile bottom bar shortcuts, reading widths, and breakpoints.

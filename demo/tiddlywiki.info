@@ -1,0 +1,52 @@
+{
+  "description": "Slipstream Demo & Development Wiki",
+  "plugins": [
+    "tiddlywiki/tiddlyweb",
+    "tiddlywiki/filesystem",
+    "tiddlywiki/highlight",
+    "tiddlywiki/pluginlibrary",
+    "mblackman/slipstream"
+  ],
+  "themes": [
+    "tiddlywiki/vanilla",
+    "tiddlywiki/snowwhite"
+  ],
+  "build": {
+    "index": [
+      "--rendertiddler",
+      "$:/plugins/tiddlywiki/tiddlyweb/save/offline",
+      "index.html",
+      "text/plain"
+    ],
+    "slipstream": [
+      "--rendertiddler",
+      "$:/plugins/mblackman/slipstream",
+      "slipstream.tid",
+      "text/plain",
+      "$:/core/templates/exporters/TidFile",
+      "exportFilter",
+      "[<currentTiddler>]",
+      "--rendertiddler",
+      "$:/plugins/mblackman/slipstream",
+      "slipstream-plugin.json",
+      "text/plain",
+      "$:/core/templates/json-tiddler"
+    ],
+    "library": [
+      "--makelibrary",
+      "$:/UpgradeLibrary",
+      "--savelibrarytiddlers",
+      "$:/UpgradeLibrary",
+      "[prefix[$:/plugins/mblackman/]]",
+      "recipes/library/tiddlers/",
+      "$:/UpgradeLibrary/List",
+      "--savetiddler",
+      "$:/UpgradeLibrary/List",
+      "recipes/library/tiddlers.json",
+      "--rendertiddler",
+      "$:/plugins/tiddlywiki/pluginlibrary/library.template.html",
+      "index.html",
+      "text/plain"
+    ]
+  }
+}

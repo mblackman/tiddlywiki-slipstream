@@ -1,0 +1,115 @@
+title: $:/plugins/mblackman/slipstream/ui/Layout
+tags: $:/tags/Layout
+name: Slipstream
+description: Generic 3-column centered reading workspace with configurable shortcuts and mobile Zoomin bottom bar
+type: text/vnd.tiddlywiki
+
+\whitespace trim
+\import [subfilter{$:/core/config/GlobalImportFilter}]
+
+\function .breakpoint() [{$:/config/slipstream/mobile-breakpoint}!is[blank]else[1024]]
+\function .is-mobile() [{$:/info/browser/window/system/main/client/width}!is[blank]compare:number:lt<.breakpoint>then[yes]else[no]]
+\function .active-storyview()
+[{$:/config/slipstream/storyview-override}!is[blank]!match[auto]]
+~[.is-mobile[]match[yes]then[zoomin]else[classic]]
+\end
+
+\function .container-classes()
+tc-page-container mn-app-shell
+[{$:/state/slipstream/left-panel}match[no]then[mn-left-collapsed]else[mn-left-open]]
+[{$:/state/slipstream/right-panel}match[no]then[mn-right-collapsed]else[mn-right-open]]
+[.is-mobile[]match[yes]then[mn-is-mobile]else[mn-is-desktop]]
+[[tc-page-view-]addsuffix<.active-storyview>]
++[join[ ]]
+\end
+
+\procedure redirected-navigate-actions()
+<$action-setfield $tiddler="$:/HistoryList" current-tiddler=<<event-navigateTo>> $timestamp="no"/>
+<$action-setfield $tiddler="$:/temp/volatile/slipstream/global-search" text="" $timestamp="no"/>
+<%if [.is-mobile[]match[yes]] %>
+	<$action-setfield $tiddler="$:/state/slipstream/left-panel" text="no" $timestamp="no"/>
+<%endif%>
+<$action-navigate $to=<<event-navigateTo>> $scroll="yes"/>
+\end
+
+<$let
+	tv-config-toolbar-icons={{$:/config/Toolbar/Icons}}
+	tv-config-toolbar-text={{$:/config/Toolbar/Text}}
+	tv-config-toolbar-class={{$:/config/Toolbar/ButtonClass}}
+	tv-enable-drag-and-drop={{$:/config/DragAndDrop/Enable}}
+	tv-show-missing-links={{$:/config/MissingLinks}}
+	storyviewTitle=<<.active-storyview>>
+	languageTitle={{{ [{$:/language}get[name]] }}}
+>
+	<$navigator
+		story="$:/StoryList"
+		history="$:/HistoryList"
+		openLinkFromInsideRiver={{$:/config/Navigation/openLinkFromInsideRiver}}
+		openLinkFromOutsideRiver={{$:/config/Navigation/openLinkFromOutsideRiver}}
+		relinkOnRename={{$:/config/RelinkOnRename}}
+	>
+		<$messagecatcher $tm-navigate=<<redirected-navigate-actions>>>
+			<$dropzone enable=<<tv-enable-drag-and-drop>> class="tc-dropzone">
+				<div class=<<.container-classes>> style=`--mn-reading-width: ${ [{$:/config/slipstream/reading-width}!is[blank]else[72ch]] }$; --mn-wide-width: ${ [{$:/config/slipstream/wide-width}!is[blank]else[1180px]] }$;`>
+					{{$:/core/ui/PageTemplate/pluginreloadwarning}}
+					{{$:/core/ui/PageTemplate/alerts}}
+
+					<!-- Sticky Top Command Header (z-index: 420) -->
+					<header class="mn-topbar tc-adjust-top-of-scroll">
+						{{$:/plugins/mblackman/slipstream/ui/TopBar}}
+					</header>
+
+					<!-- Mobile Horizontal Open-Tiddler Switcher Strip (z-index: 410) -->
+					<%if [.is-mobile[]match[yes]] %>
+						{{$:/plugins/mblackman/slipstream/ui/MobilePillStrip}}
+					<%endif%>
+
+					<!-- Mobile Drawer Backdrop when Left Nav is Open on Mobile -->
+					<%if [.is-mobile[]match[yes]] [{$:/state/slipstream/left-panel}!match[no]] +[count[]match[2]] %>
+						<$button set="$:/state/slipstream/left-panel" setTo="no" class="mn-mobile-drawer-backdrop tc-btn-invisible" aria-label="Close navigation drawer"/>
+					<%endif%>
+
+					<!-- Three-Zone Workspace Grid -->
+					<div class="mn-workspace-grid">
+						<aside class="mn-panel-left">
+							{{$:/plugins/mblackman/slipstream/ui/LeftNav}}
+						</aside>
+
+						<main class="mn-story-container tc-story-river" role="main">
+							<section class="story-backdrop">
+								<$list filter="[all[shadows+tiddlers]tag[$:/tags/AboveStory]!has[draft.of]]">
+									<$transclude/>
+								</$list>
+							</section>
+							<$list
+								filter="[list[$:/StoryList]]"
+								history="$:/HistoryList"
+								template="$:/core/ui/StoryTiddlerTemplate"
+								storyview=<<.active-storyview>>
+								emptyMessage={{$:/config/EmptyStoryMessage}}
+							/>
+							<section class="story-frontdrop">
+								<$list filter="[all[shadows+tiddlers]tag[$:/tags/BelowStory]!has[draft.of]]">
+									<$transclude/>
+								</$list>
+							</section>
+						</main>
+
+						<%if [.is-mobile[]match[no]] %>
+							<aside class="mn-panel-right">
+								{{$:/plugins/mblackman/slipstream/ui/RightInspector}}
+							</aside>
+						<%endif%>
+					</div>
+
+					{{$:/core/ui/PageTemplate/drafts}}
+
+					<!-- Fixed Mobile Bottom Bar & Zoomed Tiddler Options Sheet (z-index: 480/520) -->
+					<%if [.is-mobile[]match[yes]] %>
+						{{$:/plugins/mblackman/slipstream/ui/MobileBar}}
+					<%endif%>
+				</div>
+			</$dropzone>
+		</$messagecatcher>
+	</$navigator>
+</$let>
