@@ -853,6 +853,35 @@ body:has(.mn-app-shell).tc-body {
 }
 
 /* Standard TiddlyWiki Sidebar Tabs inside Left Menu (Supports arbitrary number of tabs) */
+.mn-sidebar-tabs-section .tc-sidebar-lists,
+.mn-sidebar-tabs-section .tc-sidebar-tabs {
+	padding: 0 !important;
+	margin: 0 !important;
+	width: 100%;
+}
+
+.mn-sidebar-tabs-section .tc-sidebar-lists > p,
+.mn-sidebar-tabs-section .tc-sidebar-tabs > p {
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+.mn-sidebar-tabs-section p:empty {
+	display: none !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+.mn-sidebar-tabs-section .tc-tab-set {
+	padding-top: 0 !important;
+	margin-top: 0 !important;
+}
+
+.mn-sidebar-tabs-section .tc-tab-buttons {
+	padding-top: 0 !important;
+	margin-top: 0 !important;
+}
+
 .mn-sidebar-tabs-section .tc-sidebar-tabs-main > .tc-tab-buttons,
 .mn-sidebar-tabs-section > .tc-sidebar-tabs > .tc-sidebar-tabs-main > .tc-tab-buttons {
 	display: flex !important;
@@ -861,7 +890,9 @@ body:has(.mn-app-shell).tc-body {
 	align-items: center !important;
 	gap: 0.25rem !important;
 	border-bottom: 1px solid var(--mn-border-subtle) !important;
+	padding-top: 0 !important;
 	padding-bottom: 0.3rem !important;
+	margin-top: 0.2rem !important;
 	margin-bottom: 0.35rem !important;
 	max-width: 100% !important;
 	width: 100% !important;
@@ -1019,7 +1050,7 @@ body:has(.mn-app-shell).tc-body {
 	width: 100% !important;
 }
 
-.mn-sidebar-tabs-section .tc-tab-divider.tc-vertical {
+.mn-sidebar-tabs-section .tc-tab-divider {
 	display: none !important;
 }
 
@@ -1250,7 +1281,8 @@ body:has(.mn-app-shell).tc-body {
 
 /* Polished Sidebar Lists (All, Recent, Tags, System, Shadows, etc.) */
 .mn-sidebar-tabs-section .tc-sidebar-lists {
-	padding: 0.2rem 0;
+	padding: 0 !important;
+	margin: 0 !important;
 	width: 100%;
 }
 
@@ -2502,7 +2534,9 @@ body:has(.mn-app-shell).tc-body {
 	.mn-sidebar-tabs-section .tc-sidebar-tabs-main > .tc-tab-buttons,
 	.mn-sidebar-tabs-section > .tc-sidebar-tabs > .tc-sidebar-tabs-main > .tc-tab-buttons {
 		gap: 0.35rem !important;
+		padding-top: 0 !important;
 		padding-bottom: 0.45rem !important;
+		margin-top: 0.2rem !important;
 	}
 
 	.mn-sidebar-tabs-section .tc-sidebar-tabs-main > .tc-tab-buttons button,

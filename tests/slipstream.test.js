@@ -381,6 +381,12 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     expect(css).toMatch(/\.mn-sidebar-tabs-section \.tc-sidebar-tabs-main > \.tc-tab-buttons button[^{]*\{[^}]*flex:\s*0 1 auto !important/s);
     expect(css).toMatch(/\.mn-sidebar-tabs-section\.mn-tabs-scroll \.tc-sidebar-tabs-main > \.tc-tab-buttons[^{]*\{[^}]*overflow-x:\s*auto !important/s);
 
+    // Ensure sidebar navigation tabs zero out top whitespace so tabs align closely under Navigation heading like Pinned Shortcuts
+    expect(css).toMatch(/\.mn-sidebar-tabs-section \.tc-sidebar-tabs-main > \.tc-tab-buttons[^{]*\{[^}]*padding-top:\s*0 !important/s);
+    expect(css).toMatch(/\.mn-sidebar-tabs-section \.tc-sidebar-tabs-main > \.tc-tab-buttons[^{]*\{[^}]*margin-top:\s*0\.2rem !important/s);
+    expect(css).toMatch(/\.mn-sidebar-tabs-section \.tc-sidebar-lists[^{]*\{[^}]*padding:\s*0 !important/s);
+    expect(css).toMatch(/\.mn-sidebar-tabs-section p:empty\s*\{[^}]*display:\s*none !important/s);
+
     // Verify LeftNav rendered on mobile contains mobile close drawer button and default Navigation heading
     $tw.wiki.addTiddler({
       title: "$:/info/browser/window/system/main/client/width",
