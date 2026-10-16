@@ -14,15 +14,15 @@ created: 20261016120000000
 !! Key Features You Can Test Right Now
 
 # ''Three-Column Desktop Workspace (`>= 1024px`)'':
-#* Click `☰` (top-left) to toggle the ''Left Navigation Rail'' (with your pinned notes, recent history, and core tools).
-#* Click `◨` (top-right) to toggle the ''Right Context Inspector'', which updates dynamically to show the active tiddler's outline, backlinks, and metadata.
+#* Click `☰` (top-left) to toggle the ''Left Navigation Rail'' (with your pinned notes, open tiddlers, recent history, and core tools).
+#* Click ''Context'' (top-right) to toggle the ''Right Context Inspector'', which updates dynamically to show the active tiddler's backlinks, document outline, and fields.
 # ''Comfortable Reading Measure with Wide Mode Breakout'':
 #* Standard prose notes (like [[Writing & Typography]]) stay centered at an ergonomic `72ch` (`840px`), keeping text distraction-free.
 #* Hubs, tables, and dashboards tagged `Wide` (like [[Knowledge Base]] and [[Slipstream UI Primitives]]) automatically expand to `1120px` to fit rich content.
 # ''Inline Object Property Pills'':
-#* Notice the `status: Active` and `version: 0.1.0` pills right below this tiddler's title! You can configure which fields become pills in [[$:/ControlPanel]] → ''Settings'' → ''Slipstream'', or specify them per-tiddler with the `ss-fields` field.
-# ''Mobile Single-Tiddler (`zoomin`) Mode (`< 1024px`)'':
-#* Resize your browser window narrower than `1024px` (or open browser device emulation) to experience the mobile zoomin view: an open tiddler pill strip, bottom navigation bar, and slide-up action sheet (`•••`).
+#* Notice the `status: Active` pill right below this tiddler's title! You can configure which fields become pills in [[$:/ControlPanel]] → ''Settings'' → ''Slipstream'', or specify them per-tiddler with the `ss-fields` field.
+# ''Mobile Single-Tiddler (`fade`) Mode (`< 1024px`)'':
+#* Resize your browser window narrower than `1024px` (or open browser device emulation) to experience the mobile single-tiddler view: an open tiddler pill strip, contextual thumb-zone bottom bar (`Edit`, `Context`, `New`, `Search`, `More`), and slide-up sheets.
 # ''Extensible & Native'':
 #* Built entirely with TiddlyWiki v5.4.0+ features: `\function`, `\procedure`, `\widget`, `@media`, and `--tpc-*` / `--tp-*` native palette variables.
 

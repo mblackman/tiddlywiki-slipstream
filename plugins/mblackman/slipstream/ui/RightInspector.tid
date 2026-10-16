@@ -15,124 +15,152 @@ type: text/vnd.tiddlywiki
 \end
 
 <$let activeTiddler=<<.active-tiddler>>>
-	<$tiddler tiddler=<<activeTiddler>>>
-		<section class="mn-nav-section">
-			<h3 class="mn-nav-heading">Active Context Inspector</h3>
-			<div class="mn-inspector-focus-card">
-				<div class="mn-card-title"><$view field="caption"><$view field="title"/></$view></div>
-				<%if [all[current]has[modified]] %>
-					<div class="mn-prop-label" style="font-size:0.76rem;">Modified&#32;<$view field="modified" format="relativedate"/></div>
-				<%endif%>
-			</div>
+	<%if [<activeTiddler>!is[blank]] %>
+		<$tiddler tiddler=<<activeTiddler>>>
+			<section class="mn-nav-section">
+				<h3 class="mn-nav-heading mn-inspector-top-heading">Active Context Inspector</h3>
+				<div class="mn-inspector-focus-card">
+					<div class="mn-card-title"><$view field="caption"><$view field="title"/></$view></div>
+					<%if [all[current]has[modified]] %>
+						<div class="mn-prop-label" style="font-size:0.76rem;">Modified&#32;<$view field="modified" format="relativedate"/></div>
+					<%endif%>
+				</div>
 
-			<!-- Generic Inspector Mode Tabs -->
-			<div class="mn-segmented-tabs">
-				<$list filter="Backlinks Outline Fields [all[shadows+tiddlers]tag[$:/tags/Slipstream/InspectorTab]!has[draft.of]] [all[shadows+tiddlers]tag[$:/tags/ModernNotebook/InspectorTab]!has[draft.of]] +[unique[]]" variable="tabItem">
-					<$button
-						set="$:/state/slipstream/inspector-tab"
-						setTo=<<tabItem>>
-						selectedClass="mn-pill-active"
-						class={{{ [[mn-pill-btn]] [{$:/state/slipstream/inspector-tab}!is[blank]else[Backlinks]match<tabItem>then[mn-pill-active]] +[join[ ]] }}}
-					>
-						<$view tiddler=<<tabItem>> field="caption"><$text text=<<tabItem>>/></$view>
-					</$button>
-				</$list>
-			</div>
-
-			<!-- Tab 1: Backlinks & Transclusions -->
-			<%if [{$:/state/slipstream/inspector-tab}!is[blank]else[Backlinks]match[Backlinks]] %>
-				<h4 class="mn-nav-heading">Linked From (<$count filter="[<activeTiddler>backlinks[]!is[system]]"/>)</h4>
-				<$list filter="[<activeTiddler>backlinks[]!is[system]sort[title]]" emptyMessage="<p class='mn-prop-label'>No incoming links yet.</p>">
-					<div class="mn-nav-item">
-						<$link to=<<currentTiddler>>/>
-					</div>
-				</$list>
-			<%endif%>
-
-			<!-- Tab 2: Table of Contents / Outline -->
-			<%if [{$:/state/slipstream/inspector-tab}match[Outline]] %>
-				<h4 class="mn-nav-heading">Sub-Tiddlers & TOC</h4>
-				<$macrocall $name="toc" tag=<<activeTiddler>>/>
-			<%endif%>
-
-			<!-- Tab 3: Inline Fields & Properties -->
-			<%if [{$:/state/slipstream/inspector-tab}match[Fields]] %>
-				<h4 class="mn-nav-heading">Tiddler Fields</h4>
-				
-				<div class="mn-fields-list">
-					<$list
-						filter="[<activeTiddler>fields[]!match[text]!match[title]!match[created]!match[modified]!match[bag]!match[revision]sort[title]]"
-						variable="fieldName"
-						emptyMessage="<p class='mn-prop-label'>No custom fields on this note.</p>"
-					>
-						<div class="mn-field-row">
-							<div class="mn-field-header">
-								<span class="mn-field-name"><$text text=<<fieldName>>/></span>
-								<$button
-									class="mn-field-remove-btn tc-btn-invisible"
-									tooltip=`Remove field '${fieldName}'`
-									aria-label=`Remove field ${fieldName}`
-								>
-									<$action-deletefield $tiddler=<<activeTiddler>> $field=<<fieldName>>/>
-									✕
-								</$button>
-							</div>
-							<div class="mn-field-value-wrapper">
-								<$edit-text
-									tiddler=<<activeTiddler>>
-									field=<<fieldName>>
-									tag="input"
-									class="mn-search-input mn-field-value-input"
-									placeholder="Field value..."
-								/>
-							</div>
-						</div>
+				<!-- Generic Inspector Mode Tabs -->
+				<div class="mn-segmented-tabs">
+					<$list filter="Backlinks Outline Fields [all[shadows+tiddlers]tag[$:/tags/Slipstream/InspectorTab]!has[draft.of]] [all[shadows+tiddlers]tag[$:/tags/ModernNotebook/InspectorTab]!has[draft.of]] +[unique[]]" variable="tabItem">
+						<$button
+							set="$:/state/slipstream/inspector-tab"
+							setTo=<<tabItem>>
+							selectedClass="mn-pill-active"
+							class={{{ [[mn-pill-btn]] [{$:/state/slipstream/inspector-tab}!is[blank]else[Backlinks]match<tabItem>then[mn-pill-active]] +[join[ ]] }}}
+						>
+							<$view tiddler=<<tabItem>> field="caption"><$text text=<<tabItem>>/></$view>
+						</$button>
 					</$list>
 				</div>
 
-				<!-- Add Field Form -->
-				<div class="mn-field-add-section">
-					<h5 class="mn-nav-heading">Add Field</h5>
-					<$keyboard key="Enter" actions=<<add-field-actions>>>
-						<div class="mn-field-add-form">
-							<div class="mn-field-add-inputs">
-								<$edit-text
-									tiddler="$:/temp/slipstream/new-field-name"
-									field="text"
-									tag="input"
-									type="text"
-									placeholder="Field name (e.g. status)..."
-									class="mn-search-input mn-field-input-name"
-									default=""
-								/>
-								<$edit-text
-									tiddler="$:/temp/slipstream/new-field-value"
-									field="text"
-									tag="input"
-									type="text"
-									placeholder="Value (optional)..."
-									class="mn-search-input mn-field-input-value"
-									default=""
-								/>
-							</div>
-							<$button
-								actions=<<add-field-actions>>
-								class="mn-pill-btn mn-btn-primary mn-field-add-btn"
-								tooltip="Add field to note"
-							>
-								＋ Add Field
-							</$button>
+				<!-- Tab 1: Backlinks & Transclusions -->
+				<%if [{$:/state/slipstream/inspector-tab}!is[blank]else[Backlinks]match[Backlinks]] %>
+					<h4 class="mn-nav-heading">Linked From (<$count filter="[<activeTiddler>backlinks[]!is[system]]"/>)</h4>
+					<$list filter="[<activeTiddler>backlinks[]!is[system]sort[title]]" emptyMessage="<p class='mn-prop-label'>No incoming links yet.</p>">
+						<div class="mn-nav-item">
+							<$link to=<<currentTiddler>>/>
 						</div>
-					</$keyboard>
-				</div>
-			<%endif%>
-
-			<!-- Extensible Custom Inspector Tabs ($:/tags/Slipstream/InspectorTab) -->
-			<$list filter="[all[shadows+tiddlers]tag[$:/tags/Slipstream/InspectorTab]!has[draft.of]] [all[shadows+tiddlers]tag[$:/tags/ModernNotebook/InspectorTab]!has[draft.of]] +[unique[]]" variable="customTab">
-				<%if [{$:/state/slipstream/inspector-tab}match<customTab>] %>
-					<$transclude $tiddler=<<customTab>> mode="block"/>
+					</$list>
 				<%endif%>
-			</$list>
+
+				<!-- Tab 2: Document Headings Outline -->
+				<%if [{$:/state/slipstream/inspector-tab}match[Outline]] %>
+					<h4 class="mn-nav-heading">Document Outline</h4>
+					<div class="mn-outline-list">
+						<$list
+							filter="[<activeTiddler>get[text]splitregexp[\n]trim[]regexp[^(!{1,4}|#{1,4})\s+]]"
+							variable="headingLine"
+							emptyMessage="<p class='mn-prop-label'>No headings in this note.</p>"
+						>
+							<$let
+								marker={{{ [<headingLine>split[ ]first[]] }}}
+								level={{{ [<marker>length[]] }}}
+								cleanText={{{ [<headingLine>search-replace:g:regexp[^(!{1,4}|#{1,4})\s+],[]search-replace:g[''],[]search-replace:g[//],[]search-replace:g[`],[]trim[]] }}}
+							>
+								<$button
+									to=<<activeTiddler>>
+									class={{{ [[mn-nav-item mn-outline-item tc-btn-invisible]] [[mn-outline-level-]addsuffix<level>] +[join[ ]] }}}
+									tooltip=<<cleanText>>
+								>
+									<span class="mn-outline-bullet">•</span>
+									<span class="mn-outline-text"><$text text=<<cleanText>>/></span>
+								</$button>
+							</$let>
+						</$list>
+					</div>
+				<%endif%>
+
+				<!-- Tab 3: Inline Fields & Properties -->
+				<%if [{$:/state/slipstream/inspector-tab}match[Fields]] %>
+					<h4 class="mn-nav-heading">Tiddler Fields</h4>
+					
+					<div class="mn-fields-list">
+						<$list
+							filter="[<activeTiddler>fields[]!match[text]!match[title]!match[created]!match[modified]!match[bag]!match[revision]sort[title]]"
+							variable="fieldName"
+							emptyMessage="<p class='mn-prop-label'>No custom fields on this note.</p>"
+						>
+							<div class="mn-field-row">
+								<div class="mn-field-header">
+									<span class="mn-field-name"><$text text=<<fieldName>>/></span>
+									<$button
+										class="mn-field-remove-btn tc-btn-invisible"
+										tooltip=`Remove field '${fieldName}'`
+										aria-label=`Remove field ${fieldName}`
+									>
+										<$action-deletefield $tiddler=<<activeTiddler>> $field=<<fieldName>>/>
+										✕
+									</$button>
+								</div>
+								<div class="mn-field-value-wrapper">
+									<$edit-text
+										tiddler=<<activeTiddler>>
+										field=<<fieldName>>
+										tag="input"
+										class="mn-search-input mn-field-value-input"
+										placeholder="Field value..."
+									/>
+								</div>
+							</div>
+						</$list>
+					</div>
+
+					<!-- Add Field Form -->
+					<div class="mn-field-add-section">
+						<h5 class="mn-nav-heading">Add Field</h5>
+						<$keyboard key="Enter" actions=<<add-field-actions>>>
+							<div class="mn-field-add-form">
+								<div class="mn-field-add-inputs">
+									<$edit-text
+										tiddler="$:/temp/slipstream/new-field-name"
+										field="text"
+										tag="input"
+										type="text"
+										placeholder="Field name (e.g. status)..."
+										class="mn-search-input mn-field-input-name"
+										default=""
+									/>
+									<$edit-text
+										tiddler="$:/temp/slipstream/new-field-value"
+										field="text"
+										tag="input"
+										type="text"
+										placeholder="Value (optional)..."
+										class="mn-search-input mn-field-input-value"
+										default=""
+									/>
+								</div>
+								<$button
+									actions=<<add-field-actions>>
+									class="mn-pill-btn mn-btn-primary mn-field-add-btn"
+									tooltip="Add field to note"
+								>
+									＋ Add Field
+								</$button>
+							</div>
+						</$keyboard>
+					</div>
+				<%endif%>
+
+				<!-- Extensible Custom Inspector Tabs ($:/tags/Slipstream/InspectorTab) -->
+				<$list filter="[all[shadows+tiddlers]tag[$:/tags/Slipstream/InspectorTab]!has[draft.of]] [all[shadows+tiddlers]tag[$:/tags/ModernNotebook/InspectorTab]!has[draft.of]] +[unique[]]" variable="customTab">
+					<%if [{$:/state/slipstream/inspector-tab}match<customTab>] %>
+						<$transclude $tiddler=<<customTab>> mode="block"/>
+					<%endif%>
+				</$list>
+			</section>
+		</$tiddler>
+	<%else%>
+		<section class="mn-nav-section">
+			<h3 class="mn-nav-heading mn-inspector-top-heading">Active Context Inspector</h3>
+			<p class="mn-prop-label">Open a note to inspect its backlinks, outline, and fields.</p>
 		</section>
-	</$tiddler>
+	<%endif%>
 </$let>

@@ -12,6 +12,7 @@
 	--mn-bg-surface: var(--tpc-background, #ffffff);
 	--mn-bg-elevated: color-mix(in srgb, var(--tpc-background, #ffffff) 93%, var(--tpc-foreground, #0f172a) 7%);
 	--mn-bg-subtle: color-mix(in srgb, var(--tpc-background, #ffffff) 96.5%, var(--tpc-foreground, #0f172a) 3.5%);
+	--mn-bg-card: var(--mn-bg-subtle);
 	--mn-border-hairline: color-mix(in srgb, var(--tpc-foreground, #0f172a) 6%, transparent);
 	--mn-border-subtle: color-mix(in srgb, var(--tpc-foreground, #0f172a) 9%, transparent);
 	--mn-border-strong: color-mix(in srgb, var(--tpc-foreground, #0f172a) 16%, transparent);
@@ -30,6 +31,7 @@
 	--mn-bottombar-height: 60px;
 	--mn-radius-tiddler: 18px;
 	--mn-radius-card: 14px;
+	--mn-radius-md: 12px;
 	--mn-radius-sm: 10px;
 	--mn-radius-pill: 9999px;
 	--mn-shadow-tiddler: 0 12px 32px -8px rgba(15, 23, 42, 0.055), 0 2px 6px -1px rgba(15, 23, 42, 0.025);
@@ -347,13 +349,13 @@ body:has(.mn-app-shell).tc-body {
 }
 
 /* Suppress any hidden dropdown or reveal element from rendering ghost surfaces */
-.tc-drop-down[hidden],
-.tc-drop-down[hidden="true"],
-.tc-reveal[hidden],
-.tc-reveal[hidden="true"],
-.tc-drop-down [hidden],
-.tc-drop-down [hidden="true"],
-.tc-tags-wrapper [hidden] {
+.mn-app-shell .tc-drop-down[hidden],
+.mn-app-shell .tc-drop-down[hidden="true"],
+.mn-app-shell .tc-reveal[hidden],
+.mn-app-shell .tc-reveal[hidden="true"],
+.mn-app-shell .tc-drop-down [hidden],
+.mn-app-shell .tc-drop-down [hidden="true"],
+.mn-app-shell .tc-tags-wrapper [hidden] {
 	display: none !important;
 }
 
@@ -612,6 +614,55 @@ body:has(.mn-app-shell).tc-body {
 	background: var(--mn-bg-subtle);
 	border-radius: 0 var(--mn-radius-sm) var(--mn-radius-sm) 0;
 	color: var(--mn-text-muted);
+}
+
+.mn-story-container .tc-tiddler-body table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 1.15rem 0;
+	font-size: 0.92rem;
+	border: 1px solid var(--mn-border-subtle);
+	border-radius: var(--mn-radius-sm);
+	overflow: hidden;
+}
+
+.mn-story-container .tc-tiddler-body th,
+.mn-story-container .tc-tiddler-body td {
+	padding: 0.6rem 0.85rem;
+	border: 1px solid var(--mn-border-hairline);
+	text-align: left;
+}
+
+.mn-story-container .tc-tiddler-body th {
+	background: var(--mn-bg-subtle);
+	color: var(--mn-text-main);
+	font-weight: 600;
+	border-bottom: 1px solid var(--mn-border-subtle);
+}
+
+.mn-story-container .tc-tiddler-body tr:nth-child(even) td {
+	background: color-mix(in srgb, var(--mn-bg-subtle) 50%, transparent);
+}
+
+.mn-story-container .tc-tiddler-body img,
+.mn-story-container .tc-tiddler-body video,
+.mn-story-container .tc-tiddler-body svg.tc-image-button {
+	max-width: 100%;
+	height: auto;
+	border-radius: var(--mn-radius-sm);
+}
+
+.mn-app-shell kbd {
+	display: inline-block;
+	padding: 0.12rem 0.42rem;
+	font-family: var(--mn-font-mono);
+	font-size: 0.78em;
+	line-height: 1.3;
+	color: var(--mn-text-main);
+	background: var(--mn-bg-subtle);
+	border: 1px solid var(--mn-border-subtle);
+	border-bottom-width: 2px;
+	border-radius: 5px;
 }
 
 /* Modern Edit Mode Frame Styling */
@@ -1458,6 +1509,68 @@ body:has(.mn-app-shell).tc-body {
 	font-weight: 600;
 }
 
+/* Document Outline Items in Context Inspector */
+.mn-outline-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.1rem;
+}
+
+.mn-outline-item {
+	justify-content: flex-start;
+	gap: 0.45rem;
+	padding: 0.35rem 0.55rem;
+	font-size: 0.83rem;
+}
+
+.mn-outline-bullet {
+	color: var(--mn-accent);
+	opacity: 0.65;
+	font-size: 0.75rem;
+	flex-shrink: 0;
+}
+
+.mn-outline-text {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.mn-outline-level-1 {
+	font-weight: 600;
+	color: var(--mn-text-main);
+}
+
+.mn-outline-level-2 {
+	padding-left: 1.15rem;
+	font-weight: 500;
+}
+
+.mn-outline-level-3 {
+	padding-left: 1.85rem;
+	font-size: 0.8rem;
+	color: var(--mn-text-muted);
+}
+
+.mn-outline-level-4 {
+	padding-left: 2.45rem;
+	font-size: 0.78rem;
+	color: var(--mn-text-muted);
+}
+
+/* Suppress duplicate inspector title header inside mobile context bottom sheet */
+.mn-sheet-context .mn-inspector-top-heading,
+.mn-sheet-context .mn-inspector-focus-card {
+	display: none;
+}
+
+.mn-sheet-context .mn-nav-section {
+	padding: 0.35rem 0 0;
+	border-bottom: none;
+}
+
 .mn-card {
 	background: var(--mn-bg-subtle);
 	border: 1px solid var(--mn-border-hairline);
@@ -1470,8 +1583,16 @@ body:has(.mn-app-shell).tc-body {
 	transition: transform var(--mn-transition), box-shadow var(--mn-transition), border-color var(--mn-transition);
 }
 
+.mn-card-accented {
+	border-top: 3px solid var(--mn-card-accent, var(--mn-accent));
+}
+
 .mn-card:hover {
 	border-color: var(--mn-border-subtle);
+}
+
+.mn-card-accented:hover {
+	border-top-color: var(--mn-card-accent, var(--mn-accent));
 }
 
 .mn-card-header {
@@ -1655,7 +1776,7 @@ body:has(.mn-app-shell).tc-body {
 .mn-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(var(--mn-grid-min, 260px), 1fr));
-	gap: 1.1rem;
+	gap: var(--mn-grid-gap, 1.1rem);
 	margin-top: 1rem;
 }
 
@@ -2235,8 +2356,7 @@ body:has(.mn-app-shell).tc-body {
 	}
 
 	/* Floating Drafts Pill on Mobile — sits right above the bottom navigation bar */
-	.mn-app-shell .tc-drafts-list,
-	.tc-drafts-list {
+	.mn-app-shell .tc-drafts-list {
 		bottom: calc(var(--mn-bottombar-height) + env(safe-area-inset-bottom, 0px) + 0.85rem) !important;
 		left: 50% !important;
 		transform: translateX(-50%) !important;
@@ -2244,8 +2364,7 @@ body:has(.mn-app-shell).tc-body {
 		max-width: calc(100vw - 2rem);
 	}
 
-	.mn-app-shell .tc-drafts-list a,
-	.tc-drafts-list a {
+	.mn-app-shell .tc-drafts-list a {
 		max-width: calc(100vw - 2.5rem);
 		padding: 0.65rem 1.15rem;
 		min-height: 44px;

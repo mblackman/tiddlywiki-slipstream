@@ -24,20 +24,20 @@ Slipstream surfaces backlinks in real time, making serendipitous discovery and k
 On screens `>= 1024px`, the Right Inspector provides contextual awareness for the active note:
 
 * **Synchronized State**: Bound to `{$:/HistoryList!!current-tiddler}`. If a note is closed or deleted, the inspector automatically falls back to the top of `$:/StoryList`.
-* **Toggle Shortcut**: Click the `◨` icon in the desktop Top Bar to show or hide the inspector.
+* **Toggle Shortcut**: Click the **Context** button in the desktop Top Bar to show or hide the inspector.
 
 !! Built-in Inspector Tabs
 
-# **Outline Tab**: Lists all headings (`!`, `!!`, `!!!`) in the note as clickable jump links.
-# **Backlinks Tab**: Evaluates `[all[tiddlers]!has[draft.of]backlinks<currentTiddler>]` to reveal every incoming reference.
-# **Details Tab**: Shows creation date, modification timestamp, tags, and custom fields.
+# **Backlinks Tab**: Evaluates `[<activeTiddler>backlinks[]!is[system]]` to reveal every incoming reference.
+# **Outline Tab**: Extracts all headings (`!`, `!!`, `!!!`, `!!!!`) in the active note into a structured document outline.
+# **Fields Tab**: Lets you view, edit, add, and remove custom tiddler fields directly inline.
 
 ---
 
-! 3. Mobile Zoomin Experience (`< 1024px`)
+! 3. Mobile Single-Tiddler (`fade`) Experience (`< 1024px`)
 
 When viewed on mobile phones or tablets, Slipstream transitions from the 3-column desktop layout to an optimized single-tiddler reading experience:
 
-* **Top Pill Strip**: Horizontally scrollable chips representing all open tiddlers, with active indicators and one-tap close buttons.
-* **Bottom Navigation Bar**: Fixed at the bottom of the screen with quick access to Home, Search, New Note, and the Action Sheet.
-* **Slide-Up Action Sheet (`•••`)**: A fixed-height (82dvh) sheet containing full touch-target action buttons and tabbed access to the Inspector.
+* **Top Pill Strip**: Horizontally scrollable chips representing all open tiddlers, with active indicators, per-note scroll restoration, and one-tap close buttons.
+* **Contextual Bottom Bar**: Adapts automatically between reading mode (`Edit`, `Context`, `New`, `Search`, `More`) and draft/editing mode (`Cancel`, `Save`, `Discard`).
+* **Slide-Up Context & Action Sheets (`82dvh`)**: Dedicated sheets for inspecting note context (Backlinks, Outline, Fields) and invoking secondary toolbar actions with full-width touch targets.

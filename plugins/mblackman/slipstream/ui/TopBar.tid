@@ -7,6 +7,21 @@ type: text/vnd.tiddlywiki
 \function .is-left-open() [.is-mobile[]match[yes]] :then[{$:/state/slipstream/left-panel}match[yes]then[yes]else[no]] :else[{$:/state/slipstream/left-panel}match[no]then[no]else[yes]]
 \function .active-tiddler() [list[$:/StoryList]match{$:/HistoryList!!current-tiddler}] ~[list[$:/StoryList]first[]]
 
+\procedure search-enter-actions()
+<$let firstMatch={{{ [all[tiddlers]!is[system]!has[draft.of]search{$:/temp/volatile/slipstream/global-search}sort[title]first[]] }}}>
+	<%if [<firstMatch>!is[blank]] %>
+		<$action-navigate $to=<<firstMatch>>/>
+		<$action-setfield $tiddler="$:/temp/volatile/slipstream/global-search" text="" $timestamp="no"/>
+		<$action-setfield $tiddler="$:/state/slipstream/mobile-search" text="closed" $timestamp="no"/>
+	<%endif%>
+</$let>
+\end
+
+\procedure search-escape-actions()
+<$action-setfield $tiddler="$:/temp/volatile/slipstream/global-search" text="" $timestamp="no"/>
+<$action-setfield $tiddler="$:/state/slipstream/mobile-search" text="closed" $timestamp="no"/>
+\end
+
 <%if [{$:/state/slipstream/mobile-search}match[open]] %>
 	<!-- Active Mobile Search Overlay in TopBar -->
 	<div class="mn-topbar-mobile-search">
@@ -19,15 +34,19 @@ type: text/vnd.tiddlywiki
 			✕
 		</$button>
 		<div class="mn-topbar-mobile-search-field">
-			<$edit-text
-				tiddler="$:/temp/volatile/slipstream/global-search"
-				field="text"
-				tag="input"
-				type="search"
-				placeholder="Search notes..."
-				class="mn-search-input mn-mobile-search-input"
-				focus="true"
-			/>
+			<$keyboard key="escape" actions=<<search-escape-actions>>>
+				<$keyboard key="enter" actions=<<search-enter-actions>>>
+					<$edit-text
+						tiddler="$:/temp/volatile/slipstream/global-search"
+						field="text"
+						tag="input"
+						type="search"
+						placeholder="Search notes..."
+						class="mn-search-input mn-mobile-search-input"
+						focus="true"
+					/>
+				</$keyboard>
+			</$keyboard>
 			<%if [{$:/temp/volatile/slipstream/global-search}minlength[1]] %>
 				<div class="mn-search-dropdown">
 					<div class="mn-nav-heading">
@@ -71,14 +90,18 @@ type: text/vnd.tiddlywiki
 
 	<!-- Desktop Center Search Input -->
 	<div class="mn-topbar-center mn-desktop-only">
-		<$edit-text
-			tiddler="$:/temp/volatile/slipstream/global-search"
-			field="text"
-			tag="input"
-			type="search"
-			placeholder="Search or jump to note..."
-			class="mn-search-input"
-		/>
+		<$keyboard key="escape" actions=<<search-escape-actions>>>
+			<$keyboard key="enter" actions=<<search-enter-actions>>>
+				<$edit-text
+					tiddler="$:/temp/volatile/slipstream/global-search"
+					field="text"
+					tag="input"
+					type="search"
+					placeholder="Search or jump to note..."
+					class="mn-search-input"
+				/>
+			</$keyboard>
+		</$keyboard>
 		<%if [{$:/temp/volatile/slipstream/global-search}minlength[1]] %>
 			<div class="mn-search-dropdown">
 				<div class="mn-nav-heading">

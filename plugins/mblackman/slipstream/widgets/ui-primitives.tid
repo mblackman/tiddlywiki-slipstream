@@ -33,21 +33,21 @@ type: text/vnd.tiddlywiki
 \end $mn.hero
 
 <!-- Generic Responsive Grid Widget ($ss.grid & $mn.grid) -->
-\widget $ss.grid(min:"280px", wide:"yes")
-<div class={{{ [[mn-grid]] [<wide>match[yes]then[mn-wide-view]] +[join[ ]] }}} style=`--mn-grid-min: $(min)$;`>
+\widget $ss.grid(min:"280px", gap:"1.1rem", wide:"yes")
+<div class={{{ [[mn-grid]] [<wide>match[yes]then[mn-wide-view]] +[join[ ]] }}} style=`--mn-grid-min: $(min)$; --mn-grid-gap: $(gap)$;`>
 	<$slot $name="ts-raw"/>
 </div>
 \end $ss.grid
 
-\widget $mn.grid(min:"280px", wide:"yes")
-<$ss.grid min=<<min>> wide=<<wide>>>
+\widget $mn.grid(min:"280px", gap:"1.1rem", wide:"yes")
+<$ss.grid min=<<min>> gap=<<gap>> wide=<<wide>>>
 	<$slot $name="ts-raw"/>
 </$ss.grid>
 \end $mn.grid
 
 <!-- Reusable Card Component ($ss.card & $mn.card) -->
 \widget $ss.card(class:"", badge:"", accent:"")
-<article class={{{ [[mn-card]] [<class>] +[join[ ]] }}} style={{{ [<accent>!is[blank]addprefix[--mn-card-accent:]addsuffix[;]] }}}>
+<article class={{{ [[mn-card]] [<accent>!is[blank]then[mn-card-accented]] [<class>] +[join[ ]] }}} style={{{ [<accent>!is[blank]addprefix[--mn-card-accent:]addsuffix[;]] }}}>
 	<header class="mn-card-header">
 		<div class="mn-card-title-group">
 			<$slot $name="header">
@@ -84,10 +84,12 @@ type: text/vnd.tiddlywiki
 \end $mn.card
 
 <!-- Inline Property Pill ($ss.prop-pill & $mn.prop-pill) -->
-\widget $ss.prop-pill(field:"status", label:"", values:"")
+\widget $ss.prop-pill(field:"status", label:"", values:"", name:"", value:"")
 <div class="mn-prop-pill">
-	<span class="mn-prop-label"><$text text={{{ [<label>!is[blank]else<field>] }}}/>:</span>
-	<%if [<values>!is[blank]] %>
+	<span class="mn-prop-label"><$text text={{{ [<name>!is[blank]else<label>!is[blank]else<field>] }}}/>:</span>
+	<%if [<value>!is[blank]] %>
+		<span class="mn-prop-value"><$text text=<<value>>/></span>
+	<%elseif [<values>!is[blank]] %>
 		<$select field=<<field>> class="mn-prop-select">
 			<$list filter="[enlist<values>]" variable="opt">
 				<option value=<<opt>>><$text text=<<opt>>/></option>
@@ -99,16 +101,17 @@ type: text/vnd.tiddlywiki
 </div>
 \end $ss.prop-pill
 
-\widget $mn.prop-pill(field:"status", label:"", values:"")
-<$ss.prop-pill field=<<field>> label=<<label>> values=<<values>>/>
+\widget $mn.prop-pill(field:"status", label:"", values:"", name:"", value:"")
+<$ss.prop-pill field=<<field>> label=<<label>> values=<<values>> name=<<name>> value=<<value>>/>
 \end $mn.prop-pill
 
 <!-- Generic Progress Bar Widget ($ss.progress & $mn.progress) -->
-\widget $ss.progress(done:"0", total:"1", label:"Progress")
-\function .calc-pct() [<total>match[0]then[0]] ~[<done>multiply[100]divide<total>round[]]
+\widget $ss.progress(value:"", done:"0", total:"100", label:"Progress")
+\function .actual-done() [<value>!is[blank]else<done>]
+\function .calc-pct() [<total>match[0]then[0]] ~[.actual-done[]multiply[100]divide<total>round[]]
 <div>
 	<div style="display:flex;justify-content:space-between;font-size:0.8rem;">
-		<span class="mn-prop-label"><$text text=<<label>>/> (<$text text=<<done>>/>/<$text text=<<total>>/>)</span>
+		<span class="mn-prop-label"><$text text=<<label>>/> (<$text text=<<.actual-done>>/>/<$text text=<<total>>/>)</span>
 		<strong><$text text=<<.calc-pct>>/>%</strong>
 	</div>
 	<div class="mn-progress-track">
@@ -117,6 +120,6 @@ type: text/vnd.tiddlywiki
 </div>
 \end $ss.progress
 
-\widget $mn.progress(done:"0", total:"1", label:"Progress")
-<$ss.progress done=<<done>> total=<<total>> label=<<label>>/>
+\widget $mn.progress(value:"", done:"0", total:"100", label:"Progress")
+<$ss.progress value=<<value>> done=<<done>> total=<<total>> label=<<label>>/>
 \end $mn.progress

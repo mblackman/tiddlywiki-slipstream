@@ -26,12 +26,12 @@ Unlike traditional static web pages or file-tree editors, links in TiddlyWiki ar
 
 Look at the **Right Context Inspector** panel on the right side of your desktop screen:
 
-* **Outline Tab**: Displays the heading hierarchy of this active note.
 * **Backlinks Tab**: Shows every note in your wiki that links here! For example, you should see [[Welcome to Slipstream]] and [[Knowledge Base]] listed as backlinks right now.
-* **Details Tab**: Shows creation timestamp, modification date, active tags, and raw custom fields.
+* **Outline Tab**: Displays the heading hierarchy (`!`, `!!`, `!!!`) of this active note.
+* **Fields Tab**: Lets you view, edit, add, and remove custom fields directly on the active note.
 
 > [!TIP]
-> **Mobile Viewing**: On mobile screens (under `1024px`), access the inspector by tapping the `•••` action button in the bottom navigation bar or using the pill strip at the top.
+> **Mobile Viewing**: On mobile screens (under `1024px`), access the inspector anytime by tapping the **Context** (`🔗`) button in the bottom navigation bar.
 
 ---
 

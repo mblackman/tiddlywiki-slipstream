@@ -428,26 +428,109 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
 
   test("enforces Invariant 6: zero un-scoped global selectors in styles/core.css for 100% theme compatibility", () => {
     const css = fs.readFileSync(path.join(PLUGIN_DIR, "styles/core.css"), "utf8");
-    const blocks = css.split("}");
+    // Strip comments
+    const cleanCss = css.replace(/\/\*[\s\S]*?\*\//g, "");
     const unscopedSelectors = [];
-    for (const b of blocks) {
-      const parts = b.split("{");
-      if (parts.length >= 2) {
-        const rawSel = parts[0].trim();
-        const lines = rawSel.split("\n").map((s) => s.trim()).filter(Boolean);
-        const sel = lines.join(" ");
-        if (
-          sel &&
-          !sel.startsWith("@") &&
-          !sel.includes(".mn-") &&
-          !sel.startsWith(":root") &&
-          !sel.startsWith("/*")
-        ) {
+
+    function checkSelectorGroup(rawGroup) {
+      const group = rawGroup.trim();
+      if (!group || group.startsWith("@") || group === ":root") return;
+      const individualSelectors = group.split(",").map((s) => s.trim()).filter(Boolean);
+      for (const sel of individualSelectors) {
+        if (!sel.includes(".mn-") && sel !== ":root") {
           unscopedSelectors.push(sel);
         }
       }
     }
+
+    // Walk top-level and @media nested rule blocks
+    const tokens = cleanCss.split(/([{}])/);
+    let depth = 0;
+    let inMedia = false;
+    for (let i = 0; i < tokens.length; i++) {
+      const tok = tokens[i];
+      if (tok === "{") {
+        const header = (tokens[i - 1] || "").trim();
+        if (depth === 0) {
+          if (header.startsWith("@media")) {
+            inMedia = true;
+          } else {
+            checkSelectorGroup(header);
+          }
+        } else if (depth === 1 && inMedia) {
+          checkSelectorGroup(header);
+        }
+        depth++;
+      } else if (tok === "}") {
+        depth--;
+        if (depth === 0) {
+          inMedia = false;
+        }
+      }
+    }
+
     expect(unscopedSelectors).toEqual([]);
+  });
+
+  test("extracts document headings in RightInspector Outline tab and handles empty story river cleanly", () => {
+    $tw.wiki.addTiddler({
+      title: "$:/StoryList",
+      list: ["Writing & Typography"],
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/HistoryList",
+      "current-tiddler": "Writing & Typography",
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/state/slipstream/inspector-tab",
+      text: "Outline",
+    });
+
+    const outlineHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/RightInspector"
+    );
+
+    expect(outlineHtml).toContain("Document Outline");
+    expect(outlineHtml).toContain("mn-outline-list");
+    expect(outlineHtml).toContain("Level 1 Heading: The Foundation");
+    expect(outlineHtml).toContain("Level 2 Heading: Formatting Elements");
+    expect(outlineHtml).toContain("Level 3 Heading: Quotes &amp; Callouts");
+    expect(outlineHtml).toContain("mn-outline-level-1");
+    expect(outlineHtml).toContain("mn-outline-level-2");
+    expect(outlineHtml).toContain("mn-outline-level-3");
+
+    // Empty story river renders clean fallback without empty focus card
+    $tw.wiki.addTiddler({
+      title: "$:/StoryList",
+      list: "",
+    });
+    const emptyInspectorHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/RightInspector"
+    );
+    expect(emptyInspectorHtml).toContain("Open a note to inspect its backlinks, outline, and fields.");
+    expect(emptyInspectorHtml).not.toContain("mn-inspector-focus-card");
+
+    $tw.wiki.deleteTiddler("$:/state/slipstream/inspector-tab");
+  });
+
+  test("renders $ss.prop-pill in both static (name/value) and dynamic field modes, and $ss.progress with value attribute", () => {
+    const primitivesDocHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/docs/primitives"
+    );
+
+    // Static name/value pills render exact values
+    expect(primitivesDocHtml).toContain("Status:");
+    expect(primitivesDocHtml).toContain("Active");
+    expect(primitivesDocHtml).toContain("Priority:");
+    expect(primitivesDocHtml).toContain("High");
+
+    // Progress bars with value= attribute compute non-zero percentage
+    expect(primitivesDocHtml).toContain("85%");
+    expect(primitivesDocHtml).toContain("70%");
+    expect(primitivesDocHtml).toContain("92%");
   });
 
   test("preserves per-tiddler scroll position and scrolls to top when switching notes on mobile", () => {
@@ -748,7 +831,6 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     $tw.wiki.deleteTiddler("PinTestNote");
   });
 });
-
 
 
 

@@ -24,10 +24,6 @@ type: text/vnd.tiddlywiki
 		<$edit-text tiddler="$:/config/slipstream/pinned-filter" field="text" default="[all[shadows+tiddlers]tag[$:/tags/Pinned]!has[draft.of]]" tag="input" class="mn-search-input"/>
 	</div>
 	<div class="mn-object-prop-bar">
-		<label class="mn-prop-label" style="min-width:240px;">Mobile Bottom Bar Shortcuts (Title List):</label>
-		<$edit-text tiddler="$:/config/slipstream/mobile-shortcuts" field="text" default="" placeholder="e.g. [[Knowledge Base]] [[Slipstream UI Primitives]]" tag="input" class="mn-search-input"/>
-	</div>
-	<div class="mn-object-prop-bar">
 		<label class="mn-prop-label" style="min-width:240px;">Wide Tiddler Filter (<code>1120px</code>):</label>
 		<$edit-text tiddler="$:/config/slipstream/wide-filter" field="text" default="[tag[Wide]] [field:page-width[wide]]" tag="input" class="mn-search-input"/>
 	</div>

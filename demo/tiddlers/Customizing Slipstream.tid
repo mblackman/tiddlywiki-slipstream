@@ -4,6 +4,7 @@ caption: Customization
 ss-icon: ⚙️
 topic: Configuration
 difficulty: Beginner
+ss-fields: topic difficulty
 description: Tailoring pinned shortcuts, inspector tabs, color palettes, and breakout widths.
 modified: 20261016160000000
 created: 20261016120000000

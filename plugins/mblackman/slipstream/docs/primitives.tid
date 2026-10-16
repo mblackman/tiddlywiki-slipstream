@@ -4,6 +4,7 @@ tags: $:/tags/Slipstream/Docs
 order: 1
 type: text/vnd.tiddlywiki
 
+\import [[$:/plugins/mblackman/slipstream/widgets/ui-primitives]]
 Slipstream includes a toolkit of lightweight, responsive UI primitives built with modern TiddlyWiki v5.4.0+ custom widgets (`\widget`). They adapt automatically to mobile, tablet, and desktop screens without requiring custom CSS.
 
 ---
@@ -90,11 +91,13 @@ An elevated container card with rounded corners, subtle border, optional accent 
 
 ! 4. Property Pill (`<$ss.prop-pill>`)
 
-A two-segment key/value chip. Used automatically by Slipstream beneath tiddler titles, but also available anywhere in your notes.
+A two-segment key/value chip. Used automatically by Slipstream beneath tiddler titles (`field` mode), or inline anywhere in your notes (`name`/`value` mode).
 
 | !Attribute | !Type | !Default | !Description |
-| `name` | string | Required | Label for the property key |
-| `value` | string | Required | Property value text |
+| `name` / `label` | string | `field` | Display label for the property key |
+| `value` | string | `""` | Static property value text (when omitted, reads `field` from current tiddler) |
+| `field` | string | `"status"` | Tiddler field name to display or edit |
+| `values` | string | `""` | Space-separated options to render an interactive `<select>` dropdown |
 
 !! Live Example
 
@@ -105,9 +108,12 @@ A two-segment key/value chip. Used automatically by Slipstream beneath tiddler t
 !! Wikitext Syntax
 
 ```wikitext
+<!-- Static key/value pills -->
 <$ss.prop-pill name="Status" value="Active"/>
 <$ss.prop-pill name="Priority" value="High"/>
-<$ss.prop-pill name="Version" value="0.1.0"/>
+
+<!-- Dynamic tiddler field pill with interactive select options -->
+<$ss.prop-pill field="status" label="Status" values="Draft Active Archived"/>
 ```
 
 ---
@@ -117,13 +123,13 @@ A two-segment key/value chip. Used automatically by Slipstream beneath tiddler t
 A smooth progress bar with automatic percentage calculation and optional label.
 
 | !Attribute | !Type | !Default | !Description |
-| `value` | number | Required | Current numeric progress |
-| `total` | number | `100` | Maximum numeric progress |
-| `label` | string | `""` | Label displayed above progress bar |
+| `value` / `done` | number | `"0"` | Current numeric progress |
+| `total` | number | `"100"` | Maximum numeric progress |
+| `label` | string | `"Progress"` | Label displayed above progress bar |
 
 !! Live Example
 
-<$ss.progress value="7" total="10" label="Project Milestones (7 / 10)"/>
+<$ss.progress value="7" total="10" label="Project Milestones"/>
 
 <div style="height: 10px;"></div>
 
@@ -132,6 +138,6 @@ A smooth progress bar with automatic percentage calculation and optional label.
 !! Wikitext Syntax
 
 ```wikitext
-<$ss.progress value="7" total="10" label="Project Milestones (7 / 10)"/>
+<$ss.progress value="7" total="10" label="Project Milestones"/>
 <$ss.progress value="92" total="100" label="Overall Completion"/>
 ```

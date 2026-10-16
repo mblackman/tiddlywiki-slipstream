@@ -35,7 +35,7 @@ dirty-indicator: #ef4444
 select-tag-background: #2563eb
 select-tag-foreground: #ffffff
 tiddler-border: #e2e8f0
-tiddler-Title-foreground: #0f172a
+tiddler-title-foreground: #0f172a
 tiddler-subtitle-foreground: #64748b
 tiddler-controls-foreground: #94a3b8
 tiddler-controls-foreground-hover: #0f172a

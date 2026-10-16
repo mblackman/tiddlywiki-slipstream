@@ -4,6 +4,7 @@ page-width: wide
 tags: $:/tags/Slipstream/Docs
 type: text/vnd.tiddlywiki
 
+\import [[$:/plugins/mblackman/slipstream/widgets/ui-primitives]]
 <$ss.hero
   title="Slipstream Knowledge Base & Reference"
   subtitle="Complete documentation, widget reference, and workflow patterns included with Slipstream."
