@@ -1,0 +1,46 @@
+title: $:/plugins/mblackman/slipstream/palettes/SlipstreamLight
+name: Slipstream Light
+description: Crisp alabaster and slate light palette for Slipstream
+tags: $:/tags/Palette
+type: application/x-tiddler-dictionary
+color-scheme: light
+
+background: #ffffff
+page-background: #f3f5f8
+foreground: #0f172a
+muted-foreground: #64748b
+primary: #2563eb
+tag-background: #e2e8f0
+tag-foreground: #1e293b
+code-background: #f8fafc
+code-border: #e2e8f0
+code-foreground: #0f172a
+blockquote-bar: #2563eb
+dropdown-background: #ffffff
+dropdown-border: #cbd5e1
+dropdown-tab-background: #f1f5f9
+dropdown-tab-background-selected: #ffffff
+modal-background: #ffffff
+modal-border: #cbd5e1
+modal-header-border: #e2e8f0
+modal-footer-background: #f8fafc
+modal-footer-border: #e2e8f0
+notification-background: #ffffff
+notification-border: #cbd5e1
+alert-background: #eff6ff
+alert-border: #bfdbfe
+alert-highlight: #1d4ed8
+alert-muted-foreground: #3b82f6
+dirty-indicator: #ef4444
+select-tag-background: #2563eb
+select-tag-foreground: #ffffff
+tiddler-border: #e2e8f0
+tiddler-Title-foreground: #0f172a
+tiddler-subtitle-foreground: #64748b
+tiddler-controls-foreground: #94a3b8
+tiddler-controls-foreground-hover: #0f172a
+tiddler-controls-foreground-selected: #2563eb
+table-border: #e2e8f0
+table-header-background: #f8fafc
+table-footer-background: #f8fafc
+untagged-background: #cbd5e1

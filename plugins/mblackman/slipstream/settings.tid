@@ -31,11 +31,11 @@ type: text/vnd.tiddlywiki
 	<h4 class="mn-nav-heading">2. Layout Dimensions & Responsive Breakpoints</h4>
 	<div class="mn-object-prop-bar">
 		<label class="mn-prop-label" style="min-width:240px;">Centered Reading Column Width:</label>
-		<$edit-text tiddler="$:/config/slipstream/reading-width" field="text" default="72ch" tag="input" class="mn-search-input"/>
+		<$edit-text tiddler="$:/config/slipstream/reading-width" field="text" default="840px" tag="input" class="mn-search-input"/>
 	</div>
 	<div class="mn-object-prop-bar">
 		<label class="mn-prop-label" style="min-width:240px;">Wide Container Max Width:</label>
-		<$edit-text tiddler="$:/config/slipstream/wide-width" field="text" default="1180px" tag="input" class="mn-search-input"/>
+		<$edit-text tiddler="$:/config/slipstream/wide-width" field="text" default="1120px" tag="input" class="mn-search-input"/>
 	</div>
 	<div class="mn-object-prop-bar">
 		<label class="mn-prop-label" style="min-width:240px;">Mobile Zoomin Breakpoint (px):</label>

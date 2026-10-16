@@ -2,63 +2,123 @@ title: $:/plugins/mblackman/slipstream/ui/TopBar
 type: text/vnd.tiddlywiki
 
 \whitespace trim
-<div class="mn-topbar-left">
-	<$button
-		set="$:/state/slipstream/left-panel"
-		setTo={{{ [{$:/state/slipstream/left-panel}match[no]then[yes]else[no]] }}}
-		class="mn-pill-btn"
-		tooltip="Toggle Left Navigation Rail"
-	>
-		☰
-	</$button>
-	<span class="mn-site-brand">
-		<$link to={{{ [{$:/HistoryList!!current-tiddler}!is[blank]] ~[list[$:/StoryList]first[]] }}} class="mn-card-title">
-			<$text text={{{ [{$:/SiteTitle}!is[blank]else[TiddlyWiki]] }}}/>
-		</$link>
-	</span>
-</div>
-
-<div class="mn-topbar-center">
-	<$edit-text
-		tiddler="$:/temp/volatile/slipstream/global-search"
-		field="text"
-		tag="input"
-		type="search"
-		placeholder="Search or jump to tiddler..."
-		class="mn-search-input"
-	/>
-	<%if [{$:/temp/volatile/slipstream/global-search}minlength[1]] %>
-		<div class="mn-search-dropdown">
-			<div class="mn-nav-heading">
-				<span>Search Results</span>
-				<$button set="$:/temp/volatile/slipstream/global-search" setTo="" class="tc-btn-invisible">✕</$button>
-			</div>
-			<$list
-				filter="[all[tiddlers]!is[system]!has[draft.of]search{$:/temp/volatile/slipstream/global-search}sort[title]limit[12]]"
-				emptyMessage="<div class='mn-prop-label' style='padding:0.4rem 0.65rem;'>No matching tiddlers found.</div>"
-			>
-				<$button to=<<currentTiddler>> class="mn-nav-item tc-btn-invisible">
-					<span><$view field="caption"><$view field="title"/></$view></span>
-					<span class="mn-prop-label"><$view field="modified" format="relativedate"/></span>
-				</$button>
-			</$list>
+<%if [{$:/state/slipstream/mobile-search}match[open]] %>
+	<!-- Active Mobile Search Overlay in TopBar -->
+	<div class="mn-topbar-mobile-search">
+		<$button
+			set="$:/state/slipstream/mobile-search"
+			setTo="closed"
+			class="mn-pill-btn"
+			tooltip="Close Search"
+		>
+			✕
+		</$button>
+		<div class="mn-topbar-mobile-search-field">
+			<$edit-text
+				tiddler="$:/temp/volatile/slipstream/global-search"
+				field="text"
+				tag="input"
+				type="search"
+				placeholder="Search notes..."
+				class="mn-search-input mn-mobile-search-input"
+				focus="true"
+			/>
+			<%if [{$:/temp/volatile/slipstream/global-search}minlength[1]] %>
+				<div class="mn-search-dropdown">
+					<div class="mn-nav-heading">
+						<span>Search Results</span>
+						<$button set="$:/temp/volatile/slipstream/global-search" setTo="" class="tc-btn-invisible">✕</$button>
+					</div>
+					<$list
+						filter="[all[tiddlers]!is[system]!has[draft.of]search{$:/temp/volatile/slipstream/global-search}sort[title]limit[12]]"
+						emptyMessage="<div class='mn-prop-label' style='padding:0.4rem 0.65rem;'>No matching tiddlers found.</div>"
+					>
+						<$button to=<<currentTiddler>> class="mn-nav-item tc-btn-invisible">
+							<span><$view field="caption"><$view field="title"/></$view></span>
+							<span class="mn-prop-label"><$view field="modified" format="relativedate"/></span>
+						</$button>
+					</$list>
+				</div>
+			<%endif%>
 		</div>
-	<%endif%>
-</div>
+	</div>
+<%else%>
+	<!-- Standard Left Brand & Navigation Toggle -->
+	<div class="mn-topbar-left">
+		<$button
+			set="$:/state/slipstream/left-panel"
+			setTo={{{ [{$:/state/slipstream/left-panel}match[no]then[yes]else[no]] }}}
+			class={{{ [[mn-pill-btn]] [{$:/state/slipstream/left-panel}!match[no]then[mn-pill-btn-subtle-active]] +[join[ ]] }}}
+			tooltip="Toggle Navigation"
+		>
+			☰
+		</$button>
+		<span class="mn-site-brand">
+			<$link to={{{ [{$:/HistoryList!!current-tiddler}!is[blank]] ~[list[$:/StoryList]first[]] }}} class="mn-brand-title">
+				<$text text={{{ [{$:/SiteTitle}!is[blank]else[Slipstream]] }}}/>
+			</$link>
+			<%if [{$:/HistoryList!!current-tiddler}!is[blank]] %>
+				<span class="mn-breadcrumb-sep mn-desktop-only">/</span>
+				<span class="mn-breadcrumb-current mn-desktop-only"><$text text={{$:/HistoryList!!current-tiddler}}/></span>
+			<%endif%>
+		</span>
+	</div>
 
-<div class="mn-topbar-right">
-	<$button message="tm-new-tiddler" class="mn-btn-primary" tooltip="Create New Tiddler">
-		+ New
-	</$button>
-	<$button to="$:/ControlPanel" class="mn-pill-btn" tooltip="Open Control Panel">
-		⚙
-	</$button>
-	<$button
-		set="$:/state/slipstream/right-panel"
-		setTo={{{ [{$:/state/slipstream/right-panel}match[no]then[yes]else[no]] }}}
-		class="mn-pill-btn"
-		tooltip="Toggle Right Context Inspector"
-	>
-		◨
-	</$button>
-</div>
+	<!-- Desktop Center Search Input -->
+	<div class="mn-topbar-center mn-desktop-only">
+		<$edit-text
+			tiddler="$:/temp/volatile/slipstream/global-search"
+			field="text"
+			tag="input"
+			type="search"
+			placeholder="Search or jump to note..."
+			class="mn-search-input"
+		/>
+		<%if [{$:/temp/volatile/slipstream/global-search}minlength[1]] %>
+			<div class="mn-search-dropdown">
+				<div class="mn-nav-heading">
+					<span>Search Results</span>
+					<$button set="$:/temp/volatile/slipstream/global-search" setTo="" class="tc-btn-invisible">✕</$button>
+				</div>
+				<$list
+					filter="[all[tiddlers]!is[system]!has[draft.of]search{$:/temp/volatile/slipstream/global-search}sort[title]limit[12]]"
+					emptyMessage="<div class='mn-prop-label' style='padding:0.4rem 0.65rem;'>No matching tiddlers found.</div>"
+				>
+					<$button to=<<currentTiddler>> class="mn-nav-item tc-btn-invisible">
+						<span><$view field="caption"><$view field="title"/></$view></span>
+						<span class="mn-prop-label"><$view field="modified" format="relativedate"/></span>
+					</$button>
+				</$list>
+			</div>
+		<%endif%>
+	</div>
+
+	<!-- TopBar Right Controls: Desktop Actions vs Mobile Single Search Button -->
+	<div class="mn-topbar-right">
+		<!-- Desktop-Only: New Note, Settings Cog, Right Inspector Toggle -->
+		<$button message="tm-new-tiddler" class="mn-btn-primary mn-desktop-only" tooltip="Create New Tiddler">
+			+ New Note
+		</$button>
+		<$button to="$:/ControlPanel" class="mn-pill-btn mn-desktop-only" tooltip="Open Control Panel">
+			⚙
+		</$button>
+		<$button
+			set="$:/state/slipstream/right-panel"
+			setTo={{{ [{$:/state/slipstream/right-panel}match[no]then[yes]else[no]] }}}
+			class={{{ [[mn-pill-btn mn-desktop-only]] [{$:/state/slipstream/right-panel}!match[no]then[mn-pill-btn-subtle-active]] +[join[ ]] }}}
+			tooltip="Toggle Right Context Inspector"
+		>
+			◨
+		</$button>
+
+		<!-- Mobile-Only: Clean Search Button (Eliminates redundant New Note and Options buttons) -->
+		<$button
+			set="$:/state/slipstream/mobile-search"
+			setTo="open"
+			class="mn-pill-btn mn-mobile-only"
+			tooltip="Search notes"
+		>
+			🔍
+		</$button>
+	</div>
+<%endif%>

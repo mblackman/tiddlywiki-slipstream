@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
  * Live development server for Slipstream ($:/plugins/mblackman/slipstream).
- * Watches plugins/mblackman/slipstream/ and automatically restarts the TiddlyWiki
- * server on port 8080 when plugin source files change.
+ * Watches plugins/mblackman/slipstream/ and automatically restarts
+ * the TiddlyWiki server on port 8080 when source files change.
  */
 
 const fs = require("fs");
@@ -13,24 +13,45 @@ const rootDir = path.resolve(__dirname, "..");
 const pluginDir = path.join(rootDir, "plugins", "mblackman", "slipstream");
 const demoDir = path.join(rootDir, "demo");
 const debugDir = path.join(rootDir, "debug");
+const twBin = path.join(rootDir, "node_modules", "tiddlywiki", "tiddlywiki.js");
 const port = process.env.PORT || "8080";
 
 let tiddlyWikiProcess = null;
 let debounceTimer = null;
+let isRestarting = false;
 
-function ensureDebugWiki() {
+function syncDebugWiki() {
   if (!fs.existsSync(debugDir)) {
     fs.cpSync(demoDir, debugDir, { recursive: true });
+  } else {
+    fs.copyFileSync(
+      path.join(demoDir, "tiddlywiki.info"),
+      path.join(debugDir, "tiddlywiki.info")
+    );
+    for (const file of fs.readdirSync(path.join(demoDir, "tiddlers"))) {
+      if (file.startsWith("$__UpgradeLibrary")) continue;
+      fs.copyFileSync(
+        path.join(demoDir, "tiddlers", file),
+        path.join(debugDir, "tiddlers", file)
+      );
+    }
+  }
+  if (fs.existsSync(path.join(debugDir, "tiddlers"))) {
+    for (const file of fs.readdirSync(path.join(debugDir, "tiddlers"))) {
+      if (file.startsWith("$__UpgradeLibrary")) {
+        fs.rmSync(path.join(debugDir, "tiddlers", file), { force: true });
+      }
+    }
   }
 }
 
 function startServer() {
   if (tiddlyWikiProcess) return;
-  ensureDebugWiki();
+  syncDebugWiki();
   console.log(`🌐 Starting Slipstream dev server on http://127.0.0.1:${port} ...`);
   tiddlyWikiProcess = spawn(
-    "npx",
-    ["tiddlywiki", "debug", "--listen", `port=${port}`, "host=127.0.0.1"],
+    process.execPath,
+    [twBin, "debug", "--listen", `port=${port}`, "host=127.0.0.1"],
     {
       stdio: "inherit",
       cwd: rootDir,
@@ -49,20 +70,26 @@ function stopServer() {
       resolve();
       return;
     }
-    tiddlyWikiProcess.once("exit", () => {
-      tiddlyWikiProcess = null;
+    const proc = tiddlyWikiProcess;
+    proc.once("exit", () => {
+      if (tiddlyWikiProcess === proc) {
+        tiddlyWikiProcess = null;
+      }
       resolve();
     });
-    tiddlyWikiProcess.kill("SIGTERM");
-    setTimeout(() => {
-      if (tiddlyWikiProcess) tiddlyWikiProcess.kill("SIGKILL");
-    }, 1000);
+    proc.kill("SIGKILL");
   });
 }
 
 async function restartServer() {
-  await stopServer();
-  startServer();
+  if (isRestarting) return;
+  isRestarting = true;
+  try {
+    await stopServer();
+    startServer();
+  } finally {
+    isRestarting = false;
+  }
 }
 
 startServer();
@@ -75,7 +102,7 @@ fs.watch(pluginDir, { recursive: true }, (eventType, filename) => {
   debounceTimer = setTimeout(() => {
     debounceTimer = null;
     restartServer();
-  }, 250);
+  }, 300);
 });
 
 const shutdown = async () => {

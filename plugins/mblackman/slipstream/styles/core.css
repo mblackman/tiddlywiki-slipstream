@@ -3,517 +3,1143 @@
   100% Generic & Configurable Architecture
   Uses native v5.4.0 Core CSS Variables (--tpc-* palette & --tp-* metrics)
 =============================================================================*/
-@layer tokens, layout, tiddler, components, utilities, mobile;
 
-@layer tokens {
-	:root {
-		--mn-bg-app: var(--tpc-page-background, #f4f6f9);
-		--mn-bg-surface: var(--tpc-background, #ffffff);
-		--mn-bg-elevated: color-mix(in srgb, var(--tpc-background, #ffffff) 93%, var(--tpc-foreground, #0f172a) 7%);
-		--mn-bg-subtle: color-mix(in srgb, var(--tpc-background, #ffffff) 96%, var(--tpc-foreground, #0f172a) 4%);
-		--mn-border-subtle: color-mix(in srgb, var(--tpc-foreground, #0f172a) 11%, transparent);
-		--mn-border-strong: color-mix(in srgb, var(--tpc-foreground, #0f172a) 22%, transparent);
-		--mn-text-main: var(--tpc-foreground, #0f172a);
-		--mn-text-muted: var(--tpc-muted-foreground, #64748b);
-		--mn-accent: var(--tpc-primary, #2563eb);
-		--mn-accent-soft: color-mix(in srgb, var(--tpc-primary, #2563eb) 14%, transparent);
-		--mn-tag-bg: var(--tpc-tag-background, #e2e8f0);
-		--mn-tag-fg: var(--tpc-tag-foreground, #1e293b);
-		--mn-left-width: 260px;
-		--mn-right-width: 320px;
-		--mn-reading-width: var(--tp-tiddler-width, 72ch);
-		--mn-wide-width: 1180px;
-		--mn-topbar-height: 52px;
-		--mn-pillstrip-height: 42px;
-		--mn-bottombar-height: 60px;
-		--mn-radius-card: 12px;
-		--mn-radius-sm: 8px;
-		--mn-radius-pill: 9999px;
-		--mn-shadow-card: 0 1px 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.03);
-		--mn-shadow-sheet: 0 -8px 30px rgba(15, 23, 42, 0.18);
-		--mn-transition: var(--tp-animation-duration, 180ms) cubic-bezier(0.2, 0, 0, 1);
-	}
+/*-----------------------------------------------------------------------------
+  1. Design Tokens
+-----------------------------------------------------------------------------*/
+:root {
+	--mn-bg-app: var(--tpc-page-background, #f4f6f9);
+	--mn-bg-surface: var(--tpc-background, #ffffff);
+	--mn-bg-elevated: color-mix(in srgb, var(--tpc-background, #ffffff) 93%, var(--tpc-foreground, #0f172a) 7%);
+	--mn-bg-subtle: color-mix(in srgb, var(--tpc-background, #ffffff) 96.5%, var(--tpc-foreground, #0f172a) 3.5%);
+	--mn-border-hairline: color-mix(in srgb, var(--tpc-foreground, #0f172a) 6%, transparent);
+	--mn-border-subtle: color-mix(in srgb, var(--tpc-foreground, #0f172a) 9%, transparent);
+	--mn-border-strong: color-mix(in srgb, var(--tpc-foreground, #0f172a) 16%, transparent);
+	--mn-text-main: var(--tpc-foreground, #0f172a);
+	--mn-text-muted: var(--tpc-muted-foreground, #64748b);
+	--mn-accent: var(--tpc-primary, #2563eb);
+	--mn-accent-soft: color-mix(in srgb, var(--tpc-primary, #2563eb) 11%, transparent);
+	--mn-tag-bg: var(--tpc-tag-background, #e2e8f0);
+	--mn-tag-fg: var(--tpc-tag-foreground, #1e293b);
+	--mn-left-width: 272px;
+	--mn-right-width: 308px;
+	--mn-reading-width: var(--tp-tiddler-width, 840px);
+	--mn-wide-width: 1120px;
+	--mn-topbar-height: 54px;
+	--mn-pillstrip-height: 42px;
+	--mn-bottombar-height: 60px;
+	--mn-radius-tiddler: 18px;
+	--mn-radius-card: 14px;
+	--mn-radius-sm: 10px;
+	--mn-radius-pill: 9999px;
+	--mn-shadow-tiddler: 0 12px 32px -8px rgba(15, 23, 42, 0.055), 0 2px 6px -1px rgba(15, 23, 42, 0.025);
+	--mn-shadow-card: 0 4px 16px -4px rgba(15, 23, 42, 0.035), 0 1px 3px -1px rgba(15, 23, 42, 0.015);
+	--mn-shadow-sheet: 0 -8px 30px rgba(15, 23, 42, 0.16);
+	--mn-transition: var(--tp-animation-duration, 180ms) cubic-bezier(0.2, 0, 0, 1);
+	--mn-font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+	--mn-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
-@layer layout {
-	.mn-app-shell {
-		position: relative;
-		display: flex;
-		flex-direction: column;
-		min-height: 100dvh;
-		background: var(--mn-bg-app);
-		color: var(--mn-text-main);
-		font-family: var(--tp-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
-		font-size: var(--tp-body-font-size, 15px);
-		line-height: var(--tp-body-line-height, 1.6);
-		isolation: isolate;
+/* Responsive Utility Classes */
+.mn-desktop-only {
+	display: inline-flex;
+}
+
+.mn-mobile-only {
+	display: none;
+}
+
+/*-----------------------------------------------------------------------------
+  2. Application Shell, Top Command Bar & 3-Column Workspace Grid
+-----------------------------------------------------------------------------*/
+html,
+body.tc-body {
+	margin: 0;
+	padding: 0;
+	background: var(--mn-bg-app);
+	color: var(--mn-text-main);
+	font-family: var(--mn-font-sans);
+	font-size: var(--tp-body-font-size, 15px);
+	line-height: var(--tp-body-line-height, 1.65);
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.mn-app-shell {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	min-height: 100dvh;
+	background: var(--mn-bg-app);
+	color: var(--mn-text-main);
+	font-family: var(--mn-font-sans);
+	font-size: var(--tp-body-font-size, 15px);
+	line-height: var(--tp-body-line-height, 1.65);
+	isolation: isolate;
+}
+
+.mn-topbar {
+	position: sticky;
+	top: 0;
+	z-index: 420;
+	height: var(--mn-topbar-height);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+	padding: 0 1.15rem;
+	background: color-mix(in srgb, var(--mn-bg-surface) 90%, transparent);
+	backdrop-filter: blur(16px);
+	-webkit-backdrop-filter: blur(16px);
+	border-bottom: 1px solid var(--mn-border-hairline);
+}
+
+.mn-topbar-left,
+.mn-topbar-right {
+	display: flex;
+	align-items: center;
+	gap: 0.45rem;
+}
+
+.mn-site-brand {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.45rem;
+	font-size: 0.95rem;
+	white-space: nowrap;
+}
+
+.mn-brand-title {
+	font-weight: 700;
+	letter-spacing: -0.02em;
+	color: var(--mn-text-main) !important;
+	text-decoration: none !important;
+}
+
+.mn-breadcrumb-sep {
+	color: var(--mn-text-muted);
+	opacity: 0.45;
+}
+
+.mn-breadcrumb-current {
+	color: var(--mn-text-muted);
+	font-size: 0.84rem;
+	font-weight: 500;
+	max-width: 220px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.mn-topbar-center {
+	position: relative;
+	flex: 1;
+	max-width: 480px;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.mn-search-dropdown {
+	position: absolute;
+	top: calc(100% + 6px);
+	left: 0;
+	right: 0;
+	z-index: 450;
+	max-height: 60dvh;
+	overflow-y: auto;
+	background: var(--mn-bg-surface);
+	border: 1px solid var(--mn-border-subtle);
+	border-radius: var(--mn-radius-card);
+	box-shadow: 0 16px 40px -8px rgba(15, 23, 42, 0.14);
+	padding: 0.65rem;
+}
+
+/* Mobile TopBar Active Search Overlay */
+.mn-topbar-mobile-search {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+	width: 100%;
+}
+
+.mn-topbar-mobile-search-field {
+	position: relative;
+	flex: 1;
+}
+
+.mn-workspace-grid {
+	position: relative;
+	z-index: 1;
+	display: grid;
+	grid-template-columns: var(--mn-left-width) minmax(0, 1fr) var(--mn-right-width);
+	flex: 1;
+	align-items: start;
+	transition: grid-template-columns var(--mn-transition);
+}
+
+.mn-left-collapsed .mn-workspace-grid {
+	grid-template-columns: 0px minmax(0, 1fr) var(--mn-right-width);
+}
+
+.mn-right-collapsed .mn-workspace-grid {
+	grid-template-columns: var(--mn-left-width) minmax(0, 1fr) 0px;
+}
+
+.mn-left-collapsed.mn-right-collapsed .mn-workspace-grid {
+	grid-template-columns: 0px minmax(0, 1fr) 0px;
+}
+
+.mn-panel-left,
+.mn-panel-right {
+	position: sticky;
+	top: var(--mn-topbar-height);
+	z-index: 200;
+	height: calc(100dvh - var(--mn-topbar-height));
+	overflow-y: auto;
+	overflow-x: hidden;
+	background: color-mix(in srgb, var(--mn-bg-surface) 78%, var(--mn-bg-app) 22%);
+	scrollbar-width: thin;
+}
+
+.mn-panel-left {
+	border-right: 1px solid var(--mn-border-hairline);
+}
+
+.mn-panel-right {
+	border-left: 1px solid var(--mn-border-hairline);
+}
+
+.mn-left-collapsed .mn-panel-left,
+.mn-right-collapsed .mn-panel-right {
+	border: none;
+	pointer-events: none;
+	opacity: 0;
+}
+
+/* Override Vanilla's fixed 770px .tc-story-river so tiddlers center cleanly between panels */
+.mn-app-shell .mn-story-container,
+.mn-app-shell .mn-story-container.tc-story-river {
+	position: relative;
+	left: 0;
+	top: 0;
+	z-index: 1;
+	width: 100%;
+	max-width: none;
+	min-width: 0;
+	margin: 0;
+	padding: 2.25rem 2rem 5rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	box-sizing: border-box;
+}
+
+.mn-story-container > .story-backdrop,
+.mn-story-container > .story-frontdrop {
+	width: min(100%, var(--mn-reading-width, 840px));
+}
+
+/*-----------------------------------------------------------------------------
+  3. Modern Soft Tiddler Surface & Typography (Fixed Centered Width)
+-----------------------------------------------------------------------------*/
+/* Soft, Modern Document Surface for Tiddlers (z-index: 1 so menus always float above) */
+.mn-app-shell .mn-story-container .tc-tiddler-frame {
+	position: relative;
+	z-index: 1;
+	width: min(100%, var(--mn-reading-width, 840px));
+	max-width: var(--mn-reading-width, 840px);
+	margin: 0 auto 1.75rem;
+	padding: 2.5rem 3rem;
+	background: var(--mn-bg-surface);
+	border: 1px solid var(--mn-border-subtle);
+	border-radius: var(--mn-radius-tiddler);
+	box-shadow: var(--mn-shadow-tiddler);
+	box-sizing: border-box;
+	transition: box-shadow var(--mn-transition), border-color var(--mn-transition);
+}
+
+.mn-app-shell .mn-story-container .tc-tiddler-frame:hover {
+	border-color: color-mix(in srgb, var(--mn-border-subtle) 70%, var(--mn-border-strong) 30%);
+}
+
+/* Generic Wide Mode: triggered by .mn-wide-view or user-configured wide tag/field */
+.mn-app-shell .mn-story-container .tc-tiddler-frame:has(.mn-wide-view),
+.mn-app-shell .mn-story-container .tc-tiddler-frame.mn-tiddler-wide {
+	width: min(100%, var(--mn-wide-width, 1120px));
+	max-width: var(--mn-wide-width, 1120px);
+}
+
+/* Clean Tiddler Header & Titlebar */
+.mn-story-container .tc-tiddler-title {
+	margin-bottom: 0.2rem;
+}
+
+.mn-story-container .tc-titlebar {
+	font-weight: 700;
+	font-size: 1.75rem;
+	line-height: 1.25;
+	letter-spacing: -0.028em;
+	color: var(--mn-text-main);
+}
+
+.mn-story-container .tc-titlebar h2.tc-title {
+	font-weight: 700;
+	font-size: inherit;
+	letter-spacing: -0.028em;
+	color: var(--mn-text-main);
+}
+
+/* Compact, Unobtrusive ViewToolbar Controls (fade in on hover like Notebook/Craft) */
+.mn-story-container .tc-tiddler-controls {
+	float: right;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.2rem;
+	opacity: 0.28;
+	transition: opacity var(--mn-transition);
+}
+
+.mn-story-container .tc-tiddler-frame:hover .tc-tiddler-controls,
+.mn-story-container .tc-tiddler-controls:focus-within {
+	opacity: 1;
+}
+
+.mn-story-container .tc-tiddler-controls button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 30px;
+	height: 30px;
+	padding: 0;
+	margin: 0;
+	border-radius: 8px;
+	color: var(--mn-text-muted);
+	transition: background var(--mn-transition), color var(--mn-transition);
+}
+
+.mn-story-container .tc-tiddler-controls button:hover {
+	background: var(--mn-bg-elevated);
+	color: var(--mn-text-main);
+}
+
+.mn-story-container .tc-tiddler-controls button svg {
+	width: 15px !important;
+	height: 15px !important;
+	fill: currentColor !important;
+}
+
+/* Clean Subtitle & Metadata Line */
+.mn-story-container .tc-subtitle {
+	font-size: 0.78rem;
+	color: var(--mn-text-muted);
+	margin: 0.15rem 0 0.55rem;
+}
+
+.mn-story-container .tc-subtitle a {
+	color: var(--mn-text-muted);
+}
+
+/* Modern Soft Pill Tags & Hide Internal System/Layout Configuration Tags in Reading View */
+.mn-story-container .tc-tags-wrapper {
+	margin: 0.4rem 0 0.9rem;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+}
+
+.mn-story-container .tc-tags-wrapper .tc-tag-list-item[data-tag-title^="$:/"],
+.mn-story-container .tc-tags-wrapper .tc-tag-list-item[data-tag-title="Wide"] {
+	display: none;
+}
+
+.mn-app-shell .tc-tag-label {
+	display: inline-flex;
+	align-items: center;
+	padding: 0.18rem 0.65rem !important;
+	border-radius: var(--mn-radius-pill) !important;
+	background: var(--mn-tag-bg) !important;
+	color: var(--mn-tag-fg) !important;
+	fill: var(--mn-tag-fg) !important;
+	font-size: 0.75rem !important;
+	font-weight: 500 !important;
+	line-height: 1.4 !important;
+	border: 1px solid transparent;
+	transition: filter var(--mn-transition), border-color var(--mn-transition);
+}
+
+.mn-app-shell .tc-tag-label:hover {
+	border-color: var(--mn-border-strong);
+}
+
+/* Generic Inline Object Property Header Bar */
+.mn-object-prop-bar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem;
+	margin: 0.65rem 0 1.25rem;
+	padding: 0.5rem 0.75rem;
+	background: var(--mn-bg-subtle);
+	border: 1px solid var(--mn-border-hairline);
+	border-radius: var(--mn-radius-sm);
+	font-size: 0.84em;
+}
+
+/* Modern Prose Typography inside .tc-tiddler-body */
+.mn-story-container .tc-tiddler-body {
+	color: var(--mn-text-main);
+	font-size: 1rem;
+	line-height: 1.7;
+	margin-top: 0.85rem;
+}
+
+.mn-story-container .tc-tiddler-body h1,
+.mn-story-container .tc-tiddler-body h2,
+.mn-story-container .tc-tiddler-body h3,
+.mn-story-container .tc-tiddler-body h4 {
+	color: var(--mn-text-main);
+	font-weight: 700;
+	letter-spacing: -0.02em;
+	line-height: 1.3;
+	margin: 1.6rem 0 0.65rem;
+	border-bottom: none;
+}
+
+.mn-story-container .tc-tiddler-body h2 {
+	font-size: 1.3rem;
+}
+
+.mn-story-container .tc-tiddler-body h3 {
+	font-size: 1.08rem;
+}
+
+.mn-story-container .tc-tiddler-body p,
+.mn-story-container .tc-tiddler-body ul,
+.mn-story-container .tc-tiddler-body ol {
+	margin: 0.7rem 0;
+}
+
+.mn-story-container .tc-tiddler-body li {
+	margin: 0.3rem 0;
+}
+
+.mn-story-container .tc-tiddler-body hr {
+	border: 0;
+	border-top: 1px solid var(--mn-border-subtle);
+	margin: 1.6rem 0;
+}
+
+.mn-story-container .tc-tiddler-body a.tc-tiddlylink,
+.mn-story-container .tc-tiddler-body a.tc-tiddlylink-external {
+	color: var(--mn-accent);
+	font-weight: 500;
+	text-decoration: none;
+	border-bottom: 1px solid color-mix(in srgb, var(--mn-accent) 28%, transparent);
+	transition: border-color var(--mn-transition);
+}
+
+.mn-story-container .tc-tiddler-body a.tc-tiddlylink:hover,
+.mn-story-container .tc-tiddler-body a.tc-tiddlylink-external:hover {
+	border-bottom-color: var(--mn-accent);
+}
+
+.mn-story-container .tc-tiddler-body code {
+	font-family: var(--mn-font-mono);
+	font-size: 0.86em;
+	padding: 0.16rem 0.42rem;
+	border-radius: 6px;
+	background: var(--mn-bg-subtle);
+	border: 1px solid var(--mn-border-hairline);
+	color: var(--mn-text-main);
+}
+
+.mn-story-container .tc-tiddler-body pre {
+	font-family: var(--mn-font-mono);
+	font-size: 0.86em;
+	padding: 1.1rem 1.25rem;
+	border-radius: var(--mn-radius-sm);
+	background: var(--mn-bg-subtle);
+	border: 1px solid var(--mn-border-hairline);
+	overflow-x: auto;
+}
+
+.mn-story-container .tc-tiddler-body pre code {
+	padding: 0;
+	border: none;
+	background: transparent;
+}
+
+.mn-story-container .tc-tiddler-body blockquote {
+	margin: 1rem 0;
+	padding: 0.7rem 1.1rem;
+	border-left: 3px solid var(--mn-accent);
+	background: var(--mn-bg-subtle);
+	border-radius: 0 var(--mn-radius-sm) var(--mn-radius-sm) 0;
+	color: var(--mn-text-muted);
+}
+
+/* Modern Edit Mode Frame Styling */
+.mn-story-container .tc-tiddler-edit-frame input.tc-edit-texteditor,
+.mn-story-container .tc-tiddler-edit-frame textarea.tc-edit-texteditor,
+.mn-story-container .tc-tiddler-edit-frame input[type="text"] {
+	background: var(--mn-bg-subtle);
+	color: var(--mn-text-main);
+	border: 1px solid var(--mn-border-subtle);
+	border-radius: var(--mn-radius-sm);
+	padding: 0.5rem 0.75rem;
+	font-family: inherit;
+	box-sizing: border-box;
+}
+
+.mn-story-container .tc-tiddler-edit-frame textarea.tc-edit-texteditor {
+	font-family: var(--mn-font-mono);
+	font-size: 0.92rem;
+	line-height: 1.6;
+	padding: 0.85rem 1rem;
+}
+
+/*-----------------------------------------------------------------------------
+  4. Sidebar Navigation, Workspace Tabs & More Sub-Tabs
+-----------------------------------------------------------------------------*/
+.mn-nav-section {
+	padding: 0.9rem 0.95rem 0.75rem;
+	border-bottom: 1px solid var(--mn-border-hairline);
+}
+
+.mn-nav-section:last-child {
+	border-bottom: none;
+}
+
+/* TiddlyWiki Page Controls Toolbar in Left Menu (Notebook-style) */
+.mn-page-controls .tc-page-controls {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.25rem;
+	margin-top: 0.15rem;
+	font-size: 1rem;
+}
+
+.mn-page-controls .tc-page-controls button,
+.mn-page-controls .tc-page-controls .tc-btn-invisible {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.35rem;
+	min-width: 32px;
+	min-height: 32px;
+	padding: 0.35rem 0.45rem;
+	margin: 0;
+	border-radius: 8px;
+	color: var(--mn-text-muted);
+	background: transparent;
+	transition: background var(--mn-transition), color var(--mn-transition);
+}
+
+.mn-page-controls .tc-page-controls button:hover,
+.mn-page-controls .tc-page-controls .tc-btn-invisible:hover {
+	background: var(--mn-bg-elevated);
+	color: var(--mn-text-main);
+}
+
+.mn-page-controls .tc-page-controls svg {
+	width: 17px !important;
+	height: 17px !important;
+	fill: currentColor !important;
+}
+
+/* Standard TiddlyWiki Sidebar Tabs inside Left Menu */
+.mn-sidebar-tabs-section .tc-tab-buttons {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem;
+	border-bottom: 1px solid var(--mn-border-subtle);
+	padding-bottom: 0.4rem;
+	margin-bottom: 0.5rem;
+}
+
+.mn-sidebar-tabs-section .tc-tab-buttons button {
+	padding: 0.28rem 0.6rem !important;
+	border-radius: 7px !important;
+	border: none !important;
+	background: transparent !important;
+	color: var(--mn-text-muted) !important;
+	font-size: 0.78rem !important;
+	font-weight: 600 !important;
+	cursor: pointer;
+	margin: 0 !important;
+	text-align: center !important;
+}
+
+.mn-sidebar-tabs-section .tc-tab-buttons button.tc-tab-selected {
+	background: var(--mn-accent-soft) !important;
+	color: var(--mn-accent) !important;
+}
+
+.mn-sidebar-tabs-section .tc-tab-content {
+	font-size: 0.85rem;
+	margin-top: 0.35rem;
+	width: 100%;
+}
+
+/* Complete Fix for Sidebar 'More' Sub-Tabs (Horizontal Wrapping Pills) */
+.mn-sidebar-tabs-section .tc-sidebar-tabs-more .tc-tab-buttons,
+.mn-sidebar-tabs-section .tc-more-sidebar .tc-tab-buttons,
+.mn-sidebar-tabs-section .tc-tab-buttons.tc-vertical {
+	display: flex !important;
+	flex-direction: row !important;
+	flex-wrap: wrap !important;
+	gap: 0.32rem !important;
+	max-width: 100% !important;
+	width: 100% !important;
+	flex: 1 1 100% !important;
+	text-align: left !important;
+	border: none !important;
+	padding: 0.35rem 0 0.6rem !important;
+	margin: 0 0 0.5rem !important;
+	border-bottom: 1px solid var(--mn-border-hairline) !important;
+}
+
+.mn-sidebar-tabs-section .tc-sidebar-tabs-more .tc-tab-buttons button,
+.mn-sidebar-tabs-section .tc-more-sidebar .tc-tab-buttons button,
+.mn-sidebar-tabs-section .tc-tab-buttons.tc-vertical button {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	width: auto !important;
+	max-width: none !important;
+	text-align: center !important;
+	padding: 0.22rem 0.6rem !important;
+	border-radius: var(--mn-radius-pill) !important;
+	border: 1px solid var(--mn-border-hairline) !important;
+	background: var(--mn-bg-surface) !important;
+	color: var(--mn-text-muted) !important;
+	font-size: 0.74rem !important;
+	font-weight: 500 !important;
+	cursor: pointer !important;
+	margin: 0 !important;
+	line-height: 1.4 !important;
+	box-sizing: border-box !important;
+	transition: background var(--mn-transition), color var(--mn-transition), border-color var(--mn-transition);
+}
+
+.mn-sidebar-tabs-section .tc-sidebar-tabs-more .tc-tab-buttons button:hover,
+.mn-sidebar-tabs-section .tc-more-sidebar .tc-tab-buttons button:hover,
+.mn-sidebar-tabs-section .tc-tab-buttons.tc-vertical button:hover {
+	background: var(--mn-bg-elevated) !important;
+	color: var(--mn-text-main) !important;
+}
+
+.mn-sidebar-tabs-section .tc-sidebar-tabs-more .tc-tab-buttons button.tc-tab-selected,
+.mn-sidebar-tabs-section .tc-more-sidebar .tc-tab-buttons button.tc-tab-selected,
+.mn-sidebar-tabs-section .tc-tab-buttons.tc-vertical button.tc-tab-selected {
+	background: var(--mn-accent) !important;
+	color: #ffffff !important;
+	border-color: var(--mn-accent) !important;
+	font-weight: 600 !important;
+}
+
+.mn-sidebar-tabs-section .tc-tab-set.tc-vertical {
+	display: flex !important;
+	flex-direction: column !important;
+	width: 100% !important;
+}
+
+.mn-sidebar-tabs-section .tc-tab-divider.tc-vertical {
+	display: none !important;
+}
+
+.mn-sidebar-tabs-section .tc-tab-content.tc-vertical,
+.mn-sidebar-tabs-section .tc-sidebar-tabs-more .tc-tab-content {
+	width: 100% !important;
+	max-width: 100% !important;
+	flex: 1 1 100% !important;
+	padding: 0 !important;
+	border: none !important;
+	margin-top: 0.25rem !important;
+}
+
+/* Polished Sidebar Lists (All, Recent, Tags, System, etc.) */
+.mn-sidebar-tabs-section .tc-sidebar-lists {
+	padding: 0.2rem 0;
+	width: 100%;
+}
+
+.mn-sidebar-tabs-section .tc-sidebar-lists ul {
+	list-style: none;
+	padding-left: 0;
+	margin: 0.2rem 0;
+}
+
+.mn-sidebar-tabs-section .tc-sidebar-lists li {
+	margin: 0.15rem 0;
+}
+
+.mn-sidebar-tabs-section a.tc-tiddlylink {
+	display: block;
+	padding: 0.28rem 0.5rem;
+	border-radius: 6px;
+	color: var(--mn-text-main);
+	font-size: 0.85rem;
+	text-decoration: none;
+	border-bottom: none;
+	transition: background var(--mn-transition), color var(--mn-transition);
+}
+
+.mn-sidebar-tabs-section a.tc-tiddlylink:hover {
+	background: var(--mn-bg-elevated);
+	color: var(--mn-accent);
+}
+
+.mn-sidebar-tabs-section .tc-date {
+	font-size: 0.72rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--mn-text-muted);
+	margin: 0.75rem 0 0.25rem;
+	display: block;
+}
+
+/* Active Context Inspector Focus Card & Segmented Tabs */
+.mn-inspector-focus-card {
+	padding: 0.65rem 0.8rem;
+	margin-bottom: 0.75rem;
+	background: var(--mn-bg-subtle);
+	border: 1px solid var(--mn-border-hairline);
+	border-radius: var(--mn-radius-sm);
+	display: flex;
+	flex-direction: column;
+	gap: 0.15rem;
+}
+
+.mn-segmented-tabs {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.25rem;
+	margin: 0.5rem 0 1rem;
+	background: var(--mn-bg-subtle);
+	border: 1px solid var(--mn-border-hairline);
+	border-radius: var(--mn-radius-pill);
+}
+
+.mn-segmented-tabs .mn-pill-btn {
+	flex: 1;
+	padding: 0.3rem 0.5rem;
+	border: none;
+	background: transparent;
+	font-size: 0.76rem;
+}
+
+.mn-nav-heading {
+	font-size: 0.69rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.07em;
+	color: var(--mn-text-muted);
+	margin: 0 0 0.5rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.mn-nav-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+	width: 100%;
+	box-sizing: border-box;
+	text-align: left;
+	padding: 0.45rem 0.65rem;
+	margin-bottom: 0.15rem;
+	border-radius: var(--mn-radius-sm);
+	color: var(--mn-text-main);
+	text-decoration: none;
+	font-size: 0.86rem;
+	font-weight: 500;
+	transition: background var(--mn-transition), color var(--mn-transition);
+}
+
+.mn-nav-item:hover {
+	background: var(--mn-bg-elevated);
+}
+
+.mn-nav-item-active {
+	background: var(--mn-accent-soft);
+	color: var(--mn-accent);
+	font-weight: 600;
+}
+
+.mn-nav-item-active a {
+	color: var(--mn-accent) !important;
+}
+
+/* Soft Modern Cards (no hard top notecard stripe) */
+.mn-card {
+	background: var(--mn-bg-subtle);
+	border: 1px solid var(--mn-border-hairline);
+	border-radius: var(--mn-radius-card);
+	padding: 1.25rem 1.4rem;
+	box-shadow: var(--mn-shadow-card);
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	transition: transform var(--mn-transition), box-shadow var(--mn-transition), border-color var(--mn-transition);
+}
+
+.mn-card:hover {
+	border-color: var(--mn-border-subtle);
+}
+
+.mn-card-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 0.75rem;
+}
+
+.mn-card-title {
+	font-weight: 600;
+	font-size: 0.96rem;
+	color: var(--mn-text-main) !important;
+	text-decoration: none !important;
+	border-bottom: none !important;
+}
+
+.mn-card-title:hover {
+	color: var(--mn-accent) !important;
+}
+
+.mn-badge {
+	display: inline-flex;
+	align-items: center;
+	padding: 0.16rem 0.6rem;
+	border-radius: var(--mn-radius-pill);
+	font-size: 0.73rem;
+	font-weight: 600;
+	background: var(--mn-accent-soft);
+	color: var(--mn-accent);
+}
+
+.mn-prop-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	padding: 0.22rem 0.65rem;
+	background: var(--mn-bg-surface);
+	border: 1px solid var(--mn-border-hairline);
+	border-radius: var(--mn-radius-pill);
+	font-size: 0.78rem;
+}
+
+.mn-prop-select {
+	background: transparent;
+	border: none;
+	color: var(--mn-text-main);
+	font-weight: 600;
+	font-size: 0.78rem;
+	cursor: pointer;
+}
+
+.mn-prop-label {
+	color: var(--mn-text-muted);
+	font-weight: 500;
+}
+
+.mn-prop-value {
+	color: var(--mn-text-main);
+	font-weight: 600;
+}
+
+.mn-search-input {
+	width: 100%;
+	box-sizing: border-box;
+	padding: 0.45rem 0.9rem;
+	border-radius: var(--mn-radius-pill);
+	border: 1px solid var(--mn-border-hairline);
+	background: var(--mn-bg-subtle);
+	color: var(--mn-text-main);
+	font-size: 0.88rem;
+	outline: none;
+	transition: border-color var(--mn-transition), box-shadow var(--mn-transition), background var(--mn-transition);
+}
+
+.mn-search-input:focus {
+	border-color: var(--mn-accent);
+	box-shadow: 0 0 0 3px var(--mn-accent-soft);
+	background: var(--mn-bg-surface);
+}
+
+.mn-btn-primary {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.42rem 0.95rem;
+	border-radius: var(--mn-radius-pill);
+	background: var(--mn-accent);
+	color: #ffffff !important;
+	fill: #ffffff !important;
+	border: none;
+	font-weight: 600;
+	font-size: 0.84rem;
+	cursor: pointer;
+	white-space: nowrap;
+	transition: filter var(--mn-transition);
+}
+
+.mn-btn-primary:hover {
+	filter: brightness(1.08);
+}
+
+.mn-pill-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.3rem;
+	padding: 0.32rem 0.75rem;
+	border-radius: var(--mn-radius-pill);
+	border: 1px solid var(--mn-border-hairline);
+	background: var(--mn-bg-surface);
+	color: var(--mn-text-muted);
+	font-size: 0.8rem;
+	font-weight: 600;
+	cursor: pointer;
+	white-space: nowrap;
+	transition: background var(--mn-transition), color var(--mn-transition), border-color var(--mn-transition);
+}
+
+.mn-pill-btn:hover {
+	background: var(--mn-bg-elevated);
+	color: var(--mn-text-main);
+}
+
+.mn-pill-btn-subtle-active {
+	background: var(--mn-accent-soft);
+	color: var(--mn-accent);
+	border-color: color-mix(in srgb, var(--mn-accent) 25%, transparent);
+}
+
+.mn-pill-active {
+	background: var(--mn-accent) !important;
+	color: #ffffff !important;
+	border-color: var(--mn-accent) !important;
+}
+
+/* Generic Hero, Auto-Grid, Poster Grid & Progress Primitives */
+.mn-hero {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 1rem;
+	padding: 1.35rem 1.6rem;
+	margin-bottom: 1.25rem;
+	background: linear-gradient(135deg, var(--mn-accent-soft), var(--mn-bg-subtle));
+	border: 1px solid var(--mn-border-hairline);
+	border-radius: var(--mn-radius-card);
+}
+
+.mn-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(var(--mn-grid-min, 260px), 1fr));
+	gap: 1.1rem;
+	margin-top: 1rem;
+}
+
+.mn-progress-track {
+	width: 100%;
+	height: 7px;
+	background: var(--mn-bg-elevated);
+	border-radius: var(--mn-radius-pill);
+	overflow: hidden;
+	margin-top: 0.3rem;
+}
+
+.mn-progress-fill {
+	height: 100%;
+	background: var(--mn-accent);
+	border-radius: var(--mn-radius-pill);
+	transition: width var(--mn-transition);
+}
+
+/*-----------------------------------------------------------------------------
+  5. Mobile Zoomin Shell, Pill Switcher Strip & Bottom Action Sheet
+-----------------------------------------------------------------------------*/
+/* Open Tiddler Pill Switcher Strip on Mobile — pinned directly below topbar, above tiddlers */
+.mn-mobile-pill-strip {
+	position: sticky;
+	top: var(--mn-topbar-height);
+	z-index: 410;
+	display: flex;
+	align-items: center;
+	gap: 0.45rem;
+	padding: 0.45rem 0.75rem;
+	overflow-x: auto;
+	background: color-mix(in srgb, var(--mn-bg-surface) 95%, transparent);
+	backdrop-filter: blur(10px);
+	border-bottom: 1px solid var(--mn-border-hairline);
+	scrollbar-width: none;
+}
+
+.mn-mobile-tab-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	padding: 0.28rem 0.65rem;
+	border-radius: var(--mn-radius-pill);
+	background: var(--mn-bg-subtle);
+	border: 1px solid var(--mn-border-hairline);
+	font-size: 0.8rem;
+	white-space: nowrap;
+}
+
+.mn-mobile-tab-chip-active {
+	background: var(--mn-accent-soft);
+	border-color: var(--mn-accent);
+	color: var(--mn-accent);
+	font-weight: 600;
+}
+
+/* Fixed Thumb-Zone Bottom Bar — high z-index (480) so it NEVER renders under tiddlers */
+.mn-mobile-bottombar {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: 480;
+	height: calc(var(--mn-bottombar-height) + env(safe-area-inset-bottom, 0px));
+	padding-bottom: env(safe-area-inset-bottom, 0px);
+	background: color-mix(in srgb, var(--mn-bg-surface) 96%, transparent);
+	backdrop-filter: blur(16px);
+	border-top: 1px solid var(--mn-border-hairline);
+	display: flex;
+	align-items: center;
+	justify-content: space-around;
+	box-shadow: 0 -2px 12px rgba(15, 23, 42, 0.06);
+}
+
+.mn-mobile-nav-btn {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.15rem;
+	height: 100%;
+	background: transparent;
+	border: none;
+	color: var(--mn-text-muted);
+	font-size: 0.68rem;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+/* Mobile Left Drawer Backdrop & Overlay */
+.mn-mobile-drawer-backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: 460;
+	background: rgba(15, 23, 42, 0.4);
+}
+
+/* Slide-Up Bottom Sheet for Zoomed Tiddler Options */
+.mn-backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: 520;
+	background: rgba(15, 23, 42, 0.45);
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+}
+
+.mn-bottom-sheet {
+	background: var(--mn-bg-surface);
+	border-radius: 20px 20px 0 0;
+	padding: 1.15rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
+	max-height: 82dvh;
+	overflow-y: auto;
+	box-shadow: var(--mn-shadow-sheet);
+}
+
+.mn-sheet-action-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+	gap: 0.6rem;
+	margin: 1rem 0;
+}
+
+.mn-sheet-action-item {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 44px;
+	padding: 0.5rem;
+	background: var(--mn-bg-subtle);
+	border: 1px solid var(--mn-border-hairline);
+	border-radius: var(--mn-radius-sm);
+}
+
+@media (max-width: 1023px) {
+	/* Responsive Utilities */
+	.mn-desktop-only {
+		display: none !important;
 	}
 
-	.mn-topbar {
-		position: sticky;
-		top: 0;
-		z-index: 420;
-		height: var(--mn-topbar-height);
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 1rem;
-		padding: 0 1rem;
-		background: color-mix(in srgb, var(--mn-bg-surface) 92%, transparent);
-		backdrop-filter: blur(12px);
-		border-bottom: 1px solid var(--mn-border-subtle);
+	.mn-mobile-only {
+		display: inline-flex !important;
 	}
 
-	.mn-topbar-left,
-	.mn-topbar-right {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-	}
-
-	.mn-topbar-center {
-		position: relative;
-		flex: 1;
-		max-width: 520px;
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-	}
-
-	.mn-search-dropdown {
-		position: absolute;
-		top: calc(100% + 6px);
-		left: 0;
-		right: 0;
-		z-index: 450;
-		max-height: 60dvh;
-		overflow-y: auto;
-		background: var(--mn-bg-surface);
-		border: 1px solid var(--mn-border-strong);
-		border-radius: var(--mn-radius-card);
-		box-shadow: 0 10px 25px rgba(15, 23, 42, 0.14);
-		padding: 0.5rem;
+	.mn-breadcrumb-current,
+	.mn-breadcrumb-sep {
+		display: none !important;
 	}
 
 	.mn-workspace-grid {
-		position: relative;
-		z-index: 1;
-		display: grid;
-		grid-template-columns: var(--mn-left-width) minmax(0, 1fr) var(--mn-right-width);
-		flex: 1;
-		align-items: start;
-		transition: grid-template-columns var(--mn-transition);
-	}
-
-	.mn-left-collapsed .mn-workspace-grid {
-		grid-template-columns: 0px minmax(0, 1fr) var(--mn-right-width);
-	}
-
-	.mn-right-collapsed .mn-workspace-grid {
-		grid-template-columns: var(--mn-left-width) minmax(0, 1fr) 0px;
-	}
-
-	.mn-left-collapsed.mn-right-collapsed .mn-workspace-grid {
-		grid-template-columns: 0px minmax(0, 1fr) 0px;
-	}
-
-	.mn-panel-left,
-	.mn-panel-right {
-		position: sticky;
-		top: var(--mn-topbar-height);
-		z-index: 200;
-		height: calc(100dvh - var(--mn-topbar-height));
-		overflow-y: auto;
-		overflow-x: hidden;
-		background: var(--mn-bg-surface);
+		grid-template-columns: minmax(0, 1fr) !important;
 	}
 
 	.mn-panel-left {
-		border-right: 1px solid var(--mn-border-subtle);
+		position: fixed !important;
+		top: var(--mn-topbar-height) !important;
+		left: 0 !important;
+		bottom: var(--mn-bottombar-height) !important;
+		height: auto !important;
+		z-index: 470 !important;
+		width: min(86vw, 320px) !important;
+		box-shadow: 8px 0 24px rgba(15, 23, 42, 0.22);
+		transition: transform var(--mn-transition), opacity var(--mn-transition);
 	}
 
-	.mn-panel-right {
-		border-left: 1px solid var(--mn-border-subtle);
-	}
-
-	.mn-left-collapsed .mn-panel-left,
-	.mn-right-collapsed .mn-panel-right {
-		border: none;
-		pointer-events: none;
+	.mn-left-collapsed .mn-panel-left {
+		transform: translateX(-105%);
 		opacity: 0;
+		pointer-events: none;
 	}
 
-	.mn-story-container {
-		position: relative;
-		z-index: 1;
-		padding: 2rem 1.75rem 5rem;
+	.mn-app-shell .mn-story-container,
+	.mn-app-shell .mn-story-container.tc-story-river {
+		padding: 0.75rem 0.75rem calc(var(--mn-bottombar-height) + 2.5rem);
 		width: 100%;
-		min-width: 0;
-		margin: 0;
-	}
-}
-
-@layer tiddler {
-	/* Centered Reading Column for Standard Tiddlers (z-index: 1 so menus always float above) */
-	.mn-story-container .tc-tiddler-frame {
-		position: relative;
-		z-index: 1;
-		width: 100%;
-		max-width: var(--mn-reading-width);
-		margin: 0 auto 1.5rem;
-		padding: 2.25rem 2.5rem;
-		background: var(--mn-bg-surface);
-		border: 1px solid var(--mn-border-subtle);
-		border-radius: var(--mn-radius-card);
-		box-shadow: var(--mn-shadow-card);
 	}
 
-	/* Generic Wide Mode: triggered by .mn-wide-view or user-configured wide tag/field */
-	.mn-story-container .tc-tiddler-frame:has(.mn-wide-view),
-	.mn-story-container .tc-tiddler-frame.mn-tiddler-wide {
-		max-width: var(--mn-wide-width);
+	.mn-app-shell .mn-story-container .tc-tiddler-frame {
+		width: 100% !important;
+		max-width: 100% !important;
+		padding: 1.6rem 1.25rem;
+		margin-bottom: 0.85rem;
+		border-radius: 16px;
 	}
 
-	/* Generic Inline Object Property Header Bar */
-	.mn-object-prop-bar {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 0.5rem;
-		margin: 0.65rem 0 1.25rem;
-		padding: 0.5rem 0.75rem;
-		background: var(--mn-bg-subtle);
-		border: 1px solid var(--mn-border-subtle);
-		border-radius: var(--mn-radius-sm);
-		font-size: 0.85em;
-	}
-}
-
-@layer components {
-	.mn-nav-section {
-		padding: 0.85rem 0.85rem 0.5rem;
+	.mn-story-container .tc-titlebar h2.tc-title {
+		font-size: 1.45rem;
 	}
 
-	.mn-nav-heading {
-		font-size: 0.72rem;
-		font-weight: 700;
-		text-transform: uppercase;
-		letter-spacing: 0.06em;
-		color: var(--mn-text-muted);
-		margin: 0 0 0.5rem;
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-	}
-
-	.mn-nav-item {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 0.5rem;
-		width: 100%;
-		text-align: left;
-		padding: 0.45rem 0.65rem;
-		border-radius: var(--mn-radius-sm);
-		color: var(--mn-text-main);
-		text-decoration: none;
-		font-size: 0.9em;
-		transition: background var(--mn-transition);
-	}
-
-	.mn-nav-item:hover {
-		background: var(--mn-bg-elevated);
-	}
-
-	.mn-nav-item-active {
-		background: var(--mn-accent-soft);
-		color: var(--mn-accent);
-		font-weight: 600;
-	}
-
-	.mn-card {
-		background: var(--mn-bg-surface);
-		border: 1px solid var(--mn-border-subtle);
-		border-top: 3px solid var(--mn-card-accent, var(--mn-accent));
-		border-radius: var(--mn-radius-card);
-		padding: 1.1rem 1.25rem;
-		box-shadow: var(--mn-shadow-card);
-		display: flex;
-		flex-direction: column;
-		gap: 0.75rem;
-	}
-
-	.mn-card-header {
-		display: flex;
-		align-items: flex-start;
-		justify-content: space-between;
-		gap: 0.75rem;
-	}
-
-	.mn-card-title {
-		font-weight: 600;
-		font-size: 1.05em;
-		color: var(--mn-text-main);
-		text-decoration: none;
-	}
-
-	.mn-badge {
-		display: inline-flex;
-		align-items: center;
-		padding: 0.15rem 0.55rem;
-		border-radius: var(--mn-radius-pill);
-		font-size: 0.75rem;
-		font-weight: 600;
-		background: var(--mn-accent-soft);
-		color: var(--mn-accent);
-	}
-
-	.mn-prop-pill {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.35rem;
-		padding: 0.2rem 0.55rem;
-		background: var(--mn-bg-surface);
-		border: 1px solid var(--mn-border-subtle);
-		border-radius: var(--mn-radius-pill);
-		font-size: 0.8rem;
-	}
-
-	.mn-prop-label {
-		color: var(--mn-text-muted);
-		font-weight: 500;
-	}
-
-	.mn-search-input {
-		width: 100%;
-		padding: 0.45rem 0.85rem;
-		border-radius: var(--mn-radius-pill);
-		border: 1px solid var(--mn-border-subtle);
-		background: var(--mn-bg-subtle);
-		color: var(--mn-text-main);
-		font-size: 0.9em;
-	}
-
-	.mn-btn-primary {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.4rem;
-		padding: 0.45rem 0.9rem;
-		border-radius: var(--mn-radius-sm);
-		background: var(--mn-accent);
-		color: #ffffff;
-		border: none;
-		font-weight: 600;
-		font-size: 0.88em;
-		cursor: pointer;
-	}
-
-	.mn-pill-btn {
-		padding: 0.3rem 0.75rem;
-		border-radius: var(--mn-radius-pill);
-		border: 1px solid var(--mn-border-subtle);
-		background: var(--mn-bg-surface);
-		color: var(--mn-text-muted);
-		font-size: 0.82rem;
-		font-weight: 500;
-		cursor: pointer;
-	}
-
-	.mn-pill-active {
-		background: var(--mn-accent);
-		color: #ffffff;
-		border-color: var(--mn-accent);
-	}
-
-	/* Generic Hero, Auto-Grid, Poster Grid & Progress Primitives */
-	.mn-hero {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		flex-wrap: wrap;
-		gap: 1rem;
-		padding: 1.25rem 1.5rem;
-		margin-bottom: 1.25rem;
-		background: linear-gradient(135deg, var(--mn-accent-soft), var(--mn-bg-subtle));
-		border: 1px solid var(--mn-border-subtle);
-		border-radius: var(--mn-radius-card);
-	}
-
-	.mn-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(var(--mn-grid-min, 280px), 1fr));
-		gap: 1rem;
-		margin-top: 1rem;
-	}
-
-	.mn-progress-track {
-		width: 100%;
-		height: 7px;
-		background: var(--mn-bg-elevated);
-		border-radius: var(--mn-radius-pill);
-		overflow: hidden;
-		margin-top: 0.3rem;
-	}
-
-	.mn-progress-fill {
-		height: 100%;
-		background: var(--mn-accent);
-		border-radius: var(--mn-radius-pill);
-		transition: width var(--mn-transition);
-	}
-}
-
-@layer mobile {
-	/* Open Tiddler Pill Switcher Strip on Mobile — pinned directly below topbar, above tiddlers */
-	.mn-mobile-pill-strip {
-		position: sticky;
-		top: var(--mn-topbar-height);
-		z-index: 410;
-		display: flex;
-		align-items: center;
-		gap: 0.45rem;
-		padding: 0.45rem 0.75rem;
-		overflow-x: auto;
-		background: color-mix(in srgb, var(--mn-bg-surface) 95%, transparent);
-		backdrop-filter: blur(10px);
-		border-bottom: 1px solid var(--mn-border-subtle);
-		scrollbar-width: none;
-	}
-
-	.mn-mobile-tab-chip {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.35rem;
-		padding: 0.28rem 0.65rem;
-		border-radius: var(--mn-radius-pill);
-		background: var(--mn-bg-subtle);
-		border: 1px solid var(--mn-border-subtle);
-		font-size: 0.8rem;
-		white-space: nowrap;
-	}
-
-	.mn-mobile-tab-chip-active {
-		background: var(--mn-accent-soft);
-		border-color: var(--mn-accent);
-		color: var(--mn-accent);
-		font-weight: 600;
-	}
-
-	/* Fixed Thumb-Zone Bottom Bar — high z-index (480) so it NEVER renders under tiddlers */
-	.mn-mobile-bottombar {
-		position: fixed;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		z-index: 480;
-		height: calc(var(--mn-bottombar-height) + env(safe-area-inset-bottom, 0px));
-		padding-bottom: env(safe-area-inset-bottom, 0px);
-		background: color-mix(in srgb, var(--mn-bg-surface) 96%, transparent);
-		backdrop-filter: blur(16px);
-		border-top: 1px solid var(--mn-border-subtle);
-		display: flex;
-		align-items: center;
-		justify-content: space-around;
-		box-shadow: 0 -2px 12px rgba(15, 23, 42, 0.06);
-	}
-
-	.mn-mobile-nav-btn {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		gap: 0.15rem;
-		height: 100%;
-		background: transparent;
-		border: none;
-		color: var(--mn-text-muted);
-		font-size: 0.68rem;
-		font-weight: 600;
-		cursor: pointer;
-	}
-
-	/* Mobile Left Drawer Backdrop & Overlay */
-	.mn-mobile-drawer-backdrop {
-		position: fixed;
-		inset: 0;
-		z-index: 460;
-		background: rgba(15, 23, 42, 0.4);
-	}
-
-	/* Slide-Up Bottom Sheet for Zoomed Tiddler Options */
-	.mn-backdrop {
-		position: fixed;
-		inset: 0;
-		z-index: 520;
-		background: rgba(15, 23, 42, 0.45);
-		display: flex;
-		flex-direction: column;
-		justify-content: flex-end;
-	}
-
-	.mn-bottom-sheet {
-		background: var(--mn-bg-surface);
-		border-radius: 18px 18px 0 0;
-		padding: 1.15rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
-		max-height: 82dvh;
-		overflow-y: auto;
-		box-shadow: var(--mn-shadow-sheet);
-	}
-
-	.mn-sheet-action-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-		gap: 0.6rem;
-		margin: 1rem 0;
-	}
-
-	.mn-sheet-action-item {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		min-height: 44px;
-		padding: 0.5rem;
-		background: var(--mn-bg-subtle);
-		border: 1px solid var(--mn-border-subtle);
-		border-radius: var(--mn-radius-sm);
-	}
-
-	@media (max-width: 1023px) {
-		.mn-workspace-grid {
-			grid-template-columns: minmax(0, 1fr) !important;
-		}
-
-		.mn-panel-left {
-			position: fixed !important;
-			top: var(--mn-topbar-height) !important;
-			left: 0 !important;
-			bottom: var(--mn-bottombar-height) !important;
-			height: auto !important;
-			z-index: 470 !important;
-			width: min(84vw, 300px) !important;
-			box-shadow: 8px 0 24px rgba(15, 23, 42, 0.22);
-			transition: transform var(--mn-transition), opacity var(--mn-transition);
-		}
-
-		.mn-left-collapsed .mn-panel-left {
-			transform: translateX(-105%);
-			opacity: 0;
-			pointer-events: none;
-		}
-
-		.mn-story-container {
-			padding: 0.85rem 0.75rem calc(var(--mn-bottombar-height) + 2.5rem);
-		}
-
-		.mn-story-container .tc-tiddler-frame {
-			padding: 1.25rem 1.1rem;
-			margin-bottom: 0.75rem;
-		}
-
-		/* Hide top-right toolbar clutter on mobile; use Bottom Sheet (•••) instead */
-		.mn-story-container .tc-tiddler-controls {
-			display: none;
-		}
+	/* Hide top-right toolbar clutter on mobile; use Bottom Sheet (•••) instead */
+	.mn-story-container .tc-tiddler-controls {
+		display: none;
 	}
 }

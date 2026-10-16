@@ -2,7 +2,16 @@ title: $:/plugins/mblackman/slipstream/ui/LeftNav
 type: text/vnd.tiddlywiki
 
 \whitespace trim
-\function .pinned-filter() [{$:/config/slipstream/pinned-filter}!is[blank]else[[all[shadows+tiddlers]tag[$:/tags/Pinned]!has[draft.of]]]]
+\procedure default-pinned-filter() [all[shadows+tiddlers]tag[$:/tags/Pinned]!has[draft.of]]
+\function .pinned-filter() [{$:/config/slipstream/pinned-filter}!is[blank]else<default-pinned-filter>]
+
+<!-- Section 0: Standard TiddlyWiki Page Controls Toolbar (like Notebook Theme) -->
+<section class="mn-nav-section mn-page-controls">
+	<h3 class="mn-nav-heading">
+		<span>Toolbar</span>
+	</h3>
+	{{$:/core/ui/PageTemplate/pagecontrols}}
+</section>
 
 <!-- Section 1: User-Configurable Pinned Shortcuts (Tag any tiddler $:/tags/Pinned or customize filter in Settings) -->
 <section class="mn-nav-section">
@@ -15,7 +24,7 @@ type: text/vnd.tiddlywiki
 			to=<<pinItem>>
 			class={{{ [[mn-nav-item tc-btn-invisible]] [{$:/HistoryList!!current-tiddler}match<pinItem>then[mn-nav-item-active]] +[join[ ]] }}}
 		>
-			<span style="display:inline-flex;align-items:center;gap:0.4rem;">
+			<span style="display:inline-flex;align-items:center;gap:0.45rem;">
 				<%if [<pinItem>get[ss-icon]!is[blank]] %>
 					<span><$text text={{{ [<pinItem>get[ss-icon]] }}}/></span>
 				<%elseif [<pinItem>get[mn-icon]!is[blank]] %>
@@ -52,15 +61,8 @@ type: text/vnd.tiddlywiki
 	</section>
 </$list>
 
-<!-- Section 4: Generic Tag Explorer (Filter configurable via $:/config/slipstream/tag-explorer-filter) -->
-<section class="mn-nav-section">
-	<h3 class="mn-nav-heading">Tags</h3>
-	<$let tagFilter={{{ [{$:/config/slipstream/tag-explorer-filter}!is[blank]else[[tags[]!is[system]sort[title]limit[25]]]] }}}>
-		<$list filter="[subfilter<tagFilter>]" variable="tagItem">
-			<div class="mn-nav-item">
-				<$macrocall $name="tag-pill" tag=<<tagItem>>/>
-				<span class="mn-prop-label"><$count filter="[all[tiddlers]tag<tagItem>]"/></span>
-			</div>
-		</$list>
-	</$let>
+<!-- Section 4: Standard TiddlyWiki Sidebar Tabs (Open, Recent, Tools, More) -->
+<section class="mn-nav-section mn-sidebar-tabs-section">
+	<h3 class="mn-nav-heading">Workspace Tabs</h3>
+	{{$:/core/ui/SideBarSegments/tabs}}
 </section>

@@ -6,13 +6,15 @@ type: text/vnd.tiddlywiki
 	<$tiddler tiddler=<<activeTiddler>>>
 		<section class="mn-nav-section">
 			<h3 class="mn-nav-heading">Active Context Inspector</h3>
-			<div class="mn-card-title"><$view field="caption"><$view field="title"/></$view></div>
-			<%if [all[current]has[modified]] %>
-				<div class="mn-prop-label">Modified <$view field="modified" format="relativedate"/></div>
-			<%endif%>
+			<div class="mn-inspector-focus-card">
+				<div class="mn-card-title"><$view field="caption"><$view field="title"/></$view></div>
+				<%if [all[current]has[modified]] %>
+					<div class="mn-prop-label" style="font-size:0.76rem;">Modified&#32;<$view field="modified" format="relativedate"/></div>
+				<%endif%>
+			</div>
 
 			<!-- Generic Inspector Mode Tabs -->
-			<div class="mn-object-prop-bar">
+			<div class="mn-segmented-tabs">
 				<$list filter="Backlinks Outline Fields [all[shadows+tiddlers]tag[$:/tags/Slipstream/InspectorTab]!has[draft.of]] [all[shadows+tiddlers]tag[$:/tags/ModernNotebook/InspectorTab]!has[draft.of]] +[unique[]]" variable="tabItem">
 					<$button
 						set="$:/state/slipstream/inspector-tab"

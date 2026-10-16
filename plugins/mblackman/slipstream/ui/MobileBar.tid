@@ -55,7 +55,10 @@ type: text/vnd.tiddlywiki
 							<div class="mn-nav-heading">Zoomed Tiddler Options</div>
 							<div class="mn-card-title"><$view field="caption"><$view field="title"/></$view></div>
 						</div>
-						<$button set="$:/state/slipstream/mobile-action-sheet" setTo="closed" class="mn-pill-btn">Done ✕</$button>
+						<div style="display:flex;align-items:center;gap:0.4rem;">
+							<$button to="$:/ControlPanel" class="mn-pill-btn" tooltip="Open Control Panel">⚙ Settings</$button>
+							<$button set="$:/state/slipstream/mobile-action-sheet" setTo="closed" class="mn-pill-btn">Done ✕</$button>
+						</div>
 					</header>
 
 					<!-- All ViewToolbar Buttons Rendered as Touch Grid -->

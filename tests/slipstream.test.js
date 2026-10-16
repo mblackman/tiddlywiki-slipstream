@@ -44,6 +44,7 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
       "$:/plugins/mblackman/slipstream/ui/TopBar",
       "$:/plugins/mblackman/slipstream/ui/WideViewWrapper",
       "$:/plugins/mblackman/slipstream/widgets/ui-primitives",
+      "$:/config/ui/SideBar/More/horizontal",
     ];
 
     for (const title of expectedShadows) {
@@ -86,6 +87,10 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     expect(css).toMatch(/\.mn-mobile-pill-strip\s*\{[^}]*z-index:\s*410/s);
     expect(css).toMatch(/\.mn-mobile-bottombar\s*\{[^}]*z-index:\s*480/s);
     expect(css).toMatch(/\.mn-backdrop\s*\{[^}]*z-index:\s*520/s);
+
+    // Ensure CSS is unlayered so it overrides TiddlyWiki's unlayered vanilla/snowwhite base themes
+    expect(css).not.toContain("@layer");
+    expect(css).toContain("width: min(100%, var(--mn-reading-width, 840px))");
   });
 
   test("renders desktop 3-column Slipstream Layout and custom widgets ($ss.hero, $ss.grid, $ss.card, $ss.prop-pill, $ss.progress)", () => {
@@ -104,11 +109,13 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
       "$:/plugins/mblackman/slipstream/ui/Layout"
     );
 
+    expect(html).not.toContain("Filter error");
     expect(html).toContain("mn-app-shell");
     expect(html).toContain("mn-is-desktop");
     expect(html).toContain("mn-topbar");
     expect(html).toContain("mn-workspace-grid");
     expect(html).toContain("mn-panel-left");
+    expect(html).toContain("tc-page-controls");
     expect(html).toContain("mn-story-container");
     expect(html).toContain("mn-panel-right");
 

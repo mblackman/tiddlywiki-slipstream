@@ -1,0 +1,8 @@
+title: $:/plugins/mblackman/slipstream/startup/activate
+tags: $:/tags/StartupAction
+type: text/vnd.tiddlywiki
+
+\whitespace trim
+<%if [{$:/layout}trim[]is[blank]] %>
+	<$action-setfield $tiddler="$:/layout" text="$:/plugins/mblackman/slipstream/ui/Layout" $timestamp="no"/>
+<%endif%>

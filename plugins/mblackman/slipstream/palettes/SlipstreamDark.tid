@@ -1,0 +1,46 @@
+title: $:/plugins/mblackman/slipstream/palettes/SlipstreamDark
+name: Slipstream Dark
+description: Deep obsidian and slate dark palette for Slipstream
+tags: $:/tags/Palette
+type: application/x-tiddler-dictionary
+color-scheme: dark
+
+background: #111827
+page-background: #0b0f19
+foreground: #f1f5f9
+muted-foreground: #94a3b8
+primary: #3b82f6
+tag-background: #1e293b
+tag-foreground: #e2e8f0
+code-background: #0f172a
+code-border: #1e293b
+code-foreground: #e2e8f0
+blockquote-bar: #3b82f6
+dropdown-background: #111827
+dropdown-border: #334155
+dropdown-tab-background: #1e293b
+dropdown-tab-background-selected: #111827
+modal-background: #111827
+modal-border: #334155
+modal-header-border: #1e293b
+modal-footer-background: #0f172a
+modal-footer-border: #1e293b
+notification-background: #1e293b
+notification-border: #334155
+alert-background: #1e293b
+alert-border: #3b82f6
+alert-highlight: #60a5fa
+alert-muted-foreground: #94a3b8
+dirty-indicator: #f87171
+select-tag-background: #3b82f6
+select-tag-foreground: #ffffff
+tiddler-border: #1e293b
+tiddler-title-foreground: #f1f5f9
+tiddler-subtitle-foreground: #94a3b8
+tiddler-controls-foreground: #64748b
+tiddler-controls-foreground-hover: #f1f5f9
+tiddler-controls-foreground-selected: #60a5fa
+table-border: #1e293b
+table-header-background: #1e293b
+table-footer-background: #1e293b
+untagged-background: #334155
