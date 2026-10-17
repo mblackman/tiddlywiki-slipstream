@@ -6,21 +6,31 @@ type: text/vnd.tiddlywiki
 \function .is-draft() [.active-tiddler[]has[draft.of]then[yes]else[no]]
 \function .has-active() [.active-tiddler[]!is[blank]then[yes]else[no]]
 \function .backlinks-count() [.active-tiddler[]backlinks[]!is[system]count[]]
+\function folded-state() [[$:/state/folded/]addsuffix<currentTiddler>]
+<!-- cancel-delete-tiddler-actions and close-and-forward must be defined via \define for textual parameter substitution into actions string attributes -->
+\define cancel-delete-tiddler-actions(message) <$action-setfield $tiddler="$:/state/slipstream/mobile-action-sheet" text="closed"/><$action-sendmessage $message="tm-$message$-tiddler" $param=<<currentTiddler>>/>
+\define close-and-forward(message)
+<$action-setfield $tiddler="$:/state/slipstream/mobile-action-sheet" text="closed"/>
+<$action-sendmessage
+	$message="$message$"
+	$param={{{ [<event-param>!is[blank]else<event-tiddlerTitle>!is[blank]else<currentTiddler>] }}}
+/>
+\end
 
 <nav class="mn-mobile-bottombar" aria-label="Mobile Controls">
 	<%if [.is-draft[]match[yes]] %>
 		<!-- Draft / Edit Mode Controls -->
-		<$button message="tm-cancel-tiddler" param=<<.active-tiddler>> class="mn-mobile-nav-btn mn-mobile-nav-btn-cancel" tooltip="Cancel changes">
+		<$button message="tm-cancel-tiddler" param=<<.active-tiddler>> set="$:/state/slipstream/mobile-action-sheet" setTo="closed" class="mn-mobile-nav-btn mn-mobile-nav-btn-cancel" tooltip="Cancel changes">
 			<span class="mn-mobile-nav-icon-wrap"><span class="mn-nav-icon">✕</span></span>
 			<span class="mn-nav-label">Cancel</span>
 		</$button>
 
-		<$button message="tm-save-tiddler" param=<<.active-tiddler>> class="mn-mobile-nav-btn mn-mobile-nav-btn-save" tooltip="Save note changes">
+		<$button message="tm-save-tiddler" param=<<.active-tiddler>> set="$:/state/slipstream/mobile-action-sheet" setTo="closed" class="mn-mobile-nav-btn mn-mobile-nav-btn-save" tooltip="Save note changes">
 			<span class="mn-mobile-nav-icon-wrap"><span class="mn-nav-icon">✓</span></span>
 			<span class="mn-nav-label">Save</span>
 		</$button>
 
-		<$button message="tm-delete-tiddler" param=<<.active-tiddler>> class="mn-mobile-nav-btn mn-mobile-nav-btn-danger" tooltip="Discard draft">
+		<$button message="tm-delete-tiddler" param=<<.active-tiddler>> set="$:/state/slipstream/mobile-action-sheet" setTo="closed" class="mn-mobile-nav-btn mn-mobile-nav-btn-danger" tooltip="Discard draft">
 			<span class="mn-mobile-nav-icon-wrap"><span class="mn-nav-icon">🗑</span></span>
 			<span class="mn-nav-label">Discard</span>
 		</$button>
@@ -95,7 +105,7 @@ type: text/vnd.tiddlywiki
 </nav>
 
 <!-- Context Inspector Sheet (Backlinks, Outline, Fields) -->
-<%if [{$:/state/slipstream/mobile-context-sheet}match[open]] %>
+<%if [{$:/state/slipstream/mobile-context-sheet}match[open]then<.has-active>match[yes]then<.is-draft>match[no]] %>
 	<div class="mn-backdrop">
 		<$button set="$:/state/slipstream/mobile-context-sheet" setTo="closed" class="mn-backdrop-dismiss tc-btn-invisible" aria-label="Close context sheet"/>
 		<section class="mn-bottom-sheet">
@@ -121,34 +131,48 @@ type: text/vnd.tiddlywiki
 <%endif%>
 
 <!-- Slide-Up Bottom Sheet for Secondary Tiddler Actions (•••) -->
-<%if [{$:/state/slipstream/mobile-action-sheet}match[open]] %>
+<%if [{$:/state/slipstream/mobile-action-sheet}match[open]then<.has-active>match[yes]then<.is-draft>match[no]] %>
 	<div class="mn-backdrop">
 		<$button set="$:/state/slipstream/mobile-action-sheet" setTo="closed" class="mn-backdrop-dismiss tc-btn-invisible" aria-label="Close options sheet"/>
 		<section class="mn-bottom-sheet">
 			<$let zoomedTiddler=<<.active-tiddler>>>
 				<$tiddler tiddler=<<zoomedTiddler>>>
-					<header class="mn-card-header mn-bottom-sheet-header">
-						<div>
-							<div class="mn-nav-heading">Note Actions</div>
-							<div class="mn-card-title"><$view field="caption"><$view field="title"/></$view></div>
-						</div>
-						<div>
-							<$button set="$:/state/slipstream/mobile-action-sheet" setTo="closed" class="mn-pill-btn">Done ✕</$button>
-						</div>
-					</header>
+					<$vars storyTiddler=<<currentTiddler>> tiddlerInfoState=<<qualify "$:/state/popup/tiddler-info">>>
+						<header class="mn-card-header mn-bottom-sheet-header">
+							<div>
+								<div class="mn-nav-heading">Note Actions</div>
+								<div class="mn-card-title"><$view field="caption"><$view field="title"/></$view></div>
+							</div>
+							<div>
+								<$button set="$:/state/slipstream/mobile-action-sheet" setTo="closed" class="mn-pill-btn">Done ✕</$button>
+							</div>
+						</header>
 
-					<!-- Secondary ViewToolbar Buttons Rendered as Touch Grid -->
-					<div class="mn-sheet-action-grid">
-						<$let tv-config-toolbar-icons="yes" tv-config-toolbar-text="yes">
-							<$list filter="[all[shadows+tiddlers]tag[$:/tags/ViewToolbar]!has[draft.of]] -[[$:/core/ui/Buttons/fold-bar]] -[[$:/core/ui/Buttons/more-tiddler-actions]]" variable="toolbarItem">
-								<$let condition={{{ [<toolbarItem>get[condition]] }}}>
-									<%if [<condition>!is[blank]] :and[<currentTiddler>subfilter<condition>limit[1]] :else[<condition>is[blank]then[true]] %>
-										<div class="mn-sheet-action-item"><$transclude $tiddler=<<toolbarItem>> mode="inline"/></div>
-									<%endif%>
+						<!-- Secondary ViewToolbar Buttons Rendered as Touch Grid -->
+						<div class="mn-sheet-action-grid">
+							<$messagecatcher
+								$tm-edit-tiddler=<<close-and-forward "tm-edit-tiddler">>
+								$tm-close-tiddler=<<close-and-forward "tm-close-tiddler">>
+								$tm-close-other-tiddlers=<<close-and-forward "tm-close-other-tiddlers">>
+								$tm-permalink=<<close-and-forward "tm-permalink">>
+								$tm-permaview=<<close-and-forward "tm-permaview">>
+								$tm-open-window=<<close-and-forward "tm-open-window">>
+								$tm-fold-tiddler=<<close-and-forward "tm-fold-tiddler">>
+								$tm-fold-other-tiddlers=<<close-and-forward "tm-fold-other-tiddlers">>
+								$tm-download-file=<<close-and-forward "tm-download-file">>
+							>
+								<$let tv-config-toolbar-icons="yes" tv-config-toolbar-text="yes">
+									<$list filter="[all[shadows+tiddlers]tag[$:/tags/ViewToolbar]!has[draft.of]] -[[$:/core/ui/Buttons/fold-bar]] -[[$:/core/ui/Buttons/more-tiddler-actions]]" variable="toolbarItem">
+										<$let condition={{{ [<toolbarItem>get[condition]] }}}>
+											<%if [<condition>!is[blank]] :and[<currentTiddler>subfilter<condition>limit[1]] :else[<condition>is[blank]then[true]] %>
+												<div class="mn-sheet-action-item"><$transclude $tiddler=<<toolbarItem>> mode="inline"/></div>
+											<%endif%>
+										</$let>
+									</$list>
 								</$let>
-							</$list>
-						</$let>
-					</div>
+							</$messagecatcher>
+						</div>
+					</$vars>
 				</$tiddler>
 			</$let>
 		</section>

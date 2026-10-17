@@ -197,6 +197,13 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     expect(openHtml).toContain("mn-left-open");
     expect(openHtml).toContain("mn-mobile-drawer-backdrop");
     $tw.wiki.deleteTiddler("$:/state/slipstream/left-panel");
+    $tw.wiki.deleteTiddler("$:/state/slipstream/mobile-action-sheet");
+
+    const closedSheetHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/Layout"
+    );
+    expect(closedSheetHtml).not.toContain("mn-bottom-sheet");
   });
 
   test("configures mobile bottom sheet with fixed height and full touch-target action buttons", () => {
@@ -858,6 +865,114 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
 
     // Cleanup
     $tw.wiki.deleteTiddler("PinTestNote");
+  });
+
+  test("executes note actions and dismisses sheet in mobile options menu (delete, edit, close)", () => {
+    // 1. Setup mobile reading mode with open note
+    $tw.wiki.addTiddler({
+      title: "$:/info/browser/window/system/main/client/width",
+      text: "390",
+    });
+    $tw.wiki.addTiddler({
+      title: "MobileActionNote",
+      text: "Testing mobile actions...",
+    });
+    $tw.wiki.addTiddler({
+      title: "OtherNote",
+      text: "Another note in story...",
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/StoryList",
+      list: ["MobileActionNote", "OtherNote"],
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/HistoryList",
+      "current-tiddler": "MobileActionNote",
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/state/slipstream/mobile-action-sheet",
+      text: "open",
+    });
+
+    const parser = $tw.wiki.parseTiddler("$:/plugins/mblackman/slipstream/ui/Layout");
+    const widgetNode = $tw.wiki.makeWidget(parser, {});
+    const container = $tw.fakeDocument.createElement("div");
+    widgetNode.render(container, null);
+
+    function findButton(node, predicate) {
+      if (node.parseTreeNode && node.parseTreeNode.type === "button" && predicate(node)) {
+        return node;
+      }
+      for (const child of node.children) {
+        const res = findButton(child, predicate);
+        if (res) return res;
+      }
+      return null;
+    }
+
+    // 2. Verify delete button is armed with cancel-delete-tiddler-actions
+    const deleteBtn = findButton(
+      widgetNode,
+      b => b.getAttribute("aria-label") === "Delete this tiddler"
+    );
+    expect(deleteBtn).not.toBeNull();
+    const deleteActions = deleteBtn.getAttribute("actions");
+    expect(deleteActions).toBeDefined();
+    expect(deleteActions).toContain('tm-delete-tiddler');
+    expect(deleteActions).toContain('$:/state/slipstream/mobile-action-sheet');
+    expect(deleteActions).toContain('closed');
+
+    // 3. Verify close button closes the open note and dismisses the sheet
+    const closeBtn = findButton(
+      widgetNode,
+      b => b.getAttribute("aria-label") === "close" &&
+           b.parentDomNode && b.parentDomNode.className &&
+           b.parentDomNode.className.includes("mn-sheet-action-item")
+    );
+    expect(closeBtn).not.toBeNull();
+    closeBtn.dispatchMessage({ preventDefault: () => {}, stopPropagation: () => {} });
+    expect($tw.wiki.getTiddlerList("$:/StoryList")).toEqual(["OtherNote"]);
+    expect($tw.wiki.getTiddlerText("$:/state/slipstream/mobile-action-sheet")).toBe("closed");
+
+    // Verify the options sheet is not rendered in the DOM when state is closed
+    const closedHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/MobileBar"
+    );
+    expect(closedHtml).not.toContain("mn-bottom-sheet");
+
+    // 4. Verify draft mode suppresses options sheet
+    $tw.wiki.addTiddler({
+      title: "Draft of 'MobileActionNote'",
+      "draft.of": "MobileActionNote",
+      text: "Drafting...",
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/StoryList",
+      list: ["Draft of 'MobileActionNote'"],
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/HistoryList",
+      "current-tiddler": "Draft of 'MobileActionNote'",
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/state/slipstream/mobile-action-sheet",
+      text: "open",
+    });
+
+    const draftHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/MobileBar"
+    );
+    // Sheet must not be rendered when active note is in draft mode
+    expect(draftHtml).not.toContain("mn-bottom-sheet");
+    expect(draftHtml).toContain("mn-mobile-nav-btn-save");
+
+    // Cleanup
+    $tw.wiki.deleteTiddler("MobileActionNote");
+    $tw.wiki.deleteTiddler("OtherNote");
+    $tw.wiki.deleteTiddler("Draft of 'MobileActionNote'");
+    $tw.wiki.deleteTiddler("$:/state/slipstream/mobile-action-sheet");
   });
 });
 
