@@ -910,7 +910,60 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
       return null;
     }
 
-    // 2. Verify delete button is armed with cancel-delete-tiddler-actions
+    // 2. Verify Info button in mobile sheet targets the exact same tiddlerInfoState as the focused tiddler in the Story River
+    function findInfoReveal(node) {
+      if (
+        node.parseTreeNode &&
+        node.parseTreeNode.type === "reveal" &&
+        node.getAttribute("class") &&
+        node.getAttribute("class").includes("tc-tiddler-info") &&
+        node.getVariable("currentTiddler") === "MobileActionNote"
+      ) {
+        return node;
+      }
+      for (const child of node.children) {
+        const res = findInfoReveal(child);
+        if (res) return res;
+      }
+      return null;
+    }
+
+    const storyInfoReveal = findInfoReveal(widgetNode);
+    expect(storyInfoReveal).not.toBeNull();
+    const expectedInfoState = storyInfoReveal.getAttribute("state");
+    expect(expectedInfoState).toMatch(/^\$:\/state\/popup\/tiddler-info-/);
+
+    const infoBtn = findButton(
+      widgetNode,
+      b =>
+        b.getAttribute("aria-label") === "info" &&
+        b.getVariable("tiddlerInfoState") === expectedInfoState &&
+        b.getAttribute("setTo") === "yes"
+    );
+    expect(infoBtn).not.toBeNull();
+    expect(infoBtn.getAttribute("set")).toBe(expectedInfoState);
+
+    // Triggering the info button sets the focused tiddler's info state tiddler
+    infoBtn.setTiddler();
+    expect($tw.wiki.getTiddlerText(expectedInfoState)).toBe("yes");
+
+    // 3. Verify fold button forwards foldedState in paramObject and toggles $:/state/folded/MobileActionNote
+    const foldBtn = findButton(
+      widgetNode,
+      b => b.getAttribute("aria-label") === "fold tiddler"
+    );
+    expect(foldBtn).not.toBeNull();
+    foldBtn.invokeActions(foldBtn, { preventDefault: () => {}, stopPropagation: () => {} });
+    expect($tw.wiki.getTiddlerText("$:/state/folded/MobileActionNote")).toBe("hide");
+    expect($tw.wiki.getTiddlerText("$:/state/slipstream/mobile-action-sheet")).toBe("closed");
+
+    // Re-open sheet to test remaining controls
+    $tw.wiki.addTiddler({
+      title: "$:/state/slipstream/mobile-action-sheet",
+      text: "open",
+    });
+
+    // 4. Verify delete button is armed with cancel-delete-tiddler-actions
     const deleteBtn = findButton(
       widgetNode,
       b => b.getAttribute("aria-label") === "Delete this tiddler"
@@ -922,7 +975,7 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     expect(deleteActions).toContain('$:/state/slipstream/mobile-action-sheet');
     expect(deleteActions).toContain('closed');
 
-    // 3. Verify close button closes the open note and dismisses the sheet
+    // 5. Verify close button closes the open note and dismisses the sheet
     const closeBtn = findButton(
       widgetNode,
       b => b.getAttribute("aria-label") === "close" &&
@@ -941,7 +994,7 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     );
     expect(closedHtml).not.toContain("mn-bottom-sheet");
 
-    // 4. Verify draft mode suppresses options sheet
+    // 6. Verify draft mode suppresses options sheet
     $tw.wiki.addTiddler({
       title: "Draft of 'MobileActionNote'",
       "draft.of": "MobileActionNote",
@@ -972,6 +1025,8 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     $tw.wiki.deleteTiddler("MobileActionNote");
     $tw.wiki.deleteTiddler("OtherNote");
     $tw.wiki.deleteTiddler("Draft of 'MobileActionNote'");
+    $tw.wiki.deleteTiddler("$:/state/folded/MobileActionNote");
+    $tw.wiki.deleteTiddler(expectedInfoState);
     $tw.wiki.deleteTiddler("$:/state/slipstream/mobile-action-sheet");
   });
 

@@ -2405,7 +2405,8 @@ body:has(.mn-app-shell).tc-body {
 
 .mn-sheet-action-item > span:not([hidden]):not(:has(.tc-drop-down)),
 .mn-sheet-action-item .tc-reveal:not([hidden]):not(:has(.tc-drop-down)),
-.mn-sheet-action-item .tc-popup-keep {
+.mn-sheet-action-item .tc-popup-keep,
+.mn-sheet-action-item .mn-sheet-action-fill {
 	display: flex;
 	flex: 1 1 100%;
 	width: 100%;
@@ -2501,6 +2502,23 @@ body:has(.mn-app-shell).tc-body {
 	color: var(--mn-danger, #ef4444);
 }
 
+/* Tiddler Info Box Styling (.tc-tiddler-info) */
+.mn-story-container .tc-tiddler-info {
+	margin: 0.85rem 0 0.5rem !important;
+	padding: 1rem 1.25rem !important;
+	background: var(--mn-bg-subtle);
+	border: 1px solid var(--mn-border-subtle);
+	border-radius: var(--mn-radius-card);
+}
+
+.mn-story-container .tc-tiddler-info .tc-tiddler-info-controls {
+	opacity: 0.75;
+}
+
+.mn-story-container .tc-tiddler-info .tc-tiddler-info-controls:hover {
+	opacity: 1;
+}
+
 @media (max-width: 1023px) {
 	/* Responsive Utilities */
 	.mn-desktop-only {
@@ -2593,9 +2611,14 @@ body:has(.mn-app-shell).tc-body {
 		font-size: 1.45rem;
 	}
 
-	/* Hide top-right toolbar clutter in mobile reading mode (use thumb-zone bottom bar instead) */
-	.mn-story-container .tc-tiddler-frame:not(.tc-tiddler-edit-frame) .tc-tiddler-controls {
+	/* Hide top-right toolbar clutter in mobile reading mode (use thumb-zone bottom bar instead), but keep info box close button visible */
+	.mn-story-container .tc-tiddler-frame:not(.tc-tiddler-edit-frame) .tc-tiddler-controls:not(.tc-tiddler-info-controls) {
 		display: none;
+	}
+
+	.mn-story-container .tc-tiddler-info .tc-tiddler-info-controls {
+		display: inline-flex;
+		opacity: 1;
 	}
 
 	/* In mobile edit mode, show controls inside draft frame as well */
