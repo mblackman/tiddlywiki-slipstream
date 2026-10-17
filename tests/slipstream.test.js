@@ -974,6 +974,47 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     $tw.wiki.deleteTiddler("Draft of 'MobileActionNote'");
     $tw.wiki.deleteTiddler("$:/state/slipstream/mobile-action-sheet");
   });
+
+  test("constrains wide content and tables with horizontal scrolling and scrollbars inside tiddler frames", () => {
+    const css = fs.readFileSync(path.join(PLUGIN_DIR, "styles/core.css"), "utf8");
+
+    // Ensure .tc-tiddler-frame has min-width: 0 to prevent flex containers from expanding beyond bounds
+    expect(css).toMatch(/\.mn-app-shell \.mn-story-container \.tc-tiddler-frame\s*\{[^}]*min-width:\s*0/s);
+
+    // Ensure .tc-tiddler-body acts as a horizontal scroll container for any overflowing wide content
+    expect(css).toMatch(/\.mn-story-container \.tc-tiddler-body\s*\{[^}]*min-width:\s*0/s);
+    expect(css).toMatch(/\.mn-story-container \.tc-tiddler-body\s*\{[^}]*max-width:\s*100%/s);
+    expect(css).toMatch(/\.mn-story-container \.tc-tiddler-body\s*\{[^}]*overflow-x:\s*auto/s);
+    expect(css).toMatch(/\.mn-story-container \.tc-tiddler-body\s*\{[^}]*overflow-wrap:\s*break-word/s);
+
+    // Ensure tables are block scroll containers with width: fit-content, max-width: 100%, and overflow-x: auto
+    expect(css).toMatch(/\.tc-tiddler-body table[^{]*\{[^}]*display:\s*block/s);
+    expect(css).toMatch(/\.tc-tiddler-body table[^{]*\{[^}]*width:\s*fit-content/s);
+    expect(css).toMatch(/\.tc-tiddler-body table[^{]*\{[^}]*max-width:\s*100%/s);
+    expect(css).toMatch(/\.tc-tiddler-body table[^{]*\{[^}]*overflow-x:\s*auto/s);
+    expect(css).toMatch(/\.tc-tiddler-body table[^{]*\{[^}]*scrollbar-width:\s*thin/s);
+
+    // Ensure prose table rules do not globally target .tc-tiddler-frame table (which would break .tc-edit-fields)
+    expect(css).not.toContain(".tc-tiddler-frame table");
+
+    // Ensure code blocks and media are constrained
+    expect(css).toMatch(/\.tc-tiddler-body pre\s*\{[^}]*overflow-x:\s*auto/s);
+    expect(css).toMatch(/\.tc-tiddler-body pre\s*\{[^}]*max-width:\s*100%/s);
+    expect(css).toMatch(/\.tc-tiddler-body (?:img|video|svg|canvas|iframe)[^{]*\{[^}]*max-width:\s*100%/s);
+
+    // Verify rendered wikitext table produces valid HTML within the Slipstream storyview
+    $tw.wiki.addTiddler({
+      title: "WideTableNote",
+      text: "| !Col 1 | !Col 2 | !Col 3 | !Col 4 | !Col 5 | !Col 6 |\n| Value 1 | Value 2 | Value 3 | Value 4 | Value 5 | Value 6 |",
+    });
+
+    const rendered = $tw.wiki.renderTiddler("text/html", "WideTableNote");
+    expect(rendered).toContain("<table");
+    expect(rendered).toContain("Col 1");
+    expect(rendered).toContain("Col 6");
+
+    $tw.wiki.deleteTiddler("WideTableNote");
+  });
 });
 
 

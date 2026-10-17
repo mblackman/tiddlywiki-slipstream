@@ -45,6 +45,16 @@ Tables in Slipstream adapt cleanly to the content area with clear column alignme
 | Trigger | Default behavior | Tagged `Wide` or `page-width: wide` |
 | Inspector Integration | Fully responsive | Supported |
 
+Wide tables that exceed reading width automatically remain constrained to the tiddler card with an integrated horizontal scrollbar:
+
+| !Metric / ID | !Quarter 1 | !Quarter 2 | !Quarter 3 | !Quarter 4 | !Year Total | !Target Goal | !Variance (%) | !Status |
+| **Active Notes** | 1,420 | 1,890 | 2,340 | 3,120 | 8,770 | 8,000 | +9.6% | `Exceeded` |
+| **Linked References** | 4,210 | 5,680 | 7,100 | 9,450 | 26,440 | 24,000 | +10.2% | `Exceeded` |
+| **Tags Applied** | 312 | 385 | 440 | 512 | 1,649 | 1,500 | +9.9% | `On Track` |
+| **Attachments (MB)** | 128 MB | 240 MB | 390 MB | 510 MB | 1,268 MB | 1,400 MB | -9.4% | `Optimal` |
+| **Weekly Reading (hrs)** | 14.2 hrs | 18.5 hrs | 21.0 hrs | 24.8 hrs | 78.5 hrs | 70.0 hrs | +12.1% | `Exceeded` |
+
+
 !! Code Blocks
 
 Slipstream renders fenced code blocks with clean padding and monospaced typography:

@@ -257,6 +257,7 @@ body:has(.mn-app-shell).tc-body {
 	z-index: 1;
 	width: min(100%, var(--mn-reading-width, 840px));
 	max-width: var(--mn-reading-width, 840px);
+	min-width: 0;
 	margin: 0 auto 1.75rem;
 	padding: 2.5rem 3rem;
 	background: var(--mn-bg-surface);
@@ -284,6 +285,7 @@ body:has(.mn-app-shell).tc-body {
 .mn-app-shell .mn-story-container .tc-tiddler-frame.mn-tiddler-wide {
 	width: min(100%, var(--mn-wide-width, 1120px));
 	max-width: var(--mn-wide-width, 1120px);
+	min-width: 0;
 }
 
 /* Clean Tiddler Header & Titlebar */
@@ -529,6 +531,36 @@ body:has(.mn-app-shell).tc-body {
 	font-size: 1rem;
 	line-height: 1.7;
 	margin-top: 0.85rem;
+	min-width: 0;
+	max-width: 100%;
+	overflow-x: auto;
+	overflow-wrap: break-word;
+	word-wrap: break-word;
+	scrollbar-width: thin;
+	scrollbar-color: color-mix(in srgb, var(--mn-text-muted) 35%, transparent) transparent;
+	-webkit-overflow-scrolling: touch;
+}
+
+.mn-story-container .tc-tiddler-body:has(.tc-drop-down:not([hidden])),
+.mn-story-container .tc-tiddler-body:has(.tc-popup:not([hidden])) {
+	overflow: visible;
+}
+
+.mn-story-container .tc-tiddler-body::-webkit-scrollbar {
+	height: 6px;
+}
+
+.mn-story-container .tc-tiddler-body::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.mn-story-container .tc-tiddler-body::-webkit-scrollbar-thumb {
+	background: color-mix(in srgb, var(--mn-text-muted) 35%, transparent);
+	border-radius: 9999px;
+}
+
+.mn-story-container .tc-tiddler-body::-webkit-scrollbar-thumb:hover {
+	background: var(--mn-text-muted);
 }
 
 .mn-story-container .tc-tiddler-body h1,
@@ -589,6 +621,8 @@ body:has(.mn-app-shell).tc-body {
 	background: var(--mn-bg-subtle);
 	border: 1px solid var(--mn-border-hairline);
 	color: var(--mn-text-main);
+	overflow-wrap: break-word;
+	word-break: break-word;
 }
 
 .mn-story-container .tc-tiddler-body pre {
@@ -599,6 +633,28 @@ body:has(.mn-app-shell).tc-body {
 	background: var(--mn-bg-subtle);
 	border: 1px solid var(--mn-border-hairline);
 	overflow-x: auto;
+	max-width: 100%;
+	box-sizing: border-box;
+	scrollbar-width: thin;
+	scrollbar-color: color-mix(in srgb, var(--mn-text-muted) 35%, transparent) transparent;
+	-webkit-overflow-scrolling: touch;
+}
+
+.mn-story-container .tc-tiddler-body pre::-webkit-scrollbar {
+	height: 6px;
+}
+
+.mn-story-container .tc-tiddler-body pre::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.mn-story-container .tc-tiddler-body pre::-webkit-scrollbar-thumb {
+	background: color-mix(in srgb, var(--mn-text-muted) 35%, transparent);
+	border-radius: 9999px;
+}
+
+.mn-story-container .tc-tiddler-body pre::-webkit-scrollbar-thumb:hover {
+	background: var(--mn-text-muted);
 }
 
 .mn-story-container .tc-tiddler-body pre code {
@@ -616,40 +672,99 @@ body:has(.mn-app-shell).tc-body {
 	color: var(--mn-text-muted);
 }
 
-.mn-story-container .tc-tiddler-body table {
-	width: 100%;
+.mn-story-container .tc-tiddler-body table,
+.mn-story-container .tc-tiddler-preview-preview table {
+	display: block;
+	width: fit-content;
+	max-width: 100%;
+	overflow-x: auto;
+	overflow-y: hidden;
+	scrollbar-width: thin;
+	scrollbar-color: color-mix(in srgb, var(--mn-text-muted) 35%, transparent) transparent;
+	-webkit-overflow-scrolling: touch;
 	border-collapse: collapse;
 	margin: 1.15rem 0;
 	font-size: 0.92rem;
 	border: 1px solid var(--mn-border-subtle);
 	border-radius: var(--mn-radius-sm);
-	overflow: hidden;
+	box-sizing: border-box;
+}
+
+.mn-story-container .tc-tiddler-body table.tc-max-width,
+.mn-story-container .tc-tiddler-preview-preview table.tc-max-width {
+	width: 100%;
+}
+
+.mn-story-container .tc-tiddler-body table::-webkit-scrollbar,
+.mn-story-container .tc-tiddler-preview-preview table::-webkit-scrollbar {
+	height: 6px;
+}
+
+.mn-story-container .tc-tiddler-body table::-webkit-scrollbar-track,
+.mn-story-container .tc-tiddler-preview-preview table::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.mn-story-container .tc-tiddler-body table::-webkit-scrollbar-thumb,
+.mn-story-container .tc-tiddler-preview-preview table::-webkit-scrollbar-thumb {
+	background: color-mix(in srgb, var(--mn-text-muted) 35%, transparent);
+	border-radius: 9999px;
+}
+
+.mn-story-container .tc-tiddler-body table::-webkit-scrollbar-thumb:hover,
+.mn-story-container .tc-tiddler-preview-preview table::-webkit-scrollbar-thumb:hover {
+	background: var(--mn-text-muted);
 }
 
 .mn-story-container .tc-tiddler-body th,
-.mn-story-container .tc-tiddler-body td {
+.mn-story-container .tc-tiddler-body td,
+.mn-story-container .tc-tiddler-preview-preview th,
+.mn-story-container .tc-tiddler-preview-preview td {
 	padding: 0.6rem 0.85rem;
 	border: 1px solid var(--mn-border-hairline);
 	text-align: left;
 }
 
-.mn-story-container .tc-tiddler-body th {
+.mn-story-container .tc-tiddler-body th,
+.mn-story-container .tc-tiddler-preview-preview th {
 	background: var(--mn-bg-subtle);
 	color: var(--mn-text-main);
 	font-weight: 600;
 	border-bottom: 1px solid var(--mn-border-subtle);
 }
 
-.mn-story-container .tc-tiddler-body tr:nth-child(even) td {
+.mn-story-container .tc-tiddler-body tr:nth-child(even) td,
+.mn-story-container .tc-tiddler-preview-preview tr:nth-child(even) td {
 	background: color-mix(in srgb, var(--mn-bg-subtle) 50%, transparent);
+}
+
+.mn-story-container .tc-tiddler-body table.tc-table-no-border,
+.mn-story-container .tc-tiddler-body table.tc-table-no-border th,
+.mn-story-container .tc-tiddler-body table.tc-table-no-border td,
+.mn-story-container .tc-tiddler-body table.tc-table-no-border tr:nth-child(even) td {
+	border: none;
+	background: transparent;
 }
 
 .mn-story-container .tc-tiddler-body img,
 .mn-story-container .tc-tiddler-body video,
-.mn-story-container .tc-tiddler-body svg.tc-image-button {
+.mn-story-container .tc-tiddler-body svg:not(.tc-image-button),
+.mn-story-container .tc-tiddler-body canvas,
+.mn-story-container .tc-tiddler-body iframe {
 	max-width: 100%;
 	height: auto;
 	border-radius: var(--mn-radius-sm);
+	box-sizing: border-box;
+}
+
+.mn-story-container .tc-tiddler-body .katex-display {
+	overflow-x: auto;
+	overflow-y: hidden;
+	max-width: 100%;
+	scrollbar-width: thin;
+	scrollbar-color: color-mix(in srgb, var(--mn-text-muted) 35%, transparent) transparent;
+	-webkit-overflow-scrolling: touch;
+	padding: 0.5rem 0;
 }
 
 .mn-app-shell kbd {
