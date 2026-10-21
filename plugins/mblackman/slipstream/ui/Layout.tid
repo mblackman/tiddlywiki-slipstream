@@ -14,6 +14,9 @@ type: text/vnd.tiddlywiki
 \function .desktop-class() [.desktop-mode[]match[document]then[mn-desktop-document-mode]else[mn-desktop-river-mode]]
 \function .active-storyview() [{$:/config/slipstream/storyview-override}!is[blank]!match[auto]] ~[.is-mobile[]match[yes]then[fade]] ~[.desktop-mode[]match[document]then[fade]else[classic]]
 \function .active-tiddler() [list[$:/StoryList]match{$:/HistoryList!!current-tiddler}] ~[list[$:/StoryList]first[]]
+\function .normalize-width(val) [<val>trim[]search-replace:gi:regexp[p?x?$],[]regexp[^\d+(\.\d+)?$]compare:number:gteq[180]compare:number:lteq[650]addsuffix[px]]
+\function .left-width() [.normalize-width{$:/state/slipstream/left-width}] ~[.normalize-width{$:/config/slipstream/left-width}] ~[[272px]]
+\function .right-width() [.normalize-width{$:/state/slipstream/right-width}] ~[.normalize-width{$:/config/slipstream/right-width}] ~[[272px]]
 \function .container-classes() tc-page-container mn-app-shell [.is-left-open[]match[yes]then[mn-left-open]else[mn-left-collapsed]] [{$:/state/slipstream/right-panel}match[no]then[mn-right-collapsed]else[mn-right-open]] [.is-mobile[]match[yes]then[mn-is-mobile]else[mn-is-desktop]] [.is-mobile[]match[no]then<.desktop-class>] [[tc-page-view-]addsuffix<.active-storyview>] +[join[ ]]
 
 \procedure redirected-navigate-actions()
@@ -46,7 +49,7 @@ type: text/vnd.tiddlywiki
 	>
 		<$messagecatcher $tm-navigate=<<redirected-navigate-actions>>>
 			<$dropzone enable=<<tv-enable-drag-and-drop>> class="tc-dropzone">
-				<div class=<<.container-classes>> style=`--mn-reading-width: ${ [{$:/config/slipstream/reading-width}!is[blank]else[840px]] }$; --mn-wide-width: ${ [{$:/config/slipstream/wide-width}!is[blank]else[1120px]] }$;`>
+				<div class=<<.container-classes>> style=`--mn-reading-width: ${ [{$:/config/slipstream/reading-width}!is[blank]else[840px]] }$; --mn-wide-width: ${ [{$:/config/slipstream/wide-width}!is[blank]else[1120px]] }$; --mn-left-width: ${ [.left-width[]] }$; --mn-right-width: ${ [.right-width[]] }$;`>
 					{{$:/core/ui/PageTemplate/pluginreloadwarning}}
 					{{$:/core/ui/PageTemplate/alerts}}
 
@@ -67,6 +70,9 @@ type: text/vnd.tiddlywiki
 					<div class="mn-workspace-grid">
 						<aside class="mn-panel-left">
 							{{$:/plugins/mblackman/slipstream/ui/LeftNav}}
+							<div class="mn-resizer mn-resizer-left" data-side="left" title="Drag to resize sidebar (Double-click to reset)" aria-label="Resize left sidebar" role="separator" aria-orientation="vertical" aria-valuenow={{{ [.left-width[]search-replace[px],[]] }}} aria-valuemin="180" aria-valuemax="650" tabindex="0">
+								<div class="mn-resizer-handle"></div>
+							</div>
 						</aside>
 
 						<main class="mn-story-container tc-story-river" role="main">
@@ -93,7 +99,12 @@ type: text/vnd.tiddlywiki
 						</main>
 
 						<aside class="mn-panel-right">
-							{{$:/plugins/mblackman/slipstream/ui/RightInspector}}
+							<div class="mn-resizer mn-resizer-right" data-side="right" title="Drag to resize context inspector (Double-click to reset)" aria-label="Resize right sidebar" role="separator" aria-orientation="vertical" aria-valuenow={{{ [.right-width[]search-replace[px],[]] }}} aria-valuemin="180" aria-valuemax="650" tabindex="0">
+								<div class="mn-resizer-handle"></div>
+							</div>
+							<div class="mn-panel-right-body">
+								{{$:/plugins/mblackman/slipstream/ui/RightInspector}}
+							</div>
 						</aside>
 					</div>
 

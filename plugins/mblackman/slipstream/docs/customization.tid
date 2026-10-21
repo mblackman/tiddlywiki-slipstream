@@ -21,7 +21,18 @@ To customize the filter used for pinned shortcuts, edit `$:/config/slipstream/pi
 
 ---
 
-! 2. Wide Layout Breakout (`1120px`)
+! 2. Resizable Desktop Sidebars
+
+In desktop viewports (`>= 1024px`), both sidebars feature draggable resizer handles located on their inner river borders:
+
+* **Drag to Resize**: Hover over the vertical divider and drag horizontally to widen or narrow either sidebar.
+* **Double-Click to Reset**: Double-click any divider to quickly reset that sidebar back to the default `272px`.
+* **Keyboard Accessible**: Focus the divider with <kbd>Tab</kbd> and use <kbd>←</kbd> / <kbd>→</kbd> (or <kbd>Shift</kbd> + Arrow keys for larger 25px steps) to adjust the width, or press <kbd>Enter</kbd> / <kbd>Home</kbd> to reset.
+* **Device-Specific Persistence**: Custom widths are saved locally per browser/device in `localStorage` and `$:/state/slipstream/`, ensuring wide desktop monitors and smaller laptop screens retain independent dimensions without syncing across devices. Widths can also be customized manually in [[$:/plugins/mblackman/slipstream/settings]].
+
+---
+
+! 3. Wide Layout Breakout (`1120px`)
 
 By default, Slipstream centers notes at `840px` for reading comfort.
 

@@ -180,13 +180,13 @@ body:has(.mn-app-shell).tc-body {
 	transition: grid-template-columns var(--mn-transition);
 }
 
-/* Symmetrical desktop columns keep reading tiddlers anchored to screen center regardless of sidebar toggles */
+/* Symmetrical desktop columns keep reading tiddlers anchored to screen center regardless of sidebar toggles, while reclaiming space if the open sidebar is widened */
 .mn-left-collapsed .mn-workspace-grid {
-	grid-template-columns: var(--mn-right-width, 272px) minmax(0, 1fr) var(--mn-right-width, 272px);
+	grid-template-columns: clamp(0px, calc(100vw - var(--mn-right-width, 272px) - var(--mn-reading-width, 840px) - 4rem), var(--mn-right-width, 272px)) minmax(0, 1fr) var(--mn-right-width, 272px);
 }
 
 .mn-right-collapsed .mn-workspace-grid {
-	grid-template-columns: var(--mn-left-width, 272px) minmax(0, 1fr) var(--mn-left-width, 272px);
+	grid-template-columns: var(--mn-left-width, 272px) minmax(0, 1fr) clamp(0px, calc(100vw - var(--mn-left-width, 272px) - var(--mn-reading-width, 840px) - 4rem), var(--mn-left-width, 272px));
 }
 
 .mn-left-collapsed.mn-right-collapsed .mn-workspace-grid {
@@ -236,10 +236,109 @@ body:has(.mn-app-shell).tc-body {
 }
 
 .mn-panel-right {
-	overflow-y: auto;
-	overflow-x: hidden;
+	display: flex;
+	flex-direction: column;
+	overflow: visible !important;
 	border-left: 1px solid var(--mn-border-hairline);
 	box-shadow: none;
+}
+
+.mn-panel-right .mn-panel-right-body {
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow-y: auto;
+	overflow-x: hidden;
+	scrollbar-width: thin;
+}
+
+/* Sidebar Resize Dividers & Drag Handles (Desktop) */
+.mn-app-shell .mn-resizer {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 8px;
+	z-index: 60;
+	cursor: col-resize;
+	user-select: none;
+	-webkit-user-select: none;
+	touch-action: none;
+	display: flex;
+	align-items: center;
+	outline: none;
+	background: transparent;
+}
+
+.mn-app-shell .mn-resizer-left {
+	right: -6px;
+	justify-content: flex-start;
+}
+
+.mn-app-shell .mn-resizer-right {
+	left: -6px;
+	justify-content: flex-end;
+}
+
+/* Yield pointer events on resizer when a floating dropdown/popup is open in the left sidebar */
+.mn-panel-left:has(.tc-drop-down:not([hidden])) .mn-resizer-left,
+.mn-panel-left:has(.tc-popup:not([hidden])) .mn-resizer-left {
+	pointer-events: none;
+}
+
+.mn-app-shell .mn-resizer-handle {
+	width: 2px;
+	height: 100%;
+	background: transparent;
+	border-radius: 1px;
+	transition: background 150ms ease, box-shadow 150ms ease, width 150ms ease;
+	pointer-events: none;
+}
+
+.mn-app-shell .mn-resizer:hover .mn-resizer-handle,
+.mn-app-shell .mn-resizer.mn-active .mn-resizer-handle {
+	background: var(--mn-accent);
+	width: 3px;
+	box-shadow: 0 0 6px var(--mn-accent-soft);
+}
+
+.mn-app-shell .mn-resizer:focus-visible {
+	outline: none;
+}
+
+.mn-app-shell .mn-resizer:focus-visible .mn-resizer-handle {
+	background: var(--mn-accent);
+	width: 3px;
+	box-shadow: 0 0 0 2px var(--mn-accent-soft);
+}
+
+/* Hide resizers when respective sidebar is collapsed */
+.mn-app-shell.mn-left-collapsed .mn-resizer-left {
+	display: none !important;
+}
+
+.mn-app-shell.mn-right-collapsed .mn-resizer-right {
+	display: none !important;
+}
+
+/* Hide resizers in mobile mode */
+.mn-app-shell.mn-is-mobile .mn-resizer {
+	display: none !important;
+}
+
+/* Resizing active drag state across the shell */
+.mn-app-shell.mn-is-resizing {
+	user-select: none !important;
+	-webkit-user-select: none !important;
+	cursor: col-resize !important;
+}
+
+.mn-app-shell.mn-is-resizing .mn-workspace-grid {
+	transition: none !important;
+}
+
+.mn-app-shell.mn-is-resizing * {
+	user-select: none !important;
+	-webkit-user-select: none !important;
+	cursor: col-resize !important;
 }
 
 .mn-left-collapsed .mn-panel-left {
@@ -2934,6 +3033,10 @@ body:has(.mn-app-shell).tc-body {
 	}
 
 	.mn-panel-right {
+		display: none !important;
+	}
+
+	.mn-resizer {
 		display: none !important;
 	}
 

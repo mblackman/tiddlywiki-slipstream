@@ -47,6 +47,15 @@ type: text/vnd.tiddlywiki
 		<$edit-text tiddler="$:/config/slipstream/wide-width" field="text" default="1120px" tag="input" class="mn-search-input"/>
 	</div>
 	<div class="mn-object-prop-bar">
+		<label class="mn-prop-label" style="min-width:240px;">Left Sidebar Width (This Device):</label>
+		<$edit-text tiddler="$:/state/slipstream/left-width" default="272px" tag="input" class="mn-search-input" placeholder="272px"/>
+	</div>
+	<div class="mn-object-prop-bar">
+		<label class="mn-prop-label" style="min-width:240px;">Right Inspector Width (This Device):</label>
+		<$edit-text tiddler="$:/state/slipstream/right-width" default="272px" tag="input" class="mn-search-input" placeholder="272px"/>
+	</div>
+	<p class="mn-prop-label" style="margin:0.25rem 0 0.5rem;font-size:0.76rem;">Sidebar widths are saved locally per browser so each device keeps its own dimensions without syncing across other screens.</p>
+	<div class="mn-object-prop-bar">
 		<label class="mn-prop-label" style="min-width:240px;">Mobile Breakpoint (px):</label>
 		<$edit-text tiddler="$:/config/slipstream/mobile-breakpoint" field="text" default="1024" tag="input" class="mn-search-input"/>
 	</div>

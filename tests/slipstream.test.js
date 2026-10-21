@@ -13,12 +13,17 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     $tw = TiddlyWiki();
     $tw.boot.argv = [path.join(ROOT_DIR, "demo")];
     $tw.boot.boot();
+    global.$tw = $tw;
     if ($tw.syncer) {
       if ($tw.syncer.pollTimerId) {
         clearInterval($tw.syncer.pollTimerId);
       }
       $tw.syncer.syncadaptor = { isReady: () => false };
     }
+  });
+
+  afterAll(() => {
+    delete global.$tw;
   });
 
   test("loads plugin manifest with TiddlyWiki >=5.4.0 requirement", () => {
@@ -52,6 +57,7 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
       "$:/plugins/mblackman/slipstream/widgets/ui-primitives",
       "$:/plugins/mblackman/slipstream/storyviews/fade.js",
       "$:/plugins/mblackman/slipstream/startup/sync-history.js",
+      "$:/plugins/mblackman/slipstream/startup/resizer.js",
       "$:/plugins/mblackman/slipstream/ui/PinnedTiddlerBar",
       "$:/config/ui/SideBar/More/horizontal",
     ];
@@ -1406,6 +1412,137 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
 
     // Cleanup
     $tw.wiki.deleteTiddler("LifecycleNote");
+  });
+
+  test("renders resizable desktop sidebar dividers and persists configured widths", () => {
+    // 1. Verify desktop rendering with default sidebar widths
+    $tw.wiki.addTiddler({
+      title: "$:/info/browser/window/system/main/client/width",
+      text: "1440",
+    });
+    $tw.wiki.deleteTiddler("$:/config/slipstream/left-width");
+    $tw.wiki.deleteTiddler("$:/config/slipstream/right-width");
+
+    let layoutHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/Layout"
+    );
+
+    // Verify left resizer handle
+    expect(layoutHtml).toContain("mn-resizer mn-resizer-left");
+    expect(layoutHtml).toContain('data-side="left"');
+    expect(layoutHtml).toContain('role="separator"');
+    expect(layoutHtml).toContain('aria-orientation="vertical"');
+    expect(layoutHtml).toContain('aria-valuenow="272"');
+    expect(layoutHtml).toContain('aria-valuemin="180"');
+    expect(layoutHtml).toContain('aria-valuemax="650"');
+
+    // Verify right resizer handle
+    expect(layoutHtml).toContain("mn-resizer mn-resizer-right");
+    expect(layoutHtml).toContain('data-side="right"');
+    expect(layoutHtml).toContain("mn-panel-right-body");
+
+    // Verify default CSS variables in inline style
+    expect(layoutHtml).toMatch(/--mn-left-width:\s*272px/);
+    expect(layoutHtml).toMatch(/--mn-right-width:\s*272px/);
+
+    // 2. Configure device-local widths in $:/state/slipstream/ and verify updated styles and ARIA attributes
+    $tw.wiki.addTiddler({
+      title: "$:/state/slipstream/left-width",
+      text: "340px",
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/state/slipstream/right-width",
+      text: "310px",
+    });
+
+    layoutHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/Layout"
+    );
+
+    expect(layoutHtml).toMatch(/--mn-left-width:\s*340px/);
+    expect(layoutHtml).toMatch(/--mn-right-width:\s*310px/);
+    expect(layoutHtml).toContain('aria-valuenow="340"');
+    expect(layoutHtml).toContain('aria-valuenow="310"');
+
+    // Verify device-local $:/state/ overrides global $:/config/
+    $tw.wiki.addTiddler({
+      title: "$:/config/slipstream/left-width",
+      text: "200px", // Global setting from another server/device
+    });
+    layoutHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/Layout"
+    );
+    // Local device setting (340px) takes precedence over foreign global config (200px)
+    expect(layoutHtml).toMatch(/--mn-left-width:\s*340px/);
+
+    // Verify unitless number ("360") normalizes to "360px", and partial keystroke ("3") falls back cleanly
+    $tw.wiki.addTiddler({
+      title: "$:/state/slipstream/left-width",
+      text: "360",
+    });
+    layoutHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/Layout"
+    );
+    expect(layoutHtml).toMatch(/--mn-left-width:\s*360px/);
+    expect(layoutHtml).toContain('aria-valuenow="360"');
+
+    $tw.wiki.addTiddler({
+      title: "$:/state/slipstream/left-width",
+      text: "3", // Partial keystroke while typing in Settings
+    });
+    layoutHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/Layout"
+    );
+    // Falls back to global config (200px) rather than jumping to 3px
+    expect(layoutHtml).toMatch(/--mn-left-width:\s*200px/);
+
+    // 3. Verify CSS rules for resizer styling, hover, collapsed state, and mobile suppression
+    const css = fs.readFileSync(path.join(PLUGIN_DIR, "styles/core.css"), "utf8");
+    expect(css).toMatch(/\.mn-app-shell \.mn-resizer\s*\{[^}]*cursor:\s*col-resize/s);
+    expect(css).toMatch(/\.mn-app-shell \.mn-resizer-left\s*\{[^}]*right:\s*-6px/s);
+    expect(css).toMatch(/\.mn-app-shell \.mn-resizer-right\s*\{[^}]*left:\s*-6px/s);
+    expect(css).toMatch(/\.mn-app-shell \.mn-resizer:hover \.mn-resizer-handle[^}]*background:\s*var\(--mn-accent\)/s);
+    expect(css).toMatch(/\.mn-app-shell\.mn-left-collapsed \.mn-resizer-left\s*\{[^}]*display:\s*none !important/s);
+    expect(css).toMatch(/\.mn-app-shell\.mn-right-collapsed \.mn-resizer-right\s*\{[^}]*display:\s*none !important/s);
+    expect(css).toMatch(/\.mn-app-shell\.mn-is-mobile \.mn-resizer\s*\{[^}]*display:\s*none !important/s);
+    expect(css).toMatch(/\.mn-app-shell\.mn-is-resizing\s*\{[^}]*cursor:\s*col-resize !important/s);
+    expect(css).toMatch(/\.mn-app-shell\.mn-is-resizing \.mn-workspace-grid\s*\{[^}]*transition:\s*none !important/s);
+
+    // 4. Test resizer module clamping, startup ordering, and device-local helper methods
+    const resizerModule = require(path.join(PLUGIN_DIR, "startup/resizer.js"));
+    expect(resizerModule.before).toEqual(["render"]);
+    expect(typeof resizerModule.clampWidth).toBe("function");
+    // Min width clamp
+    expect(resizerModule.clampWidth(120, 1440)).toBe(180);
+    // In-bounds width
+    expect(resizerModule.clampWidth(350, 1440)).toBe(350);
+    // Max width clamp (Math.min(650, 1440 * 0.42) = 604)
+    expect(resizerModule.clampWidth(750, 1440)).toBe(604);
+    // Dual-sidebar protection: on 1100px screen with other sidebar at 400px, max is 1100 - 400 - 380 = 320
+    expect(resizerModule.clampWidth(500, 1100, 400)).toBe(320);
+
+    // Test saveWidth and resetWidth save to $:/state/slipstream/ (not synced to server)
+    $tw.wiki.deleteTiddler("$:/config/slipstream/left-width");
+    resizerModule.saveWidth("left", "380px");
+    expect($tw.wiki.getTiddlerText("$:/state/slipstream/left-width")).toBe("380px");
+
+    resizerModule.resetWidth("left");
+    expect($tw.wiki.getTiddlerText("$:/state/slipstream/left-width")).toBe("272px");
+
+    // Verify TiddlyWiki default SyncFilter excludes $:/state/ from server synchronization
+    const syncFilter = $tw.wiki.getTiddlerText("$:/config/SyncFilter") || "";
+    expect(syncFilter).toContain("-[prefix[$:/state/]]");
+
+    // Clean up
+    $tw.wiki.deleteTiddler("$:/state/slipstream/left-width");
+    $tw.wiki.deleteTiddler("$:/state/slipstream/right-width");
+    $tw.wiki.deleteTiddler("$:/config/slipstream/left-width");
+    $tw.wiki.deleteTiddler("$:/config/slipstream/right-width");
   });
 });
 
