@@ -6,6 +6,9 @@ type: text/vnd.tiddlywiki
 \procedure default-pinned-filter() [all[shadows+tiddlers]tag[$:/tags/Pinned]!has[draft.of]]
 \function .pinned-filter() [{$:/config/slipstream/pinned-filter}!is[blank]else<default-pinned-filter>]
 \function .active-tiddler() [list[$:/StoryList]match{$:/HistoryList!!current-tiddler}] ~[list[$:/StoryList]first[]]
+\procedure drop-actions()
+<$action-listops $tiddler="$:/StoryList" $subfilter="+[insertbefore<actionTiddler>,<currentTiddler>]"/>
+\end
 
 <!-- Section 0: Standard TiddlyWiki Page Controls Toolbar (Pinned at top with overflow:visible for floating dropdowns) -->
 <header class="mn-nav-section mn-page-controls mn-panel-left-header">
@@ -20,13 +23,7 @@ type: text/vnd.tiddlywiki
 	<!-- Section 1: User-Configurable Pinned Shortcuts (Tag any tiddler $:/tags/Pinned or customize filter in Settings) -->
 	<section class="mn-nav-section">
 		<h3 class="mn-nav-heading">
-			<span><$text text={{{ [{$:/config/slipstream/pinned-heading}!is[blank]else[Pinned Shortcuts]] }}}/></span>
-			<$button class="tc-btn-invisible" tooltip="Customize pinned shortcuts in Slipstream Settings">
-				<$action-setfield $tiddler="$:/state/tab-1749438307" text="$:/core/ui/ControlPanel/Settings"/>
-				<$action-setfield $tiddler="$:/state/tab--697582678" text="$:/plugins/mblackman/slipstream/settings"/>
-				<$action-navigate $to="$:/ControlPanel"/>
-				⚙
-			</$button>
+			<span>Pinned Shortcuts</span>
 		</h3>
 		<$list filter="[subfilter<.pinned-filter>]" variable="pinItem" emptyMessage="<p class='mn-prop-label'>Tag any tiddler <code>$:/tags/Pinned</code> to pin it here.</p>">
 			<$button
@@ -47,6 +44,37 @@ type: text/vnd.tiddlywiki
 		</$list>
 	</section>
 
+	<!-- Section 1b: Dedicated Open Notes Switcher (Jump between open tiddlers) -->
+	<section class="mn-nav-section mn-open-tiddlers-section">
+		<h3 class="mn-nav-heading">
+			<span>
+				Open Notes
+				<%if [list[$:/StoryList]count[]compare:number:gt[0]] %>
+					&#32;(<span class="mn-prop-label"><$count filter="[list[$:/StoryList]]"/></span>)
+				<%endif%>
+			</span>
+			<%if [list[$:/StoryList]count[]compare:number:gt[1]] %>
+				<$button message="tm-close-all-tiddlers" class="tc-btn-invisible mn-prop-label" tooltip="Close all open notes" style="font-size:0.72rem;text-transform:none;letter-spacing:normal;">Clear</$button>
+			<%endif%>
+		</h3>
+		<$list filter="[list[$:/StoryList]]" storyview="pop" emptyMessage="<p class='mn-prop-label'>No notes currently open.</p>">
+			<div class="tc-sidebar-tab-open-item">
+				<$droppable actions=<<drop-actions>> enable=<<tv-enable-drag-and-drop>> tag="div">
+					<div class="tc-droppable-placeholder"/>
+					<div class={{{ [[mn-nav-item tc-sidebar-tab-open-row]] [<currentTiddler>match<.active-tiddler>then[mn-nav-item-active]] +[join[ ]] }}}>
+						<$button to=<<currentTiddler>> class="mn-card-title tc-btn-invisible" style="text-align:left;display:inline-flex;align-items:center;gap:0.35rem;">
+							<%if [<currentTiddler>has[draft.of]] %>
+								<span class="mn-badge" style="font-size:0.62rem;padding:0.05rem 0.35rem;">Draft</span>
+							<%endif%>
+							<span><$view field="caption"><$text text=<<currentTiddler>>/></$view></span>
+						</$button>
+						<$button message="tm-close-tiddler" param=<<currentTiddler>> tooltip={{$:/language/Buttons/Close/Hint}} aria-label={{$:/language/Buttons/Close/Caption}} class="tc-btn-invisible tc-btn-mini">✕</$button>
+					</div>
+				</$droppable>
+			</div>
+		</$list>
+	</section>
+
 	<!-- Section 2: Extensible Custom LeftNav Sections ($:/tags/Slipstream/LeftNav or $:/tags/ModernNotebook/LeftNav) -->
 	<$list filter="[all[shadows+tiddlers]tag[$:/tags/Slipstream/LeftNav]!has[draft.of]] [all[shadows+tiddlers]tag[$:/tags/ModernNotebook/LeftNav]!has[draft.of]] +[unique[]]" variable="navSection">
 		<section class="mn-nav-section">
@@ -54,18 +82,14 @@ type: text/vnd.tiddlywiki
 		</section>
 	</$list>
 
-	<!-- Section 4: Standard TiddlyWiki Sidebar Tabs (Open, Recent, Tools, More, and custom tabs) -->
+	<!-- Section 4: Standard TiddlyWiki Sidebar Tabs (Recent, Tools, More, and custom tabs) -->
 	<section class={{{ [[mn-nav-section mn-sidebar-tabs-section]] [{$:/config/slipstream/sidebar-tabs-style}match[scroll]then[mn-tabs-scroll]] +[join[ ]] }}}>
 		<h3 class="mn-nav-heading">
-			<span><$text text={{{ [{$:/config/slipstream/sidebar-tabs-heading}!is[blank]else[Navigation]] }}}/></span>
-			<$button class="tc-btn-invisible" tooltip="Customize sidebar navigation in Slipstream Settings">
-				<$action-setfield $tiddler="$:/state/tab-1749438307" text="$:/core/ui/ControlPanel/Settings"/>
-				<$action-setfield $tiddler="$:/state/tab--697582678" text="$:/plugins/mblackman/slipstream/settings"/>
-				<$action-navigate $to="$:/ControlPanel"/>
-				⚙
-			</$button>
+			<span>Navigation</span>
 		</h3>
-		{{$:/core/ui/SideBarSegments/tabs}}
+		<div class="tc-sidebar-lists tc-sidebar-tabs" role="region" aria-label={{$:/language/SideBar/Caption}}>
+			<$macrocall $name="tabs" tabsList="[all[shadows+tiddlers]tag[$:/tags/SideBar]!has[draft.of]] -[[$:/core/ui/SideBar/Open]]" default={{{ [{$:/config/DefaultSidebarTab}!is[blank]!match[$:/core/ui/SideBar/Open]else[$:/core/ui/SideBar/Recent]] }}} state="$:/state/tab/sidebar" class="tc-sidebar-tabs-main" explicitState="$:/state/tab/sidebar--595412856"/>
+		</div>
 	</section>
 </div>
 

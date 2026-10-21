@@ -52,8 +52,8 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
       "$:/plugins/mblackman/slipstream/widgets/ui-primitives",
       "$:/plugins/mblackman/slipstream/storyviews/fade.js",
       "$:/plugins/mblackman/slipstream/startup/sync-history.js",
+      "$:/plugins/mblackman/slipstream/ui/PinnedTiddlerBar",
       "$:/config/ui/SideBar/More/horizontal",
-      "$:/core/ui/SideBar/Open",
     ];
 
     for (const title of expectedShadows) {
@@ -71,7 +71,7 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
       "ui/MobilePillStrip.tid",
       "ui/ObjectPropertyHeader.tid",
       "ui/WideViewWrapper.tid",
-      "ui/open-tab.tid",
+      "ui/PinnedTiddlerBar.tid",
       "templates/wide-body.tid",
       "widgets/ui-primitives.tid",
       "styles/core.css",
@@ -101,6 +101,11 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     // Ensure CSS is unlayered so it overrides TiddlyWiki's unlayered vanilla/snowwhite base themes
     expect(css).not.toContain("@layer");
     expect(css).toContain("width: min(100%, var(--mn-reading-width, 840px))");
+
+    // Ensure normal tiddlers remain anchored to screen center via symmetrical grid layout
+    expect(css).toMatch(/\.mn-left-collapsed\s+\.mn-workspace-grid\s*\{[^}]*grid-template-columns/);
+    expect(css).toMatch(/\.mn-right-collapsed\s+\.mn-workspace-grid\s*\{[^}]*grid-template-columns/);
+    expect(css).toMatch(/\.mn-left-collapsed\.mn-right-collapsed\s+\.mn-workspace-grid\s*\{[^}]*grid-template-columns/);
   });
 
   test("renders desktop 3-column Slipstream Layout and custom widgets ($ss.hero, $ss.grid, $ss.card, $ss.prop-pill, $ss.progress)", () => {
@@ -122,6 +127,8 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     expect(html).not.toContain("Filter error");
     expect(html).toContain("mn-app-shell");
     expect(html).toContain("mn-is-desktop");
+    expect(html).toContain("mn-desktop-document-mode");
+    expect(html).toContain("mn-pinned-tiddler-bar");
     expect(html).toContain("mn-topbar");
     expect(html).toContain("mn-workspace-grid");
     expect(html).toContain("mn-panel-left");
@@ -129,10 +136,12 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     expect(html).toContain("mn-story-container");
     expect(html).toContain("mn-panel-right");
 
-    // Verify Pinned Shortcuts in LeftNav rendered demo showcase notes
+    // Verify Pinned Shortcuts and Open Notes in LeftNav rendered demo showcase notes
     expect(html).toContain("Welcome");
     expect(html).toContain("Index");
     expect(html).toContain("Components");
+    expect(html).toContain("mn-open-tiddlers-section");
+    expect(html).toContain("Open Notes");
 
     // Verify custom widgets rendered inside the story river
     expect(html).toContain("mn-hero");
@@ -141,7 +150,7 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     expect(html).toContain("mn-prop-pill");
     expect(html).toContain("mn-progress-track");
 
-    // Verify clean desktop TopBar: center search & right inspector toggle present,
+    // Verify clean desktop TopBar: center search, workspace mode toggle & right inspector toggle present,
     // but no redundant New Note, settings cog, or mobile search button
     const topBarHtml = $tw.wiki.renderTiddler(
       "text/html",
@@ -149,14 +158,15 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     );
     expect(topBarHtml).toContain("mn-search-input");
     expect(topBarHtml).toContain("Toggle Right Context Inspector");
+    expect(topBarHtml).toContain("Toggle Workspace View Mode");
+    expect(topBarHtml).toContain("Doc");
     expect(topBarHtml).not.toContain("+ New Note");
     expect(topBarHtml).not.toContain("Open Control Panel");
     expect(topBarHtml).not.toContain("Search notes");
 
-    // Verify LeftNav pinned shortcuts settings button targets Slipstream settings tab in ControlPanel
+    // Verify clean LeftNav headings without option buttons or clutter
     const leftNavText = $tw.wiki.getTiddlerText("$:/plugins/mblackman/slipstream/ui/LeftNav");
-    expect(leftNavText).toContain("$:/core/ui/ControlPanel/Settings");
-    expect(leftNavText).toContain("$:/plugins/mblackman/slipstream/settings");
+    expect(leftNavText).not.toContain("tooltip=\"Customize");
   });
 
   test("switches to mobile fade mode with pill strip and bottom bar below 1024px", () => {
@@ -407,17 +417,7 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     expect(leftNavHtml).toContain("Close drawer");
     expect(leftNavHtml).toContain("Navigation");
 
-    // Verify custom Open Tiddlers section was removed from LeftNav in favor of built-in Open tab
-    expect(leftNavHtml).not.toContain("Open Tiddlers (");
-
-    // Verify Open tab is registered with $:/tags/SideBar and ordered before Recent
-    const sidebarTabs = $tw.wiki.filterTiddlers(
-      "[all[shadows+tiddlers]tag[$:/tags/SideBar]!has[draft.of]]"
-    );
-    expect(sidebarTabs[0]).toBe("$:/core/ui/SideBar/Open");
-    expect(sidebarTabs).toContain("$:/core/ui/SideBar/Recent");
-
-    // Verify built-in Open tab renders styled open rows with active note pill
+    // Verify dedicated Open Notes section in LeftNav renders styled open rows with active note pill
     $tw.wiki.addTiddler({
       title: "$:/StoryList",
       list: "[[Welcome to Slipstream]] [[Knowledge Base]]",
@@ -426,20 +426,22 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
       title: "$:/HistoryList",
       "current-tiddler": "Welcome to Slipstream",
     });
-    const openTabHtml = $tw.wiki.renderTiddler(
+    const leftNavOpenHtml = $tw.wiki.renderTiddler(
       "text/html",
-      "$:/core/ui/SideBar/Open"
+      "$:/plugins/mblackman/slipstream/ui/LeftNav"
     );
-    expect(openTabHtml).toContain("tc-sidebar-tab-open-row");
-    expect(openTabHtml).toContain("mn-nav-item-active");
-    expect(openTabHtml).toContain("Welcome");
-    expect(openTabHtml).toContain("✕");
-    expect(openTabHtml).toContain("close all");
+    expect(leftNavOpenHtml).toContain("mn-open-tiddlers-section");
+    expect(leftNavOpenHtml).toContain("tc-sidebar-tab-open-row");
+    expect(leftNavOpenHtml).toContain("mn-nav-item-active");
+    expect(leftNavOpenHtml).toContain("Welcome to Slipstream");
+    expect(leftNavOpenHtml).toContain("✕");
+    expect(leftNavOpenHtml).toContain("Clear");
+    expect(leftNavOpenHtml).toContain("Close all open notes");
 
-    // Ensure open-tab.tid does NOT bind history= on its <$list storyview="pop"> widget
+    // Ensure LeftNav does NOT bind history= on its <$list storyview="pop"> widget
     // (which would cause PopStoryView.navigateTo to dispatch tm-scroll on the fixed sidebar and scroll the page to the bottom)
-    const openTabTid = fs.readFileSync(path.join(PLUGIN_DIR, "ui/open-tab.tid"), "utf8");
-    expect(openTabTid).not.toContain("history=");
+    const leftNavTid = fs.readFileSync(path.join(PLUGIN_DIR, "ui/LeftNav.tid"), "utf8");
+    expect(leftNavTid).not.toContain("history=");
   });
 
   test("enforces Invariant 6: zero un-scoped global selectors in styles/core.css for 100% theme compatibility", () => {
@@ -1165,6 +1167,245 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
 
     // Cleanup
     $tw.wiki.deleteTiddler("Draft of 'StackingTestNote'");
+  });
+
+  test("renders PinnedTiddlerBar in reading and edit modes on desktop", () => {
+    // 1. Reading mode
+    $tw.wiki.addTiddler({
+      title: "PinnedBarNote",
+      tags: ["Showcase", "Notes"],
+      modified: "20261021120000000",
+      text: "Pinned bar reading test content",
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/StoryList",
+      list: ["PinnedBarNote"],
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/HistoryList",
+      "current-tiddler": "PinnedBarNote",
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/info/browser/window/system/main/client/width",
+      text: "1440",
+    });
+
+    let barHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/PinnedTiddlerBar"
+    );
+
+    expect(barHtml).toContain("mn-pinned-tiddler-bar");
+    expect(barHtml).toContain("mn-pinned-title-btn");
+    expect(barHtml).toContain("PinnedBarNote");
+    expect(barHtml).toContain("Showcase");
+    expect(barHtml).toContain("mn-pin-btn");
+    expect(barHtml).toContain("tc-tiddler-controls");
+
+    // 2. Edit mode (Draft tiddler)
+    $tw.wiki.addTiddler({
+      title: "Draft of 'PinnedBarNote'",
+      "draft.of": "PinnedBarNote",
+      "draft.title": "PinnedBarNote",
+      text: "Drafting...",
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/StoryList",
+      list: ["Draft of 'PinnedBarNote'"],
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/HistoryList",
+      "current-tiddler": "Draft of 'PinnedBarNote'",
+    });
+
+    const draftBarHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/PinnedTiddlerBar"
+    );
+
+    expect(draftBarHtml).toContain("mn-pinned-draft-badge");
+    expect(draftBarHtml).toContain("Editing");
+    expect(draftBarHtml).toContain("mn-pinned-title-input");
+    
+    // Standard TiddlyWiki EditToolbar buttons in Delete, Discard (Cancel), Save order
+    const deleteIdx = draftBarHtml.indexOf("tc-btn-delete");
+    const cancelIdx = draftBarHtml.indexOf("tc-btn-cancel");
+    const saveIdx = draftBarHtml.indexOf("tc-btn-save");
+    expect(deleteIdx).toBeGreaterThan(-1);
+    expect(cancelIdx).toBeGreaterThan(deleteIdx);
+    expect(saveIdx).toBeGreaterThan(cancelIdx);
+
+    // Verify clicking Cancel, Delete, and Save buttons in PinnedTiddlerBar dispatches the right messages
+    const parser = $tw.wiki.parseTiddler("$:/plugins/mblackman/slipstream/ui/PinnedTiddlerBar");
+    const widgetNode = $tw.wiki.makeWidget(parser, {});
+    const dispatched = [];
+    ["tm-cancel-tiddler", "tm-delete-tiddler", "tm-save-tiddler"].forEach((msg) => {
+      widgetNode.addEventListener(msg, (event) => {
+        dispatched.push({ type: msg, param: event.param });
+        return false;
+      });
+    });
+    const container = $tw.fakeDocument.createElement("div");
+    widgetNode.render(container, null);
+
+    function findButtonByClass(node, cls) {
+      if (node.parseTreeNode && node.parseTreeNode.type === "button") {
+        const domNode = node.domNodes && node.domNodes[0];
+        if (domNode && (domNode.getAttribute("class") || "").includes(cls)) {
+          return node;
+        }
+      }
+      if (node.children) {
+        for (const child of node.children) {
+          const found = findButtonByClass(child, cls);
+          if (found) return found;
+        }
+      }
+      return null;
+    }
+
+    const cancelBtn = findButtonByClass(widgetNode, "tc-btn-cancel");
+    const deleteBtn = findButtonByClass(widgetNode, "tc-btn-delete");
+    const saveBtn = findButtonByClass(widgetNode, "tc-btn-save");
+    expect(cancelBtn).toBeTruthy();
+    expect(deleteBtn).toBeTruthy();
+    expect(saveBtn).toBeTruthy();
+
+    const mockEvent = { preventDefault: () => {}, stopPropagation: () => {} };
+    cancelBtn.invokeActionString(cancelBtn.actions, cancelBtn, mockEvent, {});
+    deleteBtn.invokeActionString(deleteBtn.actions, deleteBtn, mockEvent, {});
+    saveBtn.invokeActions(saveBtn, mockEvent);
+
+    expect(dispatched).toEqual([
+      { type: "tm-cancel-tiddler", param: "Draft of 'PinnedBarNote'" },
+      { type: "tm-delete-tiddler", param: "Draft of 'PinnedBarNote'" },
+      { type: "tm-save-tiddler", param: "Draft of 'PinnedBarNote'" },
+    ]);
+
+    // 3. Wide mode preservation in PinnedTiddlerBar across reading and draft states
+    $tw.wiki.addTiddler({
+      title: "PinnedBarNote",
+      tags: ["Wide"],
+      text: "Wide note content",
+    });
+    const draftWideBarHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/PinnedTiddlerBar"
+    );
+    expect(draftWideBarHtml).toContain("mn-pinned-wide");
+
+    // Cleanup
+    $tw.wiki.deleteTiddler("PinnedBarNote");
+    $tw.wiki.deleteTiddler("Draft of 'PinnedBarNote'");
+  });
+
+  test("toggles desktop workspace mode between Focused Document (fade) and Story River (classic)", () => {
+    $tw.wiki.addTiddler({
+      title: "$:/info/browser/window/system/main/client/width",
+      text: "1440",
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/StoryList",
+      list: ["Welcome to Slipstream"],
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/HistoryList",
+      "current-tiddler": "Welcome to Slipstream",
+    });
+
+    // 1. Default desktop mode is 'document' (Focused Document Mode)
+    $tw.wiki.deleteTiddler("$:/config/slipstream/desktop-mode");
+    let layoutHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/Layout"
+    );
+    expect(layoutHtml).toContain("mn-desktop-document-mode");
+    expect(layoutHtml).toContain("tc-page-view-fade");
+    expect(layoutHtml).toContain("mn-pinned-tiddler-bar");
+
+    let topBarHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/TopBar"
+    );
+    expect(topBarHtml).toContain("Toggle Workspace View Mode");
+    expect(topBarHtml).toContain("Doc");
+
+    // 2. Switch to 'river' mode
+    $tw.wiki.addTiddler({
+      title: "$:/config/slipstream/desktop-mode",
+      text: "river",
+    });
+    layoutHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/Layout"
+    );
+    expect(layoutHtml).toContain("mn-desktop-river-mode");
+    expect(layoutHtml).toContain("tc-page-view-classic");
+    expect(layoutHtml).not.toContain("mn-pinned-tiddler-bar");
+
+    topBarHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/TopBar"
+    );
+    expect(topBarHtml).toContain("River");
+
+    // Cleanup
+    $tw.wiki.deleteTiddler("$:/config/slipstream/desktop-mode");
+  });
+
+  test("synchronizes active tiddler across edit and save/cancel draft transitions in sync-history.js", async () => {
+    $tw.wiki.addTiddler({
+      title: "LifecycleNote",
+      text: "Initial content",
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/StoryList",
+      list: ["LifecycleNote"],
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/HistoryList",
+      "current-tiddler": "LifecycleNote",
+    });
+
+    // Verify initial active tiddler
+    const getCurrentTiddler = () => {
+      const tid = $tw.wiki.getTiddler("$:/HistoryList");
+      return tid ? tid.fields["current-tiddler"] : "";
+    };
+    expect(getCurrentTiddler()).toBe("LifecycleNote");
+
+    // 1. Simulating entering Edit mode: Draft is created and replaces note in StoryList
+    $tw.wiki.addTiddler({
+      title: "Draft of 'LifecycleNote'",
+      "draft.of": "LifecycleNote",
+      text: "Draft content",
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/StoryList",
+      list: ["Draft of 'LifecycleNote'"],
+    });
+
+    // Wait for TiddlyWiki change event batch to dispatch
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // sync-history.js listener should transition current-tiddler to the draft
+    expect(getCurrentTiddler()).toBe("Draft of 'LifecycleNote'");
+
+    // 2. Simulating saving/canceling draft: Draft is removed and note returns to StoryList
+    $tw.wiki.deleteTiddler("Draft of 'LifecycleNote'");
+    $tw.wiki.addTiddler({
+      title: "$:/StoryList",
+      list: ["LifecycleNote"],
+    });
+
+    // Wait for TiddlyWiki change event batch to dispatch
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // sync-history.js listener should transition current-tiddler back to the original note
+    expect(getCurrentTiddler()).toBe("LifecycleNote");
+
+    // Cleanup
+    $tw.wiki.deleteTiddler("LifecycleNote");
   });
 });
 

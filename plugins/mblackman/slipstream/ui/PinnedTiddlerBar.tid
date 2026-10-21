@@ -1,0 +1,124 @@
+title: $:/plugins/mblackman/slipstream/ui/PinnedTiddlerBar
+type: text/vnd.tiddlywiki
+
+\whitespace trim
+\import [subfilter{$:/core/config/GlobalImportFilter}]
+\procedure default-wide-filter() [tag[Wide]] [field:page-width[wide]]
+\function .wide-filter() [{$:/config/slipstream/wide-filter}!is[blank]else<default-wide-filter>]
+\function .active-tiddler() [list[$:/StoryList]match{$:/HistoryList!!current-tiddler}] ~[list[$:/StoryList]first[]]
+\function .is-draft() [.active-tiddler[]has[draft.of]then[yes]else[no]]
+\function .target-tiddler() [.active-tiddler[]get[draft.of]] ~[.active-tiddler[]]
+\function .is-wide() [.target-tiddler[]tag[Wide]then[yes]] ~[.target-tiddler[]field:page-width[wide]then[yes]] ~[.target-tiddler[]subfilter<.wide-filter>then[yes]else[no]]
+\function folded-state() [[$:/state/folded/]addsuffix<currentTiddler>]
+
+\procedure save-tiddler-actions()
+<$action-sendmessage $message="tm-save-tiddler" $param=<<currentTiddler>>/>
+\end
+
+<!-- Must use \define so $message$ text substitution evaluates before passing string to <$button actions=...> in $:/core/ui/Buttons/cancel and $:/core/ui/Buttons/delete -->
+\define cancel-delete-tiddler-actions(message)
+<$action-sendmessage $message="tm-$message$-tiddler" $param=<<currentTiddler>>/>
+\end
+
+<%if [.active-tiddler[]!is[blank]] %>
+<$let activeTid=<<.active-tiddler>>>
+<div class={{{ [[mn-pinned-tiddler-bar mn-desktop-only]] [.is-wide[]match[yes]then[mn-pinned-wide]] +[join[ ]] }}}>
+	<div class="mn-pinned-tiddler-inner">
+		<%if [.is-draft[]match[yes]] %>
+			<!-- Draft / Edit Mode Header & Controls -->
+			<div class="mn-pinned-left">
+				<span class="mn-badge mn-pinned-draft-badge">Editing</span>
+				<$edit-text
+					tiddler=<<activeTid>>
+					field="draft.title"
+					class="mn-pinned-title-input tc-edit-texteditor"
+					placeholder="Note title..."
+				/>
+			</div>
+			<div class="mn-pinned-right">
+				<$tiddler tiddler=<<activeTid>>>
+					<$let
+						currentTiddler=<<activeTid>>
+						storyTiddler=<<activeTid>>
+						tv-config-toolbar-icons={{{ [{$:/config/Toolbar/Icons}!is[blank]else[yes]] }}}
+						tv-config-toolbar-text={{{ [{$:/config/Toolbar/Text}!is[blank]else[no]] }}}
+					>
+						<span class="tc-tiddler-controls tc-titlebar">
+							<$list filter="[all[shadows+tiddlers]tag[$:/tags/EditToolbar]!has[draft.of]]" variable="listItem">
+								<$let tv-config-toolbar-class={{{ [enlist<tv-config-toolbar-class>] [<listItem>encodeuricomponent[]addprefix[tc-btn-]] [<listItem>split[/]last[]addprefix[tc-btn-]] +[join[ ]] }}}>
+									<$reveal type="nomatch" state={{{ [[$:/config/EditToolbarButtons/Visibility/]addsuffix<listItem>] }}} text="hide">
+										<$transclude $tiddler=<<listItem>>/>
+									</$reveal>
+								</$let>
+							</$list>
+						</span>
+					</$let>
+				</$tiddler>
+			</div>
+		<%else%>
+			<!-- Reading Mode Header & Controls -->
+			<div class="mn-pinned-left">
+				<%if [<activeTid>get[ss-icon]!is[blank]] %>
+					<span class="mn-pinned-icon"><$text text={{{ [<activeTid>get[ss-icon]] }}}/></span>
+				<%elseif [<activeTid>get[mn-icon]!is[blank]] %>
+					<span class="mn-pinned-icon"><$text text={{{ [<activeTid>get[mn-icon]] }}}/></span>
+				<%elseif [<activeTid>get[icon]!is[blank]] %>
+					<span class="mn-pinned-icon"><$transclude $tiddler={{{ [<activeTid>get[icon]] }}}/></span>
+				<%endif%>
+				<$button to=<<activeTid>> class="mn-pinned-title-btn tc-btn-invisible" tooltip="Scroll to top of note">
+					<$view tiddler=<<activeTid>> field="caption"><$text text=<<activeTid>>/></$view>
+				</$button>
+				<%if [<activeTid>has[modified]] %>
+					<span class="mn-prop-label mn-pinned-date"><$view tiddler=<<activeTid>> field="modified" format="relativedate"/></span>
+				<%endif%>
+				<$list filter="[<activeTid>tags[]!is[system]!match[Wide]limit[3]]">
+					<span class="tc-tag-label"><$text text=<<currentTiddler>>/></span>
+				</$list>
+			</div>
+			<div class="mn-pinned-right">
+				<$button
+					class={{{ [[mn-pill-btn mn-pin-btn]] [<activeTid>tag[$:/tags/Pinned]then[mn-pill-btn-subtle-active]] +[join[ ]] }}}
+					tooltip={{{ [<activeTid>tag[$:/tags/Pinned]then[Unpin note from shortcuts]else[Pin note to shortcuts]] }}}
+					aria-label="Pin note"
+				>
+					<%if [<activeTid>tag[$:/tags/Pinned]] %>
+						<$action-listops $tiddler=<<activeTid>> $tags="-[[$:/tags/Pinned]]"/>
+						<span style="color:var(--mn-accent);">★</span>
+					<%else%>
+						<$action-listops $tiddler=<<activeTid>> $tags="[[$:/tags/Pinned]]"/>
+						<span style="color:var(--mn-text-muted);">☆</span>
+					<%endif%>
+				</$button>
+				<$tiddler tiddler=<<activeTid>>>
+					<$let
+						targetTemplate={{{ [<currentTiddler>] :cascade[all[shadows+tiddlers]tag[$:/tags/StoryTiddlerTemplateFilter]!is[draft]get[text]] :and[has[title]else[$:/core/ui/ViewTemplate]] }}}
+					>
+						<$vars transclusion={{{ [[{]] [<currentTiddler>] [[|$:/core/ui/StoryTiddlerTemplate|||}]] +[join[]] }}}>
+							<$vars transclusion={{{ [[{]] [<currentTiddler>] [[|]] [<targetTemplate>] [[|||}]] +[join[]] }}}>
+								<$let
+									storyTiddler=<<activeTid>>
+									currentTiddler=<<activeTid>>
+									tiddlerInfoState=<<qualify "$:/state/popup/tiddler-info">>
+								>
+									<span class="tc-tiddler-controls">
+										<$list filter="[all[shadows+tiddlers]tag[$:/tags/ViewToolbar]!has[draft.of]] :filter[lookup[$:/config/ViewToolbarButtons/Visibility/]!match[hide]] -[[$:/core/ui/Buttons/fold-bar]]" variable="listItem">
+											<$let condition={{{ [<listItem>get[condition]] }}}>
+												<%if [<condition>!is[blank]] :and[<activeTid>subfilter<condition>limit[1]] :else[<condition>is[blank]then[true]] %>
+													<$let tv-config-toolbar-class={{{ [enlist<tv-config-toolbar-class>] [<listItem>encodeuricomponent[]addprefix[tc-btn-]] [<listItem>split[/]last[]addprefix[tc-btn-]] +[join[ ]] }}}>
+														<$transclude $tiddler=<<listItem>>/>
+													</$let>
+												<%endif%>
+											</$let>
+										</$list>
+									</span>
+								</$let>
+							</$vars>
+						</$vars>
+					</$let>
+				</$tiddler>
+			</div>
+		<%endif%>
+	</div>
+</div>
+</$let>
+<%endif%>

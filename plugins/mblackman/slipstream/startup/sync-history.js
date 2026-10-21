@@ -21,8 +21,28 @@ exports.startup = function() {
 			var historyTid = $tw.wiki.getTiddler("$:/HistoryList");
 			var current = historyTid ? (historyTid.fields["current-tiddler"] || "") : "";
 			if(current && storyList.indexOf(current) === -1) {
-				var nextCurrent = storyList.length > 0 ? storyList[0] : "";
+				var nextCurrent = "";
+				// 1. If current was a non-draft and its draft is in StoryList, transition to draft
+				var draftTitle = "Draft of '" + current + "'";
+				if(storyList.indexOf(draftTitle) !== -1) {
+					nextCurrent = draftTitle;
+				} else if(current.indexOf("Draft of '") === 0) {
+					// 2. If current was a draft that was just saved/canceled, transition to original note
+					var origTitle = current.substring(10, current.length - 1);
+					if(storyList.indexOf(origTitle) !== -1) {
+						nextCurrent = origTitle;
+					}
+				}
+				if(!nextCurrent) {
+					nextCurrent = storyList.length > 0 ? storyList[0] : "";
+				}
 				$tw.wiki.setText("$:/HistoryList", "current-tiddler", null, nextCurrent);
+			} else if(current) {
+				// If current is still in StoryList, check if a draft of current was newly opened
+				var activeDraft = "Draft of '" + current + "'";
+				if(storyList.indexOf(activeDraft) !== -1) {
+					$tw.wiki.setText("$:/HistoryList", "current-tiddler", null, activeDraft);
+				}
 			}
 		}
 	});
@@ -94,7 +114,7 @@ exports.startup = function() {
 				return false;
 			}
 
-			// Compute sticky header offset (topbar + mobile pill strip if visible)
+			// Compute sticky header offset (topbar + mobile pill strip or pinned tiddler bar if visible)
 			var offset = 72;
 			var topbar = document.querySelector(".mn-topbar");
 			if(topbar) {
@@ -103,6 +123,10 @@ exports.startup = function() {
 			var pillStrip = document.querySelector(".mn-mobile-pill-strip");
 			if(pillStrip && window.getComputedStyle(pillStrip).display !== "none") {
 				offset += pillStrip.getBoundingClientRect().height;
+			}
+			var pinnedBar = document.querySelector(".mn-pinned-tiddler-bar");
+			if(pinnedBar && window.getComputedStyle(pinnedBar).display !== "none") {
+				offset += pinnedBar.getBoundingClientRect().height;
 			}
 
 			var rect = targetHeading.getBoundingClientRect();

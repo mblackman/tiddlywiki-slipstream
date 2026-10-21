@@ -4,13 +4,13 @@ caption: Slipstream
 type: text/vnd.tiddlywiki
 
 \whitespace trim
-<h3>Slipstream Layout & Navigation Settings</h3>
-<p class="mn-prop-label">Customize your pinned shortcuts, mobile bottom bar slots, reading widths, and property pills without modifying theme code.</p>
+<h3>Slipstream Settings</h3>
+<p class="mn-prop-label">Configure desktop workspace modes, navigation filters, reading dimensions, and header metadata.</p>
 
 <div class="mn-card" style="margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
 	<div>
 		<strong>Need reference guides or widget examples?</strong>
-		<div class="mn-prop-label">Learn how to customize shortcuts, inspector tabs, and responsive UI primitives.</div>
+		<div class="mn-prop-label">Learn how to customize pinned shortcuts, inspector tabs, and responsive UI primitives.</div>
 	</div>
 	<$button class="mn-pill-btn" to="$:/plugins/mblackman/slipstream/docs">
 		📚 Open Knowledge Base & Reference
@@ -18,53 +18,60 @@ type: text/vnd.tiddlywiki
 </div>
 
 <div class="mn-card" style="margin-bottom:1rem;">
-	<h4 class="mn-nav-heading">1. Navigation & Shortcut Customization</h4>
+	<h4 class="mn-nav-heading">Workspace & Reading Modes</h4>
 	<div class="mn-object-prop-bar">
-		<label class="mn-prop-label" style="min-width:240px;">Left Nav Pinned Filter:</label>
-		<$edit-text tiddler="$:/config/slipstream/pinned-filter" field="text" default="[all[shadows+tiddlers]tag[$:/tags/Pinned]!has[draft.of]]" tag="input" class="mn-search-input"/>
-	</div>
-	<div class="mn-object-prop-bar">
-		<label class="mn-prop-label" style="min-width:240px;">Pinned Shortcuts Heading:</label>
-		<$edit-text tiddler="$:/config/slipstream/pinned-heading" field="text" default="Pinned Shortcuts" placeholder="Pinned Shortcuts" tag="input" class="mn-search-input"/>
-	</div>
-	<div class="mn-object-prop-bar">
-		<label class="mn-prop-label" style="min-width:240px;">Sidebar Navigation Heading:</label>
-		<$edit-text tiddler="$:/config/slipstream/sidebar-tabs-heading" field="text" default="Navigation" placeholder="Navigation (e.g. Explore, Views, Browse)" tag="input" class="mn-search-input"/>
-	</div>
-	<div class="mn-object-prop-bar">
-		<label class="mn-prop-label" style="min-width:240px;">Sidebar Tabs Layout Mode:</label>
-		<$select tiddler="$:/config/slipstream/sidebar-tabs-style" default="wrap" class="mn-prop-select">
-			<option value="wrap">Wrapping Pills (Recommended: wraps any number of tabs across lines)</option>
-			<option value="scroll">Scrollable Strip (Single horizontal scrolling line)</option>
+		<label class="mn-prop-label" style="min-width:240px;">Desktop Workspace Mode:</label>
+		<$select tiddler="$:/config/slipstream/desktop-mode" default="document" class="mn-prop-select">
+			<option value="document">Focused Document (Default: single note with pinned header and sidebar switcher)</option>
+			<option value="river">Story River (Traditional multi-note vertical river)</option>
 		</$select>
 	</div>
 	<div class="mn-object-prop-bar">
-		<label class="mn-prop-label" style="min-width:240px;">Wide Tiddler Filter (<code>1120px</code>):</label>
-		<$edit-text tiddler="$:/config/slipstream/wide-filter" field="text" default="[tag[Wide]] [field:page-width[wide]]" tag="input" class="mn-search-input"/>
-	</div>
-	<div class="mn-object-prop-bar">
-		<label class="mn-prop-label" style="min-width:240px;">Auto-Displayed Property Pill Fields:</label>
-		<$edit-text tiddler="$:/config/slipstream/default-property-fields" field="text" default="status priority mood rating media-type creator due-date" tag="input" class="mn-search-input"/>
+		<label class="mn-prop-label" style="min-width:240px;">Storyview Transition:</label>
+		<$select tiddler="$:/config/slipstream/storyview-override" default="auto" class="mn-prop-select">
+			<option value="auto">Automatic (Cross-fade in Focused Document and mobile; classic in Story River)</option>
+			<option value="fade">Cross-Fade (Smooth transition between active notes)</option>
+			<option value="classic">Classic (Standard vertical river)</option>
+		</$select>
 	</div>
 </div>
 
 <div class="mn-card" style="margin-bottom:1rem;">
-	<h4 class="mn-nav-heading">2. Layout Dimensions & Responsive Breakpoints</h4>
+	<h4 class="mn-nav-heading">Layout Dimensions & Responsive Breakpoints</h4>
 	<div class="mn-object-prop-bar">
-		<label class="mn-prop-label" style="min-width:240px;">Centered Reading Column Width:</label>
+		<label class="mn-prop-label" style="min-width:240px;">Centered Reading Width:</label>
 		<$edit-text tiddler="$:/config/slipstream/reading-width" field="text" default="840px" tag="input" class="mn-search-input"/>
 	</div>
 	<div class="mn-object-prop-bar">
-		<label class="mn-prop-label" style="min-width:240px;">Wide Container Max Width:</label>
+		<label class="mn-prop-label" style="min-width:240px;">Wide Layout Width:</label>
 		<$edit-text tiddler="$:/config/slipstream/wide-width" field="text" default="1120px" tag="input" class="mn-search-input"/>
 	</div>
 	<div class="mn-object-prop-bar">
-		<label class="mn-prop-label" style="min-width:240px;">Mobile View Breakpoint (px):</label>
+		<label class="mn-prop-label" style="min-width:240px;">Mobile Breakpoint (px):</label>
 		<$edit-text tiddler="$:/config/slipstream/mobile-breakpoint" field="text" default="1024" tag="input" class="mn-search-input"/>
 	</div>
+</div>
+
+<div class="mn-card" style="margin-bottom:1rem;">
+	<h4 class="mn-nav-heading">Navigation, Filters & Metadata</h4>
 	<div class="mn-object-prop-bar">
-		<label class="mn-prop-label" style="min-width:240px;">Storyview Override (auto/fade/classic):</label>
-		<$edit-text tiddler="$:/config/slipstream/storyview-override" field="text" default="auto" placeholder="auto" tag="input" class="mn-search-input"/>
+		<label class="mn-prop-label" style="min-width:240px;">Pinned Shortcuts Filter:</label>
+		<$edit-text tiddler="$:/config/slipstream/pinned-filter" field="text" default="[all[shadows+tiddlers]tag[$:/tags/Pinned]!has[draft.of]]" tag="input" class="mn-search-input"/>
+	</div>
+	<div class="mn-object-prop-bar">
+		<label class="mn-prop-label" style="min-width:240px;">Sidebar Navigation Tabs:</label>
+		<$select tiddler="$:/config/slipstream/sidebar-tabs-style" default="wrap" class="mn-prop-select">
+			<option value="wrap">Wrapping Pills (Default: wraps tabs across lines)</option>
+			<option value="scroll">Scrollable Strip (Single horizontal scrolling line)</option>
+		</$select>
+	</div>
+	<div class="mn-object-prop-bar">
+		<label class="mn-prop-label" style="min-width:240px;">Wide Layout Filter:</label>
+		<$edit-text tiddler="$:/config/slipstream/wide-filter" field="text" default="[tag[Wide]] [field:page-width[wide]]" tag="input" class="mn-search-input"/>
+	</div>
+	<div class="mn-object-prop-bar">
+		<label class="mn-prop-label" style="min-width:240px;">Header Property Fields:</label>
+		<$edit-text tiddler="$:/config/slipstream/default-property-fields" field="text" default="status priority mood rating media-type creator due-date" tag="input" class="mn-search-input"/>
 	</div>
 </div>
 

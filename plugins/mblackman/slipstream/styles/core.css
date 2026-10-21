@@ -23,10 +23,11 @@
 	--mn-tag-bg: var(--tpc-tag-background, #e2e8f0);
 	--mn-tag-fg: var(--tpc-tag-foreground, #1e293b);
 	--mn-left-width: 272px;
-	--mn-right-width: 308px;
+	--mn-right-width: 272px;
 	--mn-reading-width: var(--tp-tiddler-width, 840px);
 	--mn-wide-width: 1120px;
 	--mn-topbar-height: 54px;
+	--mn-pinned-bar-height: 46px;
 	--mn-pillstrip-height: 42px;
 	--mn-bottombar-height: 60px;
 	--mn-radius-tiddler: 18px;
@@ -173,22 +174,46 @@ body:has(.mn-app-shell).tc-body {
 .mn-workspace-grid {
 	position: relative;
 	display: grid;
-	grid-template-columns: var(--mn-left-width) minmax(0, 1fr) var(--mn-right-width);
+	grid-template-columns: var(--mn-left-width, 272px) minmax(0, 1fr) var(--mn-right-width, 272px);
 	flex: 1;
 	align-items: start;
 	transition: grid-template-columns var(--mn-transition);
 }
 
+/* Symmetrical desktop columns keep reading tiddlers anchored to screen center regardless of sidebar toggles */
 .mn-left-collapsed .mn-workspace-grid {
-	grid-template-columns: 0px minmax(0, 1fr) var(--mn-right-width);
+	grid-template-columns: var(--mn-right-width, 272px) minmax(0, 1fr) var(--mn-right-width, 272px);
 }
 
 .mn-right-collapsed .mn-workspace-grid {
-	grid-template-columns: var(--mn-left-width) minmax(0, 1fr) 0px;
+	grid-template-columns: var(--mn-left-width, 272px) minmax(0, 1fr) var(--mn-left-width, 272px);
 }
 
 .mn-left-collapsed.mn-right-collapsed .mn-workspace-grid {
 	grid-template-columns: 0px minmax(0, 1fr) 0px;
+}
+
+/* Reclaim collapsed sidebar width when viewing Wide tiddlers or on compact desktop viewports (<= 1440px) */
+.mn-left-collapsed:not(.mn-right-collapsed) .mn-workspace-grid:has(.mn-pinned-wide),
+.mn-left-collapsed:not(.mn-right-collapsed) .mn-workspace-grid:has(.mn-wide-view),
+.mn-left-collapsed:not(.mn-right-collapsed) .mn-workspace-grid:has(.mn-tiddler-wide) {
+	grid-template-columns: 0px minmax(0, 1fr) var(--mn-right-width, 272px);
+}
+
+.mn-right-collapsed:not(.mn-left-collapsed) .mn-workspace-grid:has(.mn-pinned-wide),
+.mn-right-collapsed:not(.mn-left-collapsed) .mn-workspace-grid:has(.mn-wide-view),
+.mn-right-collapsed:not(.mn-left-collapsed) .mn-workspace-grid:has(.mn-tiddler-wide) {
+	grid-template-columns: var(--mn-left-width, 272px) minmax(0, 1fr) 0px;
+}
+
+@media (min-width: 1024px) and (max-width: 1440px) {
+	.mn-left-collapsed:not(.mn-right-collapsed) .mn-workspace-grid {
+		grid-template-columns: 0px minmax(0, 1fr) var(--mn-right-width, 272px);
+	}
+
+	.mn-right-collapsed:not(.mn-left-collapsed) .mn-workspace-grid {
+		grid-template-columns: var(--mn-left-width, 272px) minmax(0, 1fr) 0px;
+	}
 }
 
 .mn-panel-left,
@@ -199,6 +224,7 @@ body:has(.mn-app-shell).tc-body {
 	height: calc(100dvh - var(--mn-topbar-height));
 	background: color-mix(in srgb, var(--mn-bg-surface) 78%, var(--mn-bg-app) 22%);
 	scrollbar-width: thin;
+	transition: opacity var(--mn-transition), transform var(--mn-transition);
 }
 
 .mn-panel-left {
@@ -216,11 +242,18 @@ body:has(.mn-app-shell).tc-body {
 	box-shadow: none;
 }
 
-.mn-left-collapsed .mn-panel-left,
+.mn-left-collapsed .mn-panel-left {
+	border: none;
+	pointer-events: none;
+	opacity: 0;
+	transform: translateX(-12px);
+}
+
 .mn-right-collapsed .mn-panel-right {
 	border: none;
 	pointer-events: none;
 	opacity: 0;
+	transform: translateX(12px);
 }
 
 /* Override Vanilla's fixed 770px .tc-story-river so tiddlers center cleanly between panels */
@@ -246,6 +279,230 @@ body:has(.mn-app-shell).tc-body {
 .mn-story-container > .story-backdrop,
 .mn-story-container > .story-frontdrop {
 	width: min(100%, var(--mn-reading-width, 840px));
+}
+
+/*-----------------------------------------------------------------------------
+  2b. Pinned Active Tiddler Header & Controls Bar (Desktop Focused Document Mode)
+-----------------------------------------------------------------------------*/
+.mn-pinned-tiddler-bar {
+	position: sticky;
+	top: var(--mn-topbar-height);
+	z-index: 415;
+	display: flex;
+	align-items: center;
+	min-height: var(--mn-pinned-bar-height, 46px);
+	width: calc(100% + 4rem);
+	margin-top: -2.25rem;
+	margin-left: -2rem;
+	margin-right: -2rem;
+	margin-bottom: 1.5rem;
+	padding: 0.45rem 2rem;
+	background: color-mix(in srgb, var(--mn-bg-surface) 90%, transparent);
+	backdrop-filter: blur(16px);
+	-webkit-backdrop-filter: blur(16px);
+	border-bottom: 1px solid var(--mn-border-hairline);
+	box-shadow: 0 4px 16px -4px rgba(15, 23, 42, 0.04);
+	box-sizing: border-box;
+}
+
+.mn-pinned-tiddler-inner {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+	width: min(100%, var(--mn-reading-width, 840px));
+	max-width: var(--mn-reading-width, 840px);
+	margin: 0 auto;
+	box-sizing: border-box;
+}
+
+.mn-pinned-tiddler-bar.mn-pinned-wide .mn-pinned-tiddler-inner,
+.mn-story-container:has(.tc-tiddler-frame.mn-tiddler-wide) .mn-pinned-tiddler-inner,
+.mn-story-container:has(.tc-tiddler-frame:has(.mn-wide-view)) .mn-pinned-tiddler-inner {
+	width: min(100%, var(--mn-wide-width, 1120px));
+	max-width: var(--mn-wide-width, 1120px);
+}
+
+.mn-story-container:has(.mn-pinned-tiddler-bar.mn-pinned-wide) .tc-tiddler-frame {
+	width: min(100%, var(--mn-wide-width, 1120px));
+	max-width: var(--mn-wide-width, 1120px);
+}
+
+.mn-pinned-left,
+.mn-pinned-right {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	min-width: 0;
+}
+
+.mn-pinned-left {
+	flex: 1 1 auto;
+	overflow: hidden;
+}
+
+.mn-pinned-right {
+	flex-shrink: 0;
+}
+
+.mn-pinned-icon {
+	display: inline-flex;
+	align-items: center;
+	font-size: 1rem;
+	line-height: 1;
+	flex-shrink: 0;
+}
+
+.mn-pinned-title-btn {
+	font-weight: 700;
+	font-size: 1.05rem;
+	letter-spacing: -0.02em;
+	color: var(--mn-text-main);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	cursor: pointer;
+	text-align: left;
+	padding: 0;
+	margin: 0;
+	background: transparent;
+	border: none;
+	transition: color var(--mn-transition);
+}
+
+.mn-pinned-title-btn:hover {
+	color: var(--mn-accent);
+}
+
+.mn-pinned-date {
+	font-size: 0.76rem;
+	white-space: nowrap;
+	flex-shrink: 0;
+}
+
+.mn-pinned-draft-badge {
+	font-size: 0.72rem;
+	padding: 0.15rem 0.5rem;
+	flex-shrink: 0;
+}
+
+.mn-pinned-title-input {
+	font-weight: 700;
+	font-size: 1rem;
+	letter-spacing: -0.02em;
+	color: var(--mn-text-main);
+	background: var(--mn-bg-subtle);
+	border: 1px solid var(--mn-border-subtle);
+	border-radius: var(--mn-radius-sm);
+	padding: 0.25rem 0.55rem;
+	width: min(320px, 45vw);
+	box-sizing: border-box;
+}
+
+.mn-pinned-tiddler-bar .tc-tiddler-controls {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	opacity: 1 !important;
+}
+
+.mn-pinned-tiddler-bar .tc-tiddler-controls button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	background: transparent;
+	border: none;
+	border-radius: 8px;
+	color: var(--mn-text-muted);
+	transition: background var(--mn-transition), color var(--mn-transition);
+}
+
+.mn-pinned-tiddler-bar .tc-tiddler-controls button:hover {
+	background: var(--mn-bg-elevated);
+	color: var(--mn-text-main);
+}
+
+.mn-pinned-tiddler-bar .tc-tiddler-controls button svg {
+	width: 16px !important;
+	height: 16px !important;
+	fill: currentColor !important;
+}
+
+.mn-pinned-tiddler-bar .tc-btn-delete:hover {
+	color: var(--tpc-alert-color, #ef4444) !important;
+}
+
+.mn-pinned-tiddler-bar .tc-btn-save {
+	color: var(--mn-accent) !important;
+}
+
+.mn-pinned-tiddler-bar .tc-btn-save:hover {
+	background: var(--mn-accent-soft) !important;
+	color: var(--mn-accent) !important;
+}
+
+/* In Focused Document Mode on Desktop, hide duplicate in-card controls and redundant TopBar breadcrumb */
+.mn-app-shell.mn-desktop-document-mode .mn-topbar .mn-breadcrumb-sep,
+.mn-app-shell.mn-desktop-document-mode .mn-topbar .mn-breadcrumb-current {
+	display: none;
+}
+
+.mn-app-shell.mn-desktop-document-mode .mn-story-container .tc-tiddler-frame:not(.tc-tiddler-edit-frame) > .tc-tiddler-title .tc-tiddler-controls {
+	display: none;
+}
+
+.mn-app-shell.mn-desktop-document-mode .mn-story-container .tc-tiddler-edit-frame .tc-tiddler-title.tc-tiddler-edit-title {
+	display: none;
+}
+
+/* Pageless Document Mode on Desktop: seamless surface blending without card borders or outer margins */
+.mn-app-shell.mn-desktop-document-mode,
+.mn-app-shell.mn-desktop-document-mode .mn-workspace-grid,
+.mn-app-shell.mn-desktop-document-mode .mn-story-container {
+	background: var(--mn-bg-surface);
+}
+
+.mn-app-shell.mn-desktop-document-mode .mn-pinned-tiddler-bar {
+	background: color-mix(in srgb, var(--mn-bg-surface) 94%, transparent);
+	border-bottom: 1px solid var(--mn-border-hairline);
+}
+
+.mn-app-shell.mn-desktop-document-mode .mn-story-container .tc-tiddler-frame {
+	background: transparent !important;
+	border: none !important;
+	box-shadow: none !important;
+	border-radius: 0 !important;
+	padding: 1.25rem 0 4rem !important;
+	margin-bottom: 0 !important;
+}
+
+.mn-app-shell.mn-desktop-document-mode .mn-story-container .tc-tiddler-frame:hover {
+	border-color: transparent !important;
+}
+
+.mn-app-shell.mn-desktop-document-mode .mn-story-container .tc-tiddler-edit-frame textarea.tc-edit-texteditor {
+	background: var(--mn-bg-subtle);
+	border: 1px solid var(--mn-border-subtle);
+	border-radius: var(--mn-radius-md);
+	padding: 1.15rem 1.25rem;
+}
+
+/* Sticky Editor Formatting Toolbar (.tc-editor-toolbar) in Desktop Focused Document Mode */
+.mn-app-shell.mn-desktop-document-mode .mn-story-container .tc-tiddler-edit-frame .tc-editor-toolbar {
+	position: sticky;
+	top: calc(var(--mn-topbar-height) + var(--mn-pinned-bar-height, 46px));
+	z-index: 410;
+	background: color-mix(in srgb, var(--mn-bg-surface) 95%, transparent);
+	backdrop-filter: blur(14px);
+	-webkit-backdrop-filter: blur(14px);
+	border-radius: var(--mn-radius-sm);
+	border: 1px solid var(--mn-border-hairline);
+	padding: 0.35rem 0.5rem;
+	margin-bottom: 0.85rem;
+	box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
 }
 
 /*-----------------------------------------------------------------------------
@@ -2660,6 +2917,10 @@ body:has(.mn-app-shell).tc-body {
 		display: none !important;
 	}
 
+	.mn-pinned-tiddler-bar {
+		display: none !important;
+	}
+
 	.mn-mobile-only {
 		display: inline-flex !important;
 	}
@@ -2727,8 +2988,9 @@ body:has(.mn-app-shell).tc-body {
 
 	.mn-app-shell .mn-story-container,
 	.mn-app-shell .mn-story-container.tc-story-river {
+		background: var(--mn-bg-surface);
 		min-height: calc(100dvh - var(--mn-topbar-height) - var(--mn-bottombar-height));
-		padding: 0.75rem 0.75rem calc(var(--mn-bottombar-height) + 2.5rem);
+		padding: 0.65rem 0.85rem calc(var(--mn-bottombar-height) + 2.5rem);
 		width: 100%;
 		overflow-anchor: none;
 	}
@@ -2736,10 +2998,17 @@ body:has(.mn-app-shell).tc-body {
 	.mn-app-shell .mn-story-container .tc-tiddler-frame {
 		width: 100% !important;
 		max-width: 100% !important;
-		padding: 1.6rem 1.25rem;
-		margin-bottom: 0.85rem;
-		border-radius: 16px;
+		background: transparent !important;
+		border: none !important;
+		box-shadow: none !important;
+		border-radius: 0 !important;
+		padding: 0.5rem 0.15rem 1.75rem !important;
+		margin-bottom: 0 !important;
 		overflow-anchor: none;
+	}
+
+	.mn-app-shell .mn-story-container .tc-tiddler-frame:hover {
+		border-color: transparent !important;
 	}
 
 	.mn-story-container .tc-titlebar h2.tc-title {
@@ -2761,6 +3030,13 @@ body:has(.mn-app-shell).tc-body {
 		display: inline-flex;
 	}
 
+	.mn-story-container .tc-tiddler-edit-frame textarea.tc-edit-texteditor {
+		background: var(--mn-bg-subtle);
+		border: 1px solid var(--mn-border-subtle);
+		border-radius: var(--mn-radius-md);
+		padding: 0.75rem 0.85rem;
+	}
+
 	/* Suppress any zooming or scaling on mobile tiddlers */
 	.mn-is-mobile .tc-tiddler-frame {
 		transform: none !important;
@@ -2770,10 +3046,10 @@ body:has(.mn-app-shell).tc-body {
 	/* Outgoing tiddler during single-tiddler cross-fade */
 	.mn-is-mobile .tc-tiddler-frame.mn-tiddler-fading-out {
 		position: absolute !important;
-		top: 0.75rem !important;
-		left: 0.75rem !important;
-		right: 0.75rem !important;
-		width: calc(100% - 1.5rem) !important;
+		top: 0.65rem !important;
+		left: 0.85rem !important;
+		right: 0.85rem !important;
+		width: calc(100% - 1.7rem) !important;
 		max-width: none !important;
 		margin: 0 !important;
 		pointer-events: none !important;
