@@ -156,16 +156,15 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     expect(html).toContain("mn-prop-pill");
     expect(html).toContain("mn-progress-track");
 
-    // Verify clean desktop TopBar: center search, workspace mode toggle & right inspector toggle present,
-    // but no redundant New Note, settings cog, or mobile search button
+    // Verify clean desktop TopBar: center search & right inspector toggle present,
+    // but no redundant New Note, settings cog, doc/river toggle, or mobile search button
     const topBarHtml = $tw.wiki.renderTiddler(
       "text/html",
       "$:/plugins/mblackman/slipstream/ui/TopBar"
     );
     expect(topBarHtml).toContain("mn-search-input");
     expect(topBarHtml).toContain("Toggle Right Context Inspector");
-    expect(topBarHtml).toContain("Toggle Workspace View Mode");
-    expect(topBarHtml).toContain("Doc");
+    expect(topBarHtml).not.toContain("Toggle Workspace View Mode");
     expect(topBarHtml).not.toContain("+ New Note");
     expect(topBarHtml).not.toContain("Open Control Panel");
     expect(topBarHtml).not.toContain("Search notes");
@@ -1329,13 +1328,6 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     expect(layoutHtml).toContain("tc-page-view-fade");
     expect(layoutHtml).toContain("mn-pinned-tiddler-bar");
 
-    let topBarHtml = $tw.wiki.renderTiddler(
-      "text/html",
-      "$:/plugins/mblackman/slipstream/ui/TopBar"
-    );
-    expect(topBarHtml).toContain("Toggle Workspace View Mode");
-    expect(topBarHtml).toContain("Doc");
-
     // 2. Switch to 'river' mode
     $tw.wiki.addTiddler({
       title: "$:/config/slipstream/desktop-mode",
@@ -1348,12 +1340,6 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     expect(layoutHtml).toContain("mn-desktop-river-mode");
     expect(layoutHtml).toContain("tc-page-view-classic");
     expect(layoutHtml).not.toContain("mn-pinned-tiddler-bar");
-
-    topBarHtml = $tw.wiki.renderTiddler(
-      "text/html",
-      "$:/plugins/mblackman/slipstream/ui/TopBar"
-    );
-    expect(topBarHtml).toContain("River");
 
     // Cleanup
     $tw.wiki.deleteTiddler("$:/config/slipstream/desktop-mode");

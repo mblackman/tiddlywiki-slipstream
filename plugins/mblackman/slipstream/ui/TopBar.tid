@@ -5,7 +5,6 @@ type: text/vnd.tiddlywiki
 \function .breakpoint() [{$:/config/slipstream/mobile-breakpoint}!is[blank]else[1024]]
 \function .is-mobile() [{$:/info/browser/window/system/main/client/width}!is[blank]compare:number:lt<.breakpoint>then[yes]else[no]]
 \function .is-left-open() [.is-mobile[]match[yes]] :then[{$:/state/slipstream/left-panel}match[yes]then[yes]else[no]] :else[{$:/state/slipstream/left-panel}match[no]then[no]else[yes]]
-\function .desktop-mode() [{$:/config/slipstream/desktop-mode}!is[blank]else[document]]
 \function .active-tiddler() [list[$:/StoryList]match{$:/HistoryList!!current-tiddler}] ~[list[$:/StoryList]first[]]
 \function .active-title() [.active-tiddler[]get[draft.title]] ~[.active-tiddler[]get[caption]] ~[.active-tiddler[]]
 
@@ -125,31 +124,6 @@ type: text/vnd.tiddlywiki
 
 	<!-- TopBar Right Controls: Desktop Right Inspector Toggle vs Mobile Search Button -->
 	<div class="mn-topbar-right">
-		<!-- Desktop-Only: Workspace Mode Toggle (Focused Document vs Story River) -->
-		<$button
-			set="$:/config/slipstream/desktop-mode"
-			setTo={{{ [.desktop-mode[]match[document]then[river]else[document]] }}}
-			class="mn-pill-btn mn-desktop-only mn-topbar-mode-btn"
-			tooltip={{{ [.desktop-mode[]match[document]then[Switch to Story River view]else[Switch to Focused Document view]] }}}
-			aria-label="Toggle Workspace View Mode"
-		>
-			<%if [.desktop-mode[]match[document]] %>
-				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;">
-					<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-					<polyline points="14 2 14 8 20 8"/>
-					<line x1="16" y1="13" x2="8" y2="13"/>
-					<line x1="16" y1="17" x2="8" y2="17"/>
-				</svg>
-				<span>Doc</span>
-			<%else%>
-				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;">
-					<rect x="3" y="3" width="18" height="7" rx="1"/>
-					<rect x="3" y="14" width="18" height="7" rx="1"/>
-				</svg>
-				<span>River</span>
-			<%endif%>
-		</$button>
-
 		<!-- Desktop-Only: Right Context Inspector Toggle -->
 		<$button
 			set="$:/state/slipstream/right-panel"
