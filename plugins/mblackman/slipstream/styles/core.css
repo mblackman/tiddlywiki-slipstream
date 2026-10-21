@@ -274,9 +274,13 @@ body:has(.mn-app-shell).tc-body {
 
 /* Elevate tiddler frame stacking context when a dropdown or popup is open so it floats over subsequent tiddlers */
 .mn-app-shell .mn-story-container .tc-tiddler-frame:has(.tc-drop-down:not([hidden])),
+.mn-app-shell .mn-story-container .tc-tiddler-frame:has(.tc-block-dropdown:not([hidden])),
+.mn-app-shell .mn-story-container .tc-tiddler-frame:has(.tc-edit-type-dropdown:not([hidden])),
+.mn-app-shell .mn-story-container .tc-tiddler-frame:has(.tc-block-tags-dropdown:not([hidden])),
 .mn-app-shell .mn-story-container .tc-tiddler-frame:has(.tc-popup:not([hidden])),
 .mn-app-shell .mn-story-container .tc-tiddler-frame:has(.tc-reveal.tc-popup:not([hidden])),
-.mn-app-shell .mn-story-container .tc-tiddler-frame:has(.tc-selected) {
+.mn-app-shell .mn-story-container .tc-tiddler-frame:has(.tc-selected),
+.mn-app-shell .mn-story-container .tc-tiddler-frame:has([aria-expanded="true"]) {
 	z-index: 50;
 }
 
@@ -353,10 +357,14 @@ body:has(.mn-app-shell).tc-body {
 /* Suppress any hidden dropdown or reveal element from rendering ghost surfaces */
 .mn-app-shell .tc-drop-down[hidden],
 .mn-app-shell .tc-drop-down[hidden="true"],
+.mn-app-shell .tc-block-dropdown[hidden],
+.mn-app-shell .tc-block-dropdown[hidden="true"],
 .mn-app-shell .tc-reveal[hidden],
 .mn-app-shell .tc-reveal[hidden="true"],
 .mn-app-shell .tc-drop-down [hidden],
 .mn-app-shell .tc-drop-down [hidden="true"],
+.mn-app-shell .tc-block-dropdown [hidden],
+.mn-app-shell .tc-block-dropdown [hidden="true"],
 .mn-app-shell .tc-tags-wrapper [hidden] {
 	display: none !important;
 }
@@ -468,6 +476,129 @@ body:has(.mn-app-shell).tc-body {
 	border-top: 1px solid var(--mn-border-hairline);
 }
 
+/* Modern Block Dropdowns & Type/Field Pickers (.tc-block-dropdown) */
+.mn-app-shell .tc-block-dropdown-wrapper,
+.mn-app-shell .tc-edit-field-add-name-wrapper,
+.mn-app-shell .tc-type-selector-dropdown-wrapper {
+	position: relative;
+}
+
+.mn-app-shell .tc-block-dropdown:not([hidden]) {
+	position: absolute;
+	min-width: 220px;
+	max-width: 360px;
+	max-height: 320px;
+	overflow-y: auto;
+	margin: 6px 0 0 0;
+	padding: 0.35rem;
+	background: var(--mn-bg-surface);
+	border: 1px solid var(--mn-border-subtle);
+	border-radius: var(--mn-radius-card);
+	box-shadow: 0 16px 40px -8px rgba(15, 23, 42, 0.16), 0 4px 12px -2px rgba(15, 23, 42, 0.08);
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	z-index: 1000;
+	font-size: 0.84rem;
+	line-height: 1.4;
+	white-space: nowrap;
+	text-shadow: none;
+	backdrop-filter: blur(8px);
+	scrollbar-width: thin;
+	scrollbar-color: color-mix(in srgb, var(--mn-text-muted) 35%, transparent) transparent;
+}
+
+.mn-app-shell .tc-block-dropdown .tc-reveal:not([hidden]),
+.mn-app-shell .tc-block-dropdown > span {
+	display: block;
+	width: 100%;
+}
+
+.mn-app-shell .tc-block-dropdown button,
+.mn-app-shell .tc-block-dropdown a {
+	display: flex !important;
+	align-items: center !important;
+	justify-content: flex-start !important;
+	gap: 0.55rem !important;
+	width: 100% !important;
+	height: auto !important;
+	min-height: 32px !important;
+	max-height: none !important;
+	padding: 0.4rem 0.65rem !important;
+	margin: 0 !important;
+	border: none !important;
+	border-radius: var(--mn-radius-sm) !important;
+	background: transparent !important;
+	color: var(--mn-text-main) !important;
+	font-size: 0.82rem !important;
+	font-weight: 500 !important;
+	text-align: left !important;
+	text-decoration: none !important;
+	cursor: pointer !important;
+	box-sizing: border-box !important;
+	transition: background var(--mn-transition), color var(--mn-transition) !important;
+}
+
+.mn-app-shell .tc-block-dropdown button:hover,
+.mn-app-shell .tc-block-dropdown a:hover,
+.mn-app-shell .tc-block-dropdown .tc-list-item-selected,
+.mn-app-shell .tc-block-dropdown .tc-tag-button-selected,
+.mn-app-shell .tc-block-dropdown a.tc-list-item-selected {
+	background: var(--mn-bg-subtle) !important;
+	color: var(--mn-accent) !important;
+	text-decoration: none !important;
+}
+
+.mn-app-shell .tc-block-dropdown button svg,
+.mn-app-shell .tc-block-dropdown a svg {
+	width: 15px !important;
+	height: 15px !important;
+	fill: currentColor !important;
+	flex-shrink: 0 !important;
+}
+
+.mn-app-shell .tc-block-dropdown .tc-btn-text {
+	display: inline !important;
+	font-size: 0.82rem !important;
+	font-weight: 500 !important;
+	color: inherit !important;
+	white-space: nowrap !important;
+}
+
+.mn-app-shell .tc-block-dropdown input[type="text"],
+.mn-app-shell .tc-block-dropdown input[type="search"] {
+	width: 100%;
+	padding: 0.35rem 0.5rem;
+	margin: 0.2rem 0;
+	background: var(--mn-bg-subtle);
+	border: 1px solid var(--mn-border-hairline);
+	border-radius: var(--mn-radius-sm);
+	color: var(--mn-text-main);
+	font-size: 0.82rem;
+	box-sizing: border-box;
+}
+
+.mn-app-shell .tc-block-dropdown input[type="text"]:focus,
+.mn-app-shell .tc-block-dropdown input[type="search"]:focus {
+	outline: none;
+	border-color: var(--mn-accent);
+}
+
+.mn-app-shell .tc-block-dropdown .tc-dropdown-item,
+.mn-app-shell .tc-block-dropdown .tc-dropdown-item-plain,
+.mn-app-shell .tc-block-dropdown .tc-drop-down-info {
+	padding: 0.35rem 0.65rem;
+	font-size: 0.78rem;
+	font-weight: 600;
+	color: var(--mn-text-muted);
+}
+
+.mn-app-shell .tc-block-dropdown hr {
+	margin: 0.3rem 0;
+	border: none;
+	border-top: 1px solid var(--mn-border-hairline);
+}
+
 /* Clean Subtitle & Metadata Line */
 .mn-story-container .tc-subtitle {
 	font-size: 0.78rem;
@@ -542,7 +673,9 @@ body:has(.mn-app-shell).tc-body {
 }
 
 .mn-story-container .tc-tiddler-body:has(.tc-drop-down:not([hidden])),
-.mn-story-container .tc-tiddler-body:has(.tc-popup:not([hidden])) {
+.mn-story-container .tc-tiddler-body:has(.tc-block-dropdown:not([hidden])),
+.mn-story-container .tc-tiddler-body:has(.tc-popup:not([hidden])),
+.mn-story-container .tc-tiddler-body:has([aria-expanded="true"]) {
 	overflow: visible;
 }
 
@@ -809,9 +942,11 @@ body:has(.mn-app-shell).tc-body {
 }
 
 .mn-panel-left .mn-panel-left-header:has(.tc-drop-down:not([hidden])),
+.mn-panel-left .mn-panel-left-header:has(.tc-block-dropdown:not([hidden])),
 .mn-panel-left .mn-panel-left-header:has(.tc-popup:not([hidden])),
 .mn-panel-left .mn-panel-left-header:has(.tc-reveal.tc-popup:not([hidden])),
-.mn-panel-left .mn-panel-left-header:has(.tc-selected) {
+.mn-panel-left .mn-panel-left-header:has(.tc-selected),
+.mn-panel-left .mn-panel-left-header:has([aria-expanded="true"]) {
 	z-index: 100 !important;
 }
 

@@ -1070,6 +1070,102 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
 
     $tw.wiki.deleteTiddler("WideTableNote");
   });
+
+  test("elevates tiddler frame stacking context for dropdowns at the bottom of tiddlers so they render above subsequent tiddlers in desktop mode", () => {
+    const css = fs.readFileSync(path.join(PLUGIN_DIR, "styles/core.css"), "utf8");
+
+    // Verify .tc-tiddler-frame:has selector includes block dropdowns, edit type dropdown, block tags dropdown, and aria-expanded
+    expect(css).toMatch(/\.tc-tiddler-frame:has\(\.tc-block-dropdown:not\(\[hidden\]\)\)/);
+    expect(css).toMatch(/\.tc-tiddler-frame:has\(\.tc-edit-type-dropdown:not\(\[hidden\]\)\)/);
+    expect(css).toMatch(/\.tc-tiddler-frame:has\(\.tc-block-tags-dropdown:not\(\[hidden\]\)\)/);
+    expect(css).toMatch(/\.tc-tiddler-frame:has\(\[aria-expanded="true"\]\)/);
+
+    // Verify elevated z-index is 50
+    expect(css).toMatch(/\.tc-tiddler-frame:has\(\.tc-block-dropdown:not\(\[hidden\]\)\)[^}]*z-index:\s*50/s);
+
+    // Verify block dropdown wrapper and edit field add name wrapper have relative positioning
+    expect(css).toMatch(/\.tc-block-dropdown-wrapper[^{]*\{[^}]*position:\s*relative/s);
+    expect(css).toMatch(/\.tc-edit-field-add-name-wrapper[^{]*\{[^}]*position:\s*relative/s);
+
+    // Verify modern block dropdown styling under .mn-app-shell
+    expect(css).toMatch(/(?:\.mn-app-shell\s+)?\.tc-block-dropdown:not\(\[hidden\]\)\s*\{[^}]*display:\s*flex/s);
+    expect(css).toMatch(/(?:\.mn-app-shell\s+)?\.tc-block-dropdown:not\(\[hidden\]\)\s*\{[^}]*position:\s*absolute/s);
+    expect(css).toMatch(/(?:\.mn-app-shell\s+)?\.tc-block-dropdown:not\(\[hidden\]\)\s*\{[^}]*border-radius:\s*var\(--mn-radius-card\)/s);
+    expect(css).toMatch(/(?:\.mn-app-shell\s+)?\.tc-block-dropdown:not\(\[hidden\]\)\s*\{[^}]*max-height:\s*320px/s);
+    expect(css).toMatch(/(?:\.mn-app-shell\s+)?\.tc-block-dropdown:not\(\[hidden\]\)\s*\{[^}]*overflow-y:\s*auto/s);
+
+    // Verify block dropdown buttons and links have full-width alignment and hover states
+    expect(css).toMatch(/(?:\.mn-app-shell\s+)?\.tc-block-dropdown button,\s*(?:\.mn-app-shell\s+)?\.tc-block-dropdown a\s*\{[^}]*width:\s*100% !important/s);
+
+    // Verify .tc-tiddler-body:has expands overflow for block dropdowns and aria-expanded popups
+    expect(css).toMatch(/\.tc-tiddler-body:has\(\.tc-block-dropdown:not\(\[hidden\]\)\)[^}]*overflow:\s*visible/s);
+    expect(css).toMatch(/\.tc-tiddler-body:has\(\[aria-expanded="true"\]\)[^}]*overflow:\s*visible/s);
+
+    // Test DOM tree rendering of bottom dropdown in EditTemplate
+    $tw.wiki.addTiddler({
+      title: "Draft of 'StackingTestNote'",
+      "draft.of": "StackingTestNote",
+      "draft.title": "StackingTestNote",
+      text: "Testing stacking context elevation",
+    });
+
+    const widgetNode = $tw.wiki.makeWidget(
+      $tw.wiki.parseTiddler("$:/core/ui/EditTemplate"),
+      {
+        variables: {
+          currentTiddler: "Draft of 'StackingTestNote'",
+          storyTiddler: "Draft of 'StackingTestNote'",
+        },
+      }
+    );
+    const container = $tw.fakeDocument.createElement("div");
+    widgetNode.render(container, null);
+
+    function findButtons(node, list = []) {
+      if (node.parseTreeNode && node.parseTreeNode.type === "button") {
+        if (
+          node.getAttribute("popup") &&
+          (node.getAttribute("popup").includes("type-dropdown") ||
+            node.getAttribute("popup").includes("field-dropdown"))
+        ) {
+          list.push({
+            popup: node.getAttribute("popup"),
+            ariaLabel: node.getAttribute("aria-label"),
+          });
+        }
+      }
+      for (const child of node.children) findButtons(child, list);
+      return list;
+    }
+
+    const dropdownButtons = findButtons(widgetNode);
+    expect(dropdownButtons.length).toBeGreaterThan(0);
+
+    const typePopupState = dropdownButtons.find((b) =>
+      b.popup.includes("type-dropdown")
+    ).popup;
+
+    // Initially popup is closed: aria-expanded is false
+    expect(container.outerHTML).toContain('aria-expanded="false"');
+    expect(container.outerHTML).not.toContain('aria-expanded="true"');
+
+    // Trigger open state for type popup
+    $tw.wiki.setText(typePopupState, "text", undefined, "(100,200,50,20)");
+    widgetNode.refresh({ [typePopupState]: true });
+
+    // When opened: aria-expanded="true" and unhidden block dropdown is present
+    expect(container.outerHTML).toContain('aria-expanded="true"');
+    expect(container.outerHTML).toContain("tc-block-dropdown tc-edit-type-dropdown");
+
+    // Close popup
+    $tw.wiki.deleteTiddler(typePopupState);
+    widgetNode.refresh({ [typePopupState]: true });
+    expect(container.outerHTML).toContain('aria-expanded="false"');
+    expect(container.outerHTML).not.toContain('aria-expanded="true"');
+
+    // Cleanup
+    $tw.wiki.deleteTiddler("Draft of 'StackingTestNote'");
+  });
 });
 
 
