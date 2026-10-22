@@ -45,7 +45,6 @@ jobs:
         with:
           files: |
             build/slipstream.tid
-            build/slipstream-plugin.json
             dist/slipstream-plugin.json
             build/index.html
           generate_release_notes: true
