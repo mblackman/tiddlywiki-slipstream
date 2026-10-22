@@ -147,6 +147,46 @@ exports.startup = function() {
 
 			return false;
 		});
+
+		// Global Search & Quick Switcher Shortcut Listener (Cmd/Ctrl+K or Ctrl/Cmd+Shift+F)
+		if(typeof document !== "undefined" && typeof window !== "undefined") {
+			document.addEventListener("keydown", function(event) {
+				var isCmdOrCtrl = event.metaKey || event.ctrlKey;
+				var keyLower = (event.key || "").toLowerCase();
+				var isCmdK = isCmdOrCtrl && !event.shiftKey && !event.altKey && keyLower === "k";
+				var isShiftF = isCmdOrCtrl && event.shiftKey && !event.altKey && keyLower === "f";
+				if(!isCmdK && !isShiftF) {
+					return;
+				}
+				var appShell = document.querySelector(".mn-app-shell");
+				if(!appShell) {
+					return;
+				}
+				event.preventDefault();
+				event.stopPropagation();
+
+				var isMobile = appShell.classList.contains("mn-is-mobile");
+				if(isMobile) {
+					$tw.wiki.addTiddler({
+						title: "$:/state/slipstream/mobile-search",
+						text: "open"
+					});
+				}
+				$tw.wiki.addTiddler({
+					title: "$:/state/slipstream/search-open",
+					text: "yes"
+				});
+				setTimeout(function() {
+					var input = appShell.querySelector(".mn-mobile-search-input") || appShell.querySelector(".mn-topbar-center .mn-search-input");
+					if(input && typeof input.focus === "function") {
+						input.focus();
+						if(typeof input.select === "function") {
+							input.select();
+						}
+					}
+				}, 20);
+			});
+		}
 	}
 };
 

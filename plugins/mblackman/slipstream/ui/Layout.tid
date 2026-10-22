@@ -22,6 +22,8 @@ type: text/vnd.tiddlywiki
 \procedure redirected-navigate-actions()
 <$action-setfield $tiddler="$:/HistoryList" current-tiddler=<<event-navigateTo>> $timestamp="no"/>
 <$action-setfield $tiddler="$:/temp/volatile/slipstream/global-search" text="" $timestamp="no"/>
+<$action-setfield $tiddler="$:/state/slipstream/search-open" text="no" $timestamp="no"/>
+<$action-setfield $tiddler="$:/state/slipstream/search-selected" text="" $timestamp="no"/>
 <$action-setfield $tiddler="$:/state/slipstream/mobile-search" text="" $timestamp="no"/>
 <$action-setfield $tiddler="$:/state/slipstream/mobile-action-sheet" text="closed" $timestamp="no"/>
 <$action-setfield $tiddler="$:/state/slipstream/mobile-context-sheet" text="closed" $timestamp="no"/>

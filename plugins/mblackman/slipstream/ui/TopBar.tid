@@ -8,63 +8,453 @@ type: text/vnd.tiddlywiki
 \function .active-tiddler() [list[$:/StoryList]match{$:/HistoryList!!current-tiddler}] ~[list[$:/StoryList]first[]]
 \function .active-title() [.active-tiddler[]get[draft.title]] ~[.active-tiddler[]get[caption]] ~[.active-tiddler[]]
 
-\procedure search-enter-actions()
-<$let firstMatch={{{ [all[tiddlers]!is[system]!has[draft.of]search{$:/temp/volatile/slipstream/global-search}sort[title]first[]] }}}>
-	<%if [<firstMatch>!is[blank]] %>
-		<$action-navigate $to=<<firstMatch>>/>
-		<$action-setfield $tiddler="$:/temp/volatile/slipstream/global-search" text="" $timestamp="no"/>
-		<$action-setfield $tiddler="$:/state/slipstream/mobile-search" text="closed" $timestamp="no"/>
-	<%endif%>
+\procedure clean-snippet-prefix() ^[#\*\>]+\s*
+\procedure f-all-titles() [all[tiddlers]!is[system]!has[draft.of]search:title,caption<q>sort[title]limit[8]]
+\procedure f-only-titles() [all[tiddlers]!is[system]!has[draft.of]search:title,caption<q>sort[title]limit[12]]
+\procedure f-tags() [all[tiddlers]!is[system]!has[draft.of]search:tags<q>sort[title]limit[12]]
+\procedure f-pinned() [all[tiddlers]tag[$:/tags/Pinned]!has[draft.of]search<q>sort[title]] [list[$:/StoryList]!is[system]!has[draft.of]search<q>sort[title]] +[unique[]limit[12]]
+\procedure f-system-titles() [all[shadows+tiddlers]is[system]!has[draft.of]search:title<q>sort[title]limit[8]]
+\procedure f-prefix-tag() [all[tiddlers]!is[system]!has[draft.of]search:tags<pArg>sort[title]limit[12]]
+\procedure f-prefix-field() [all[tiddlers]!is[system]!has[draft.of]has<fName>] :filter[<fVal>is[blank]then[yes]else<currentTiddler>get<fName>search:title<fVal>] +[sort[title]limit[12]]
+\procedure f-prefix-filter() [subfilter<pArg>!regexp[^Filter error:]limit[12]]
+
+\procedure f-all-body() [all[tiddlers]!is[system]!has[draft.of]search:text,tags<q>!search:title,caption<q>!sort[modified]limit[6]]
+\procedure f-system-body() [all[shadows+tiddlers]is[system]!has[draft.of]!field:plugin-type[plugin]!field:plugin-type[theme]search:text,tags<q>!search:title<q>sort[title]limit[6]]
+\procedure f-none() [[__NONE__]is[blank]]
+
+\procedure f-count-all() [all[tiddlers]!is[system]!has[draft.of]search<q>]
+\procedure f-count-title() [all[tiddlers]!is[system]!has[draft.of]search:title,caption<q>]
+\procedure f-count-tags() [all[tiddlers]!is[system]!has[draft.of]search:tags<q>]
+\procedure f-count-pinned() [all[tiddlers]tag[$:/tags/Pinned]!has[draft.of]search<q>] [list[$:/StoryList]!is[system]!has[draft.of]search<q>] +[unique[]]
+\procedure f-count-system() [all[shadows+tiddlers]is[system]!has[draft.of]search<q>]
+\procedure f-count-prefix-tag() [all[tiddlers]!is[system]!has[draft.of]search:tags<pArg>]
+\procedure f-count-prefix-field() [all[tiddlers]!is[system]!has[draft.of]has<fName>] :filter[<fVal>is[blank]then[yes]else<currentTiddler>get<fName>search:title<fVal>]
+\procedure f-count-prefix-filter() [subfilter<pArg>!regexp[^Filter error:]]
+
+\function .raw-query() [{$:/temp/volatile/slipstream/global-search}trim[]]
+\function .search-scope() [{$:/state/slipstream/search-scope}!is[blank]else[all]]
+\function .prefix-char() [.raw-query[]split[]first[]]
+\function .prefix-arg() [.raw-query[]split[]butfirst[]join[]trim[]]
+\function .field-name() [.prefix-arg[]split[:]first[]trim[]]
+\function .field-val() [.prefix-arg[]split[:]butfirst[]join[:]trim[]]
+
+\function .effective-mode()
+[.prefix-char[]match[#]then[prefix-tag]]
+~[.prefix-char[]match[@]then[prefix-field]]
+~[.prefix-char[]match[>]then[prefix-filter]]
+~[.search-scope[]]
+\end
+
+\function .primary-filter-expr(mode)
+[<mode>match[all]then<f-all-titles>]
+~[<mode>match[title]then<f-only-titles>]
+~[<mode>match[tags]then<f-tags>]
+~[<mode>match[pinned]then<f-pinned>]
+~[<mode>match[system]then<f-system-titles>]
+~[<mode>match[prefix-tag]then<f-prefix-tag>]
+~[<mode>match[prefix-field]then<f-prefix-field>]
+~[<mode>match[prefix-filter]then<f-prefix-filter>]
+\end
+
+\function .secondary-filter-expr(mode)
+[<mode>match[all]then<f-all-body>]
+~[<mode>match[system]then<f-system-body>]
+~[<f-none>]
+\end
+
+\function .count-filter-expr(mode)
+[<mode>match[all]then<f-count-all>]
+~[<mode>match[title]then<f-count-title>]
+~[<mode>match[tags]then<f-count-tags>]
+~[<mode>match[pinned]then<f-count-pinned>]
+~[<mode>match[system]then<f-count-system>]
+~[<mode>match[prefix-tag]then<f-count-prefix-tag>]
+~[<mode>match[prefix-field]then<f-count-prefix-field>]
+~[<mode>match[prefix-filter]then<f-count-prefix-filter>]
+\end
+
+\function .snippet(tid, q)
+[<tid>!field:plugin-type[plugin]!field:plugin-type[theme]get[text]split[\n]limit[400]trim[]!is[blank]!regexp[^!+\s+]search:title<q>first[]]
+:map[search-replace:g:regexp<clean-snippet-prefix>,[]search-replace:g[''],[]search-replace:g[//],[]search-replace:g[`],[]search-replace:g[~~],[]trim[]]
+:and[split[]first[105]join[]]
+\end
+
+\function .is-dropdown-open()
+[.raw-query[]minlength[1]then[yes]]
+~[{$:/state/slipstream/search-open}match[yes]then[yes]else[no]]
+\end
+
+\procedure search-close-actions()
+<$action-setfield $tiddler="$:/temp/volatile/slipstream/global-search" text="" $timestamp="no"/>
+<$action-setfield $tiddler="$:/state/slipstream/search-open" text="no" $timestamp="no"/>
+<$action-setfield $tiddler="$:/state/slipstream/search-selected" text="" $timestamp="no"/>
+<$action-setfield $tiddler="$:/state/slipstream/mobile-search" text="closed" $timestamp="no"/>
+\end
+
+\procedure search-input-actions()
+<$action-setfield $tiddler="$:/state/slipstream/search-open" text="yes" $timestamp="no"/>
+<$action-setfield $tiddler="$:/state/slipstream/search-selected" text="" $timestamp="no"/>
+\end
+
+\procedure search-create-note-actions(noteTitle)
+<%if [<noteTitle>!is[blank]] %>
+	<$action-sendmessage $message="tm-new-tiddler" title=<<noteTitle>>/>
+	<<search-close-actions>>
+<%endif%>
+\end
+
+\procedure search-open-advanced-actions()
+<$let q=<<.raw-query>>>
+	<$action-setfield $tiddler="$:/temp/advancedsearch" text=<<q>> $timestamp="no"/>
+	<$action-setfield $tiddler="$:/temp/advancedsearch/input" text=<<q>> $timestamp="no"/>
+	<$action-setfield $tiddler="$:/temp/advancedsearch/refresh" text="yes" $timestamp="no"/>
+	<<search-close-actions>>
+	<$action-navigate $to="$:/AdvancedSearch"/>
 </$let>
 \end
 
-\procedure search-escape-actions()
-<$action-setfield $tiddler="$:/temp/volatile/slipstream/global-search" text="" $timestamp="no"/>
-<$action-setfield $tiddler="$:/state/slipstream/mobile-search" text="closed" $timestamp="no"/>
+\procedure search-key-actions()
+<$let
+	q=<<.raw-query>>
+	qLow={{{ [<q>lowercase[]] }}}
+	mode=<<.effective-mode>>
+	pArg=<<.prefix-arg>>
+	fName=<<.field-name>>
+	fVal=<<.field-val>>
+	primaryExpr={{{ [.primary-filter-expr<mode>] }}}
+	secondaryExpr={{{ [.secondary-filter-expr<mode>] }}}
+	canCreate={{{ [<q>minlength[1]!prefix[#]!prefix[@]!prefix[>]!is[tiddler]then[__CREATE__]] }}}
+>
+	<$set name="primaryList" filter="[<q>minlength[1]] :then[subfilter<primaryExpr>sort[title]] :sort:number[lowercase[]match<qLow>then[0]else<currentTiddler>lowercase[]prefix<qLow>then[1]else[2]]">
+		<$set name="secondaryList" filter="[<q>minlength[1]] :then[subfilter<secondaryExpr>]">
+			<$set name="navItems" filter="[<q>minlength[1]] :then[enlist<primaryList>] [enlist<secondaryList>] [<canCreate>!is[blank]] :else[all[tiddlers]!is[system]!has[draft.of]!sort[modified]limit[6]]">
+		<$let
+			firstItem={{{ [enlist<navItems>first[]] }}}
+			lastItem={{{ [enlist<navItems>last[]] }}}
+			currentSel={{{ [{$:/state/slipstream/search-selected}] :filter[enlist<navItems>match<currentTiddler>] ~[<firstItem>] }}}
+		>
+			<%if [<event-key-descriptor>match[down]] [<event-key-descriptor>match[((input-down))]] %>
+				<$let nextItem={{{ [enlist<navItems>after<currentSel>] ~[<firstItem>] }}}>
+					<$action-setfield $tiddler="$:/state/slipstream/search-open" text="yes" $timestamp="no"/>
+					<$action-setfield $tiddler="$:/state/slipstream/search-selected" text=<<nextItem>> $timestamp="no"/>
+				</$let>
+			<%elseif [<event-key-descriptor>match[up]] [<event-key-descriptor>match[((input-up))]] %>
+				<$let prevItem={{{ [enlist<navItems>before<currentSel>] ~[<lastItem>] }}}>
+					<$action-setfield $tiddler="$:/state/slipstream/search-open" text="yes" $timestamp="no"/>
+					<$action-setfield $tiddler="$:/state/slipstream/search-selected" text=<<prevItem>> $timestamp="no"/>
+				</$let>
+			<%elseif [<event-key-descriptor>match[enter]] [<event-key-descriptor>match[((input-accept))]] %>
+				<%if [<currentSel>match[__CREATE__]] %>
+					<$transclude $variable="search-create-note-actions" noteTitle=<<q>>/>
+				<%elseif [<currentSel>!is[blank]] %>
+					<$action-navigate $to=<<currentSel>>/>
+					<<search-close-actions>>
+				<%endif%>
+			<%elseif [<event-key-descriptor>match[shift+enter]] [<event-key-descriptor>match[((input-accept-variant))]] %>
+				<%if [<currentSel>match[__CREATE__]] %>
+					<$transclude $variable="search-create-note-actions" noteTitle=<<q>>/>
+				<%elseif [<currentSel>!is[blank]] %>
+					<$action-sendmessage $message="tm-edit-tiddler" $param=<<currentSel>>/>
+					<<search-close-actions>>
+				<%endif%>
+			<%elseif [<event-key-descriptor>match[escape]] [<event-key-descriptor>match[((input-cancel))]] %>
+				<<search-close-actions>>
+			<%elseif [<event-key-descriptor>match[((advanced-search-sidebar))]] [<event-key-descriptor>match[ctrl+shift+a]] [<event-key-descriptor>match[cmd+shift+a]] %>
+				<<search-open-advanced-actions>>
+			<%endif%>
+		</$let>
+			</$set>
+		</$set>
+	</$set>
+</$let>
 \end
+
+\procedure search-result-item(itemTid, showSnippet:"no", queryText:"")
+<$tiddler tiddler=<<itemTid>>>
+	<$button
+		to=<<itemTid>>
+		class={{{ [[mn-nav-item mn-search-result-item tc-btn-invisible]] [<itemTid>match<activeSel>then[mn-search-item-selected]] +[join[ ]] }}}
+	>
+		<div class="mn-search-result-main">
+			<div class="mn-search-result-top">
+				<span class="mn-search-result-title-wrap">
+					<%if [<itemTid>get[ss-icon]!is[blank]] %>
+						<span class="mn-search-result-icon"><$text text={{{ [<itemTid>get[ss-icon]] }}}/></span>
+					<%elseif [<itemTid>get[mn-icon]!is[blank]] %>
+						<span class="mn-search-result-icon"><$text text={{{ [<itemTid>get[mn-icon]] }}}/></span>
+					<%elseif [<itemTid>get[icon]!is[blank]] %>
+						<span class="mn-search-result-icon"><$transclude $tiddler={{{ [<itemTid>get[icon]] }}}/></span>
+					<%endif%>
+					<span class="mn-search-result-title"><$view field="caption"><$view field="title"/></$view></span>
+					<%if [<itemTid>has[caption]] :and[<itemTid>get[caption]!match<itemTid>] %>
+						<span class="mn-search-result-subtitle"><$text text=<<itemTid>>/></span>
+					<%endif%>
+					<%if [<itemTid>tag[$:/tags/Pinned]] %>
+						<span class="mn-search-pin-indicator" title="Pinned shortcut">★</span>
+					<%endif%>
+				</span>
+				<span class="mn-search-result-meta">
+					<$list filter="[<itemTid>tags[]!is[system]sort[title]limit[2]]" variable="tagItem">
+						<span class="mn-search-tag-pill"><$text text=<<tagItem>>/></span>
+					</$list>
+					<%if [<itemTid>has[modified]] %>
+						<span class="mn-prop-label mn-search-date"><$view field="modified" format="relativedate"/></span>
+					<%endif%>
+				</span>
+			</div>
+			<%if [<showSnippet>match[yes]] :and[<queryText>minlength[1]] %>
+				<$let excerpt={{{ [.snippet<itemTid>,<queryText>] }}}>
+					<%if [<excerpt>!is[blank]] %>
+						<div class="mn-search-result-snippet"><$text text=<<excerpt>>/></div>
+					<%endif%>
+				</$let>
+			<%elseif [<mode>match[prefix-field]] :and[<fName>!is[blank]] %>
+				<div class="mn-search-result-snippet">
+					<span class="mn-field-name"><$text text=<<fName>>/>:</span>&#32;<$text text={{{ [<itemTid>get<fName>] }}}/>
+				</div>
+			<%endif%>
+		</div>
+	</$button>
+</$tiddler>
+\end
+
+\procedure search-dropdown-panel()
+<$let
+	q=<<.raw-query>>
+	qLow={{{ [<q>lowercase[]] }}}
+	mode=<<.effective-mode>>
+	scope=<<.search-scope>>
+	pArg=<<.prefix-arg>>
+	fName=<<.field-name>>
+	fVal=<<.field-val>>
+	primaryExpr={{{ [.primary-filter-expr<mode>] }}}
+	secondaryExpr={{{ [.secondary-filter-expr<mode>] }}}
+	countExpr={{{ [.count-filter-expr<mode>] }}}
+	canCreate={{{ [<q>minlength[1]!prefix[#]!prefix[@]!prefix[>]!is[tiddler]then[__CREATE__]] }}}
+>
+	<$set name="primaryList" filter="[<q>minlength[1]] :then[subfilter<primaryExpr>sort[title]] :sort:number[lowercase[]match<qLow>then[0]else<currentTiddler>lowercase[]prefix<qLow>then[1]else[2]]">
+		<$set name="secondaryList" filter="[<q>minlength[1]] :then[subfilter<secondaryExpr>]">
+			<$set name="navItems" filter="[<q>minlength[1]] :then[enlist<primaryList>] [enlist<secondaryList>] [<canCreate>!is[blank]] :else[all[tiddlers]!is[system]!has[draft.of]!sort[modified]limit[6]]">
+		<$let
+			firstItem={{{ [enlist<navItems>first[]] }}}
+			activeSel={{{ [{$:/state/slipstream/search-selected}] :filter[enlist<navItems>match<currentTiddler>] ~[<firstItem>] }}}
+			totalCount={{{ [<q>minlength[1]] :then[subfilter<countExpr>count[]] ~[[0]] }}}
+		>
+			<div class="mn-search-dropdown" role="listbox" aria-label="Search Results">
+				<!-- Scope Filter Pills & Prefix Mode Header -->
+				<div class="mn-search-scope-bar">
+					<div class="mn-search-scope-pills">
+						<$button
+							class={{{ [[mn-search-scope-pill]] [<mode>match[all]then[mn-search-scope-pill-active]] +[join[ ]] }}}
+							tooltip="Search all standard notes (titles, content, and tags)"
+						>
+							<$action-setfield $tiddler="$:/state/slipstream/search-scope" text="all" $timestamp="no"/>
+							<$action-setfield $tiddler="$:/state/slipstream/search-selected" text="" $timestamp="no"/>
+							All
+						</$button>
+						<$button
+							class={{{ [[mn-search-scope-pill]] [<mode>match[title]then[mn-search-scope-pill-active]] +[join[ ]] }}}
+							tooltip="Match note titles and captions only"
+						>
+							<$action-setfield $tiddler="$:/state/slipstream/search-scope" text="title" $timestamp="no"/>
+							<$action-setfield $tiddler="$:/state/slipstream/search-selected" text="" $timestamp="no"/>
+							Titles
+						</$button>
+						<$button
+							class={{{ [[mn-search-scope-pill]] [<mode>match[tags]then[mn-search-scope-pill-active]] +[join[ ]] }}}
+							tooltip="Match notes by tag name"
+						>
+							<$action-setfield $tiddler="$:/state/slipstream/search-scope" text="tags" $timestamp="no"/>
+							<$action-setfield $tiddler="$:/state/slipstream/search-selected" text="" $timestamp="no"/>
+							Tags
+						</$button>
+						<$button
+							class={{{ [[mn-search-scope-pill]] [<mode>match[pinned]then[mn-search-scope-pill-active]] +[join[ ]] }}}
+							tooltip="Search within pinned shortcuts and currently open notes"
+						>
+							<$action-setfield $tiddler="$:/state/slipstream/search-scope" text="pinned" $timestamp="no"/>
+							<$action-setfield $tiddler="$:/state/slipstream/search-selected" text="" $timestamp="no"/>
+							Pinned&#32;&amp;&#32;Open
+						</$button>
+						<$button
+							class={{{ [[mn-search-scope-pill]] [<mode>match[system]then[mn-search-scope-pill-active]] +[join[ ]] }}}
+							tooltip="Search system and shadow tiddlers"
+						>
+							<$action-setfield $tiddler="$:/state/slipstream/search-scope" text="system" $timestamp="no"/>
+							<$action-setfield $tiddler="$:/state/slipstream/search-selected" text="" $timestamp="no"/>
+							System
+						</$button>
+					</div>
+					<$button actions=<<search-close-actions>> class="tc-btn-invisible mn-search-close-btn" tooltip="Close search (Esc)" aria-label="Close search">✕</$button>
+				</div>
+
+				<!-- Active Prefix Syntax Banner (if query starts with #, @, or >) -->
+				<%if [<mode>prefix[prefix-]] %>
+					<div class="mn-search-prefix-banner">
+						<%if [<mode>match[prefix-tag]] %>
+							<span class="mn-badge"># Tag Filter</span>
+							<span class="mn-prop-label">Matching tag: <code><$text text=<<pArg>>/></code></span>
+						<%elseif [<mode>match[prefix-field]] %>
+							<span class="mn-badge">@ Field Filter</span>
+							<span class="mn-prop-label">Field <code><$text text=<<fName>>/></code><%if [<fVal>!is[blank]] %>&#32;contains <code><$text text=<<fVal>>/></code><%endif%></span>
+						<%elseif [<mode>match[prefix-filter]] %>
+							<span class="mn-badge">&gt;&#32;Live Filter</span>
+							<span class="mn-prop-label">Evaluating:&#32;<code><$text text=<<pArg>>/></code></span>
+						<%endif%>
+					</div>
+				<%endif%>
+
+				<%if [<q>minlength[1]] %>
+					<!-- Active Search Query Results -->
+					<div class="mn-search-sections">
+						<!-- Section 1: Title / Primary Matches -->
+						<$list filter="[subfilter<primaryExpr>limit[1]]" variable="hasPrimary">
+							<div class="mn-search-section">
+								<div class="mn-nav-heading mn-search-section-heading">
+									<span>
+										<%if [<mode>match[all]] [<mode>match[title]] [<mode>match[system]] %>
+											Title Matches
+										<%elseif [<mode>match[tags]] [<mode>match[prefix-tag]] %>
+											Tag Matches
+										<%elseif [<mode>match[pinned]] %>
+											Pinned&#32;&amp;&#32;Open Matches
+										<%elseif [<mode>match[prefix-field]] %>
+											Field Matches
+										<%elseif [<mode>match[prefix-filter]] %>
+											Filter Results
+										<%endif%>
+									</span>
+								</div>
+								<$list
+									filter="[subfilter<primaryExpr>sort[title]] :sort:number[lowercase[]match<qLow>then[0]else<currentTiddler>lowercase[]prefix<qLow>then[1]else[2]]"
+									variable="matchTid"
+								>
+									<$transclude $variable="search-result-item" itemTid=<<matchTid>> showSnippet="no" queryText=<<q>>/>
+								</$list>
+							</div>
+						</$list>
+
+						<!-- Section 2: Content & Tag Matches (when in 'all' or 'system' scope) -->
+						<%if [<secondaryExpr>!is[blank]] %>
+							<$list filter="[subfilter<secondaryExpr>limit[1]]" variable="hasSecondary">
+								<div class="mn-search-section">
+									<div class="mn-nav-heading mn-search-section-heading">
+										<span>Content&#32;&amp;&#32;Tag Matches</span>
+									</div>
+									<$list filter="[subfilter<secondaryExpr>]" variable="bodyTid">
+										<$transclude $variable="search-result-item" itemTid=<<bodyTid>> showSnippet="yes" queryText=<<q>>/>
+									</$list>
+								</div>
+							</$list>
+						<%endif%>
+
+						<!-- Empty State Message when 0 matches -->
+						<%if [<totalCount>match[0]] %>
+							<div class="mn-search-empty">No matching notes found.</div>
+						<%endif%>
+
+						<!-- Quick Create Note Action Row -->
+						<%if [<canCreate>match[__CREATE__]] %>
+							<div class="mn-search-create-section">
+								<$button
+									actions="""<$transclude $variable="search-create-note-actions" noteTitle=<<q>>/>"""
+									class={{{ [[mn-nav-item mn-search-create-btn tc-btn-invisible]] [[__CREATE__]match<activeSel>then[mn-search-item-selected]] +[join[ ]] }}}
+								>
+									<span class="mn-search-create-label">
+										<span class="mn-search-create-icon">＋</span>
+										<span>Create new note&#32;<strong>"<$text text=<<q>>/>"</strong></span>
+									</span>
+									<span class="mn-prop-label mn-search-shortcut-hint">Enter ↵</span>
+								</$button>
+							</div>
+						<%endif%>
+					</div>
+
+					<!-- Search Footer: Total Match Count, Keyboard Hints & Advanced Search Link -->
+					<div class="mn-search-footer">
+						<span class="mn-prop-label mn-search-count">
+							<$text text=<<totalCount>>/>&#32;<%if [<totalCount>match[1]] %>match<%else%>matches<%endif%>
+							<span class="mn-desktop-only mn-search-key-hints">&#32;·&#32;<kbd>↑↓</kbd>&#32;navigate&#32;·&#32;<kbd>↵</kbd>&#32;open&#32;·&#32;<kbd>⇧↵</kbd>&#32;edit</span>
+						</span>
+						<$button
+							actions=<<search-open-advanced-actions>>
+							class="tc-btn-invisible mn-search-advanced-link"
+							tooltip="Open query in TiddlyWiki Advanced Search (Ctrl+Shift+A)"
+						>
+							Advanced Search ↗
+						</$button>
+					</div>
+				<%else%>
+					<!-- Empty-Query Quick Switcher (Recent Notes & Prefix Syntax Tips) -->
+					<div class="mn-search-sections">
+						<div class="mn-search-section">
+							<div class="mn-nav-heading mn-search-section-heading">
+								<span>Recent Notes</span>
+								<span class="mn-prop-label" style="text-transform:none;letter-spacing:normal;font-weight:500;">Quick Switcher</span>
+							</div>
+							<$list
+								filter="[all[tiddlers]!is[system]!has[draft.of]!sort[modified]limit[6]]"
+								variable="recentTid"
+								emptyMessage="<div class='mn-search-empty'>No recent notes yet.</div>"
+							>
+								<$transclude $variable="search-result-item" itemTid=<<recentTid>> showSnippet="no" queryText=""/>
+							</$list>
+						</div>
+					</div>
+					<div class="mn-search-footer">
+						<span class="mn-prop-label mn-search-syntax-tips">
+							Tips: <code>#tag</code> · <code>@field:val</code> · <code>&gt;[filter]</code>
+						</span>
+						<$button
+							actions=<<search-open-advanced-actions>>
+							class="tc-btn-invisible mn-search-advanced-link"
+							tooltip="Open TiddlyWiki Advanced Search"
+						>
+							Advanced Search ↗
+						</$button>
+					</div>
+				<%endif%>
+			</div>
+		</$let>
+			</$set>
+		</$set>
+	</$set>
+</$let>
+\end
+
+<%if [.is-dropdown-open[]match[yes]] :or[{$:/state/slipstream/mobile-search}match[open]] %>
+	<$button
+		actions=<<search-close-actions>>
+		class="mn-search-backdrop tc-btn-invisible"
+		aria-label="Dismiss search results"
+		tabindex="-1"
+	/>
+<%endif%>
 
 <%if [{$:/state/slipstream/mobile-search}match[open]] %>
 	<!-- Active Mobile Search Overlay in TopBar -->
 	<div class="mn-topbar-mobile-search">
 		<$button
-			set="$:/state/slipstream/mobile-search"
-			setTo="closed"
+			actions=<<search-close-actions>>
 			class="mn-pill-btn"
 			tooltip="Close Search"
 		>
 			✕
 		</$button>
 		<div class="mn-topbar-mobile-search-field">
-			<$keyboard key="escape" actions=<<search-escape-actions>>>
-				<$keyboard key="enter" actions=<<search-enter-actions>>>
-					<$edit-text
-						tiddler="$:/temp/volatile/slipstream/global-search"
-						field="text"
-						tag="input"
-						type="search"
-						placeholder="Search notes..."
-						class="mn-search-input mn-mobile-search-input"
-						focus="true"
-					/>
-				</$keyboard>
+			<$keyboard key="((input-up)) ((input-down)) ((input-accept)) ((input-accept-variant)) ((input-cancel)) ((advanced-search-sidebar)) up down enter shift+enter escape ctrl+shift+a cmd+shift+a" actions=<<search-key-actions>>>
+				<$edit-text
+					tiddler="$:/temp/volatile/slipstream/global-search"
+					field="text"
+					tag="input"
+					type="search"
+					placeholder="Search, #tag, @field, or >filter..."
+					class="mn-search-input mn-mobile-search-input"
+					focus="true"
+					inputActions=<<search-input-actions>>
+				/>
 			</$keyboard>
-			<%if [{$:/temp/volatile/slipstream/global-search}minlength[1]] %>
-				<div class="mn-search-dropdown">
-					<div class="mn-nav-heading">
-						<span>Search Results</span>
-						<$button set="$:/temp/volatile/slipstream/global-search" setTo="" class="tc-btn-invisible">✕</$button>
-					</div>
-					<$list
-						filter="[all[tiddlers]!is[system]!has[draft.of]search{$:/temp/volatile/slipstream/global-search}sort[title]limit[12]]"
-						emptyMessage="<div class='mn-prop-label' style='padding:0.4rem 0.65rem;'>No matching tiddlers found.</div>"
-					>
-						<$button to=<<currentTiddler>> class="mn-nav-item tc-btn-invisible">
-							<span><$view field="caption"><$view field="title"/></$view></span>
-							<span class="mn-prop-label"><$view field="modified" format="relativedate"/></span>
-						</$button>
-					</$list>
-				</div>
-			<%endif%>
+			<<search-dropdown-panel>>
 		</div>
 	</div>
 <%else%>
@@ -91,38 +481,41 @@ type: text/vnd.tiddlywiki
 
 	<!-- Desktop Center Search Input -->
 	<div class="mn-topbar-center mn-desktop-only">
-		<$keyboard key="escape" actions=<<search-escape-actions>>>
-			<$keyboard key="enter" actions=<<search-enter-actions>>>
+		<div class="mn-search-input-wrapper">
+			<span class="mn-search-leading-icon" aria-hidden="true">
+				<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+					<circle cx="11" cy="11" r="8"/>
+					<line x1="21" y1="21" x2="16.65" y2="16.65"/>
+				</svg>
+			</span>
+			<$keyboard key="((input-up)) ((input-down)) ((input-accept)) ((input-accept-variant)) ((input-cancel)) ((advanced-search-sidebar)) up down enter shift+enter escape ctrl+shift+a cmd+shift+a" actions=<<search-key-actions>>>
 				<$edit-text
 					tiddler="$:/temp/volatile/slipstream/global-search"
 					field="text"
 					tag="input"
 					type="search"
-					placeholder="Search or jump to note..."
+					placeholder="Search or jump to note, #tag, @field, >[filter]..."
 					class="mn-search-input"
+					inputActions=<<search-input-actions>>
 				/>
 			</$keyboard>
-		</$keyboard>
-		<%if [{$:/temp/volatile/slipstream/global-search}minlength[1]] %>
-			<div class="mn-search-dropdown">
-				<div class="mn-nav-heading">
-					<span>Search Results</span>
-					<$button set="$:/temp/volatile/slipstream/global-search" setTo="" class="tc-btn-invisible">✕</$button>
-				</div>
-				<$list
-					filter="[all[tiddlers]!is[system]!has[draft.of]search{$:/temp/volatile/slipstream/global-search}sort[title]limit[12]]"
-					emptyMessage="<div class='mn-prop-label' style='padding:0.4rem 0.65rem;'>No matching tiddlers found.</div>"
+			<%if [.is-dropdown-open[]match[no]] %>
+				<$button
+					class="mn-search-QuickSwitch-trigger tc-btn-invisible"
+					tooltip="Open Quick Switcher & Search Scopes (⌘K / Ctrl+K)"
+					aria-label="Open Quick Switcher"
 				>
-					<$button to=<<currentTiddler>> class="mn-nav-item tc-btn-invisible">
-						<span><$view field="caption"><$view field="title"/></$view></span>
-						<span class="mn-prop-label"><$view field="modified" format="relativedate"/></span>
-					</$button>
-				</$list>
-			</div>
+					<$action-setfield $tiddler="$:/state/slipstream/search-open" text="yes" $timestamp="no"/>
+					<span class="mn-search-kbd-badge"><span class="mn-kbd-symbol">⌘</span><span>K</span></span>
+				</$button>
+			<%endif%>
+		</div>
+		<%if [.is-dropdown-open[]match[yes]] %>
+			<<search-dropdown-panel>>
 		<%endif%>
 	</div>
 
-	<!-- TopBar Right Controls: Desktop Right Inspector Toggle vs Mobile Search Button -->
+	<!-- TopBar Right Controls: Desktop Right Inspector Toggle vs Mobile Pin Button -->
 	<div class="mn-topbar-right">
 		<!-- Desktop-Only: Right Context Inspector Toggle -->
 		<$button

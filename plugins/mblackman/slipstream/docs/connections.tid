@@ -34,7 +34,23 @@ On screens `>= 1024px`, the Right Inspector provides contextual awareness for th
 
 ---
 
-! 3. Mobile Single-Tiddler (`fade`) Experience (`< 1024px`)
+! 3. Global Search & Quick Switcher (`⌘K` / `Ctrl+K`)
+
+The TopBar search bar doubles as a full keyboard-driven command switcher and note creator:
+
+* **Global Keyboard Shortcut**: Press <kbd>⌘K</kbd> / <kbd>Ctrl+K</kbd> (or <kbd>Ctrl+Shift+F</kbd>) from anywhere to open and focus the Quick Switcher.
+* **Keyboard Navigation**: Use <kbd>↑</kbd> and <kbd>↓</kbd> to move through results, <kbd>Enter</kbd> to open the selected note, <kbd>Shift+Enter</kbd> to open it directly in **Edit mode**, or <kbd>Ctrl+Shift+A</kbd> to transfer the query to `$:/AdvancedSearch`.
+* **Tiered Relevance & Context Snippets**: Prioritizes exact and prefix title matches first under **Title Matches**, followed by **Content & Tag Matches** with inline text excerpts, note icons, and tag pills.
+* **Interactive Scope Pills**: Narrow results to **All**, **Titles**, **Tags**, **Pinned & Open**, or **System** tiddlers with 1 click.
+* **Inline Filter Prefixes**:
+** `#tagname` — Filter notes matching a tag (e.g. `#Guide`)
+** `@field:value` — Search custom metadata fields (e.g. `@status:Active` or `@priority`)
+** `>[filter]` — Evaluate any live TiddlyWiki filter expression directly in the dropdown (e.g. `>[tag[Wide]]`)
+* **Quick Note Creation**: Type any new title and select **＋ Create new note** (or arrow down to it and press <kbd>Enter</kbd>) to create and edit a note on the spot.
+
+---
+
+! 4. Mobile Single-Tiddler (`fade`) Experience (`< 1024px`)
 
 When viewed on mobile phones or tablets, Slipstream transitions from the 3-column desktop layout to an optimized single-tiddler reading experience:
 

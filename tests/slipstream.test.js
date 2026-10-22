@@ -1530,6 +1530,256 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     $tw.wiki.deleteTiddler("$:/config/slipstream/left-width");
     $tw.wiki.deleteTiddler("$:/config/slipstream/right-width");
   });
+
+  test("renders enhanced Global Search & Quick Switcher with tiered ranking, snippets, scope pills, prefixes, keyboard nav, and quick create", () => {
+    $tw.wiki.addTiddler({
+      title: "$:/info/browser/window/system/main/client/width",
+      text: "1440",
+    });
+    $tw.wiki.deleteTiddler("$:/temp/volatile/slipstream/global-search");
+    $tw.wiki.deleteTiddler("$:/state/slipstream/search-open");
+    $tw.wiki.deleteTiddler("$:/state/slipstream/search-scope");
+    $tw.wiki.deleteTiddler("$:/state/slipstream/search-selected");
+
+    // 1. Closed by default when search query is empty and search-open is not set
+    let topHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/TopBar"
+    );
+    expect(topHtml).toContain("mn-search-kbd-badge");
+    expect(topHtml).toContain("mn-search-leading-icon");
+    expect(topHtml).toContain("⌘");
+    expect(topHtml).not.toContain("mn-search-dropdown");
+
+    // 2. Empty-Query Quick Switcher when $:/state/slipstream/search-open is 'yes'
+    $tw.wiki.addTiddler({
+      title: "$:/state/slipstream/search-open",
+      text: "yes",
+    });
+    topHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/TopBar"
+    );
+    expect(topHtml).toContain("mn-search-dropdown");
+    expect(topHtml).toContain("mn-search-backdrop");
+    expect(topHtml).toContain("Recent Notes");
+    expect(topHtml).toContain("Quick Switcher");
+    expect(topHtml).toContain("mn-search-syntax-tips");
+    expect(topHtml).toContain("Advanced Search ↗");
+
+    // 3. Tiered Relevance Ranking & Context Snippets
+    $tw.wiki.addTiddler({
+      title: "$:/temp/volatile/slipstream/global-search",
+      text: "Slipstream",
+    });
+    topHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/TopBar"
+    );
+    expect(topHtml).toContain("Title Matches");
+    expect(topHtml).toContain("Content &amp; Tag Matches");
+    expect(topHtml).toContain("mn-search-result-snippet");
+    expect(topHtml).toContain("mn-search-tag-pill");
+    // Prefix match ("Slipstream UI Primitives") ranks ahead of non-prefix title match ("Customizing Slipstream")
+    const prefixIdx = topHtml.indexOf("Slipstream UI Primitives");
+    const nonPrefixIdx = topHtml.indexOf("Customizing Slipstream");
+    expect(prefixIdx).toBeGreaterThan(-1);
+    expect(nonPrefixIdx).toBeGreaterThan(prefixIdx);
+
+    // Quick Create row appears when query does not match an exact existing tiddler title
+    expect(topHtml).toContain("mn-search-create-btn");
+    expect(topHtml).toContain("Create new note");
+
+    // When query matches an existing tiddler title exactly, Quick Create is suppressed
+    $tw.wiki.addTiddler({
+      title: "$:/temp/volatile/slipstream/global-search",
+      text: "Welcome to Slipstream",
+    });
+    topHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/TopBar"
+    );
+    expect(topHtml).not.toContain("mn-search-create-btn");
+
+    // 4. Inline Prefix Syntax (#tag, @field:val, >[filter])
+    // 4a. #tag prefix
+    $tw.wiki.addTiddler({
+      title: "$:/temp/volatile/slipstream/global-search",
+      text: "#Reference",
+    });
+    topHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/TopBar"
+    );
+    expect(topHtml).toContain("# Tag Filter");
+    expect(topHtml).toContain("Tag Matches");
+    expect(topHtml).toContain("Slipstream UI Primitives");
+    expect(topHtml).not.toContain("mn-search-create-btn");
+
+    // 4b. @field:val prefix
+    $tw.wiki.addTiddler({
+      title: "$:/temp/volatile/slipstream/global-search",
+      text: "@status:Active",
+    });
+    topHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/TopBar"
+    );
+    expect(topHtml).toContain("@ Field Filter");
+    expect(topHtml).toContain("Field Matches");
+    expect(topHtml).toContain("Welcome to Slipstream");
+    expect(topHtml).toContain("status:");
+
+    // 4c. >[filter] live filter evaluation & graceful malformed filter safety
+    $tw.wiki.addTiddler({
+      title: "$:/temp/volatile/slipstream/global-search",
+      text: ">[tag[Wide]]",
+    });
+    topHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/TopBar"
+    );
+    expect(topHtml).toContain("&gt; Live Filter");
+    expect(topHtml).toContain("Filter Results");
+    expect(topHtml).toContain("Knowledge Base");
+    expect(topHtml).not.toContain("Filter error");
+
+    $tw.wiki.addTiddler({
+      title: "$:/temp/volatile/slipstream/global-search",
+      text: ">[unclosed",
+    });
+    topHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/TopBar"
+    );
+    expect(topHtml).not.toContain("Filter error");
+    expect(topHtml).toContain("No matching notes found.");
+
+    // 5. Scope Pills (e.g. System scope)
+    $tw.wiki.addTiddler({
+      title: "$:/temp/volatile/slipstream/global-search",
+      text: "TopBar",
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/state/slipstream/search-scope",
+      text: "system",
+    });
+    topHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/TopBar"
+    );
+    expect(topHtml).toContain("$:/plugins/mblackman/slipstream/ui/TopBar");
+
+    // 6. Keyboard Navigation (ArrowDown, ArrowUp, Enter, Shift+Enter, Advanced Search)
+    $tw.wiki.deleteTiddler("$:/state/slipstream/search-scope");
+    $tw.wiki.addTiddler({
+      title: "$:/temp/volatile/slipstream/global-search",
+      text: "Slipstream",
+    });
+
+    // Actually test search-key-actions by rendering a button that triggers it
+    const triggerKeyAction = (keyDesc) => {
+      const wNode = $tw.wiki.makeWidget(
+        $tw.wiki.parseText(
+          "text/vnd.tiddlywiki",
+          `\\import [[$:/plugins/mblackman/slipstream/ui/TopBar]]\n<$button actions=<<search-key-actions>>>Go</$button>`
+        ),
+        {
+          variables: {
+            "event-key-descriptor": keyDesc,
+          },
+        }
+      );
+      const messages = [];
+      ["tm-navigate", "tm-edit-tiddler", "tm-new-tiddler"].forEach((m) => {
+        wNode.addEventListener(m, (ev) => {
+          messages.push({ type: m, navigateTo: ev.navigateTo, param: ev.param, paramObject: ev.paramObject });
+          return false;
+        });
+      });
+      const c = $tw.fakeDocument.createElement("div");
+      wNode.render(c, null);
+      function findBtn(n) {
+        if (n.parseTreeNode && n.parseTreeNode.type === "button") return n;
+        for (const ch of n.children || []) {
+          const r = findBtn(ch);
+          if (r) return r;
+        }
+        return null;
+      }
+      const btn = findBtn(wNode);
+      if (btn && btn.domNodes && btn.domNodes[0] && !btn.domNodes[0].getBoundingClientRect) {
+        btn.domNodes[0].getBoundingClientRect = () => ({ left: 0, top: 0, width: 0, height: 0 });
+      }
+      btn.invokeActionString(btn.actions, btn, {}, { "event-key-descriptor": keyDesc });
+      return messages;
+    };
+
+    // Initially first item is "Slipstream UI Primitives"; pressing down selects "Customizing Slipstream"
+    triggerKeyAction("down");
+    expect($tw.wiki.getTiddlerText("$:/state/slipstream/search-selected")).toBe("Customizing Slipstream");
+
+    // Pressing up returns to "Slipstream UI Primitives"
+    triggerKeyAction("up");
+    expect($tw.wiki.getTiddlerText("$:/state/slipstream/search-selected")).toBe("Slipstream UI Primitives");
+
+    // Pressing shift+enter dispatches tm-edit-tiddler for the selected item and closes search
+    const editMsgs = triggerKeyAction("shift+enter");
+    expect(editMsgs).toEqual([
+      {
+        type: "tm-edit-tiddler",
+        navigateTo: undefined,
+        param: "Slipstream UI Primitives",
+        paramObject: {},
+      },
+    ]);
+    expect($tw.wiki.getTiddlerText("$:/temp/volatile/slipstream/global-search")).toBe("");
+    expect($tw.wiki.getTiddlerText("$:/state/slipstream/search-open")).toBe("no");
+
+    // Selecting __CREATE__ and pressing enter dispatches tm-new-tiddler with the query title
+    $tw.wiki.addTiddler({
+      title: "$:/temp/volatile/slipstream/global-search",
+      text: "Brand New Idea",
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/state/slipstream/search-selected",
+      text: "__CREATE__",
+    });
+    const createMsgs = triggerKeyAction("enter");
+    expect(createMsgs).toEqual([
+      {
+        type: "tm-new-tiddler",
+        navigateTo: undefined,
+        param: undefined,
+        paramObject: { title: "Brand New Idea" },
+      },
+    ]);
+
+    // Pressing ctrl+shift+a transfers query to $:/temp/advancedsearch and navigates to $:/AdvancedSearch
+    $tw.wiki.addTiddler({
+      title: "$:/temp/volatile/slipstream/global-search",
+      text: "GraphQuery",
+    });
+    const advMsgs = triggerKeyAction("ctrl+shift+a");
+    expect($tw.wiki.getTiddlerText("$:/temp/advancedsearch")).toBe("GraphQuery");
+    expect(advMsgs).toEqual([
+      {
+        type: "tm-navigate",
+        navigateTo: "$:/AdvancedSearch",
+        param: undefined,
+        paramObject: undefined,
+      },
+    ]);
+
+    // Cleanup
+    $tw.wiki.deleteTiddler("$:/temp/volatile/slipstream/global-search");
+    $tw.wiki.deleteTiddler("$:/state/slipstream/search-open");
+    $tw.wiki.deleteTiddler("$:/state/slipstream/search-scope");
+    $tw.wiki.deleteTiddler("$:/state/slipstream/search-selected");
+    $tw.wiki.deleteTiddler("$:/temp/advancedsearch");
+    $tw.wiki.deleteTiddler("$:/temp/advancedsearch/input");
+    $tw.wiki.deleteTiddler("$:/temp/advancedsearch/refresh");
+  });
 });
 
 
