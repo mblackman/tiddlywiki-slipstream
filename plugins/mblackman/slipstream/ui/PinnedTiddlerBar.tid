@@ -83,9 +83,11 @@ type: text/vnd.tiddlywiki
 				>
 					<%if [<activeTid>tag[$:/tags/Pinned]] %>
 						<$action-listops $tiddler=<<activeTid>> $tags="-[[$:/tags/Pinned]]"/>
+						<$action-listops $tiddler="$:/tags/Pinned" $field="list" $subfilter="-[<activeTid>]"/>
 						<span style="color:var(--mn-accent);">★</span>
 					<%else%>
 						<$action-listops $tiddler=<<activeTid>> $tags="[[$:/tags/Pinned]]"/>
+						<$action-listops $tiddler="$:/tags/Pinned" $field="list" $subfilter="[<activeTid>]"/>
 						<span style="color:var(--mn-text-muted);">☆</span>
 					<%endif%>
 				</$button>

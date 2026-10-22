@@ -15,7 +15,7 @@ You can pin notes, hubs, and frequently visited topics to the **Left Navigation 
 * Tag any note with `[[$:/tags/Pinned]]`.
 * (Optional) Add a `caption` field (e.g. `Index`, `Writing`, `Projects`).
 * (Optional) Add an `ss-icon` field (e.g. `🗂️`, `✍️`, `🌊`) or standard `icon` field.
-* Reorder pinned shortcuts by editing the tag list in [[$:/tags/Pinned]] or using drag-and-drop in [[$:/ControlPanel]].
+* **Reorder & Arrange**: Drag and drop pinned shortcuts directly in the Left Navigation sidebar, or click **Reorder** in the Pinned Shortcuts header (or in [[Settings|$:/plugins/mblackman/slipstream/settings]]) to move items with ↑ / ↓ buttons. Pinned order is automatically saved into [[$:/tags/Pinned]] and syncs across all your devices.
 
 To customize the filter used for pinned shortcuts, edit `$:/config/slipstream/pinned-filter` in [[$:/plugins/mblackman/slipstream/settings]].
 

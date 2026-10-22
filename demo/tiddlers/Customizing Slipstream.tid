@@ -20,7 +20,7 @@ You can pin your most important dashboards, indexes, or frequent notes directly 
 # Open any note you want to pin.
 # Add the tag `[[$:/tags/Pinned]]`.
 # (Optional) Add a `caption` field (for display text) and an `ss-icon` field (e.g. `🗂️`, `✍️`, `🌊`).
-# (Optional) Reorder your pinned list by modifying `$:/tags/Pinned` or dragging items in [[$:/ControlPanel]].
+# (Optional) Reorder your pinned list by dragging items directly in the Left Navigation sidebar, or clicking **Reorder** in the Pinned Shortcuts header (or in [[$:/plugins/mblackman/slipstream/settings]]) to move items with ↑ / ↓ buttons. Changes are automatically saved into `$:/tags/Pinned` and sync between devices.
 
 Currently pinned in this wiki: [[Welcome to Slipstream]], [[Knowledge Base]], and [[Slipstream UI Primitives]].
 

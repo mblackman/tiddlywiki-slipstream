@@ -44,7 +44,7 @@ And add `"mblackman/slipstream"` to the `plugins` list in your `tiddlywiki.info`
 
 ## Quick Tips
 
-* **Pin shortcuts**: Tag any note with `$:/tags/Pinned` to pin it to your Left Navigation rail.
+* **Pin shortcuts**: Tag any note with `$:/tags/Pinned` to pin it to your Left Navigation rail. Drag-and-drop to reorder, or click **Reorder** in the header to arrange with ↑/↓ buttons; changes save to `$:/tags/Pinned` and sync between devices.
 * **Make a note wide**: Add the tag `Wide` (or field `page-width: wide`) to any dashboard, table, or hub.
 * **Toggle panels**: Use `☰` to toggle the navigation rail, and click `Context` to toggle the inspector.
 * **Customize**: Open **$:/ControlPanel** > **Settings** > **Slipstream** to tweak reading widths, filters, and mobile options.

@@ -9,6 +9,27 @@ type: text/vnd.tiddlywiki
 \procedure drop-actions()
 <$action-listops $tiddler="$:/StoryList" $subfilter="+[insertbefore<actionTiddler>,<currentTiddler>]"/>
 \end
+\procedure drop-bottom-actions()
+<$action-listops $tiddler="$:/StoryList" $subfilter="+[insertbefore:end<actionTiddler>]"/>
+\end
+\procedure pin-drop-actions()
+<$let target={{{ [<pinItem>!is[blank]else<currentTiddler>] }}}>
+<$set name="currentOrder" filter="[subfilter<.pinned-filter>sortby{$:/tags/Pinned!!list}]">
+	<$list filter="[<actionTiddler>!contains:tags[$:/tags/Pinned]]">
+		<$action-listops $tiddler=<<actionTiddler>> $tags="[[$:/tags/Pinned]]"/>
+	</$list>
+	<$action-listops $tiddler="$:/tags/Pinned" $field="list" $filter="[enlist<currentOrder>] +[insertbefore<actionTiddler>,<target>]"/>
+</$set>
+</$let>
+\end
+\procedure pin-drop-bottom-actions()
+<$set name="currentOrder" filter="[subfilter<.pinned-filter>sortby{$:/tags/Pinned!!list}]">
+	<$list filter="[<actionTiddler>!contains:tags[$:/tags/Pinned]]">
+		<$action-listops $tiddler=<<actionTiddler>> $tags="[[$:/tags/Pinned]]"/>
+	</$list>
+	<$action-listops $tiddler="$:/tags/Pinned" $field="list" $filter="[enlist<currentOrder>] +[insertbefore:end<actionTiddler>]"/>
+</$set>
+\end
 
 <!-- Section 0: Standard TiddlyWiki Page Controls Toolbar (Pinned at top with overflow:visible for floating dropdowns) -->
 <header class="mn-nav-section mn-page-controls mn-panel-left-header">
@@ -21,27 +42,93 @@ type: text/vnd.tiddlywiki
 
 <div class="mn-panel-left-body">
 	<!-- Section 1: User-Configurable Pinned Shortcuts (Tag any tiddler $:/tags/Pinned or customize filter in Settings) -->
-	<section class="mn-nav-section">
+	<section class="mn-nav-section mn-pinned-section">
 		<h3 class="mn-nav-heading">
-			<span>Pinned Shortcuts</span>
+			<span>
+				Pinned Shortcuts
+				<%if [subfilter<.pinned-filter>count[]compare:number:gt[0]] %>
+					&#32;(<span class="mn-prop-label"><$count filter="[subfilter<.pinned-filter>]"/></span>)
+				<%endif%>
+			</span>
+			<%if [subfilter<.pinned-filter>count[]compare:number:gt[1]] %>
+				<%if [{$:/state/slipstream/reorder-pins}match[yes]] %>
+					<$button set="$:/state/slipstream/reorder-pins" setTo="no" class="tc-btn-invisible mn-prop-label mn-pin-reorder-toggle mn-pin-reorder-toggle-active" tooltip="Finish reordering" aria-label="Finish reordering">Done ✓</$button>
+				<%else%>
+					<$button set="$:/state/slipstream/reorder-pins" setTo="yes" class="tc-btn-invisible mn-prop-label mn-pin-reorder-toggle" tooltip="Reorder pinned shortcuts" aria-label="Reorder pinned shortcuts">Reorder</$button>
+				<%endif%>
+			<%endif%>
 		</h3>
-		<$list filter="[subfilter<.pinned-filter>]" variable="pinItem" emptyMessage="<p class='mn-prop-label'>Tag any tiddler <code>$:/tags/Pinned</code> to pin it here.</p>">
-			<$button
-				to=<<pinItem>>
-				class={{{ [[mn-nav-item tc-btn-invisible]] [<pinItem>match<.active-tiddler>then[mn-nav-item-active]] +[join[ ]] }}}
-			>
-				<span style="display:inline-flex;align-items:center;gap:0.45rem;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
-					<%if [<pinItem>get[ss-icon]!is[blank]] %>
-						<span><$text text={{{ [<pinItem>get[ss-icon]] }}}/></span>
-					<%elseif [<pinItem>get[mn-icon]!is[blank]] %>
-						<span><$text text={{{ [<pinItem>get[mn-icon]] }}}/></span>
-					<%elseif [<pinItem>get[icon]!is[blank]] %>
-						<$transclude $tiddler={{{ [<pinItem>get[icon]] }}}/>
-					<%endif%>
-					<$view tiddler=<<pinItem>> field="caption"><$text text=<<pinItem>>/></$view>
-				</span>
-			</$button>
-		</$list>
+		<$set name="currentOrder" filter="[subfilter<.pinned-filter>sortby{$:/tags/Pinned!!list}]">
+			<$list filter="[enlist<currentOrder>]" variable="pinItem" emptyMessage="<p class='mn-prop-label'>Tag any tiddler <code>$:/tags/Pinned</code> to pin it here.</p>">
+				<$let
+					prev={{{ [enlist<currentOrder>before<pinItem>] }}}
+					next={{{ [enlist<currentOrder>after<pinItem>] }}}
+					nextAfter={{{ [enlist<currentOrder>after<next>] }}}
+				>
+					<div class="tc-sidebar-tab-open-item">
+						<$droppable actions=<<pin-drop-actions>> enable=<<tv-enable-drag-and-drop>> tag="div">
+							<div class="tc-droppable-placeholder"/>
+							<div class={{{ [[mn-nav-item tc-sidebar-tab-open-row]] [<pinItem>match<.active-tiddler>then[mn-nav-item-active]] +[join[ ]] }}}>
+								<$button
+									to=<<pinItem>>
+									dragTiddler=<<pinItem>>
+									class="mn-card-title tc-btn-invisible"
+									style="flex:1 1 auto;width:100%;text-align:left;display:inline-flex;align-items:center;justify-content:flex-start;gap:0.45rem;min-width:0;"
+								>
+									<%if [<pinItem>get[ss-icon]!is[blank]] %>
+										<span style="flex-shrink:0;"><$text text={{{ [<pinItem>get[ss-icon]] }}}/></span>
+									<%elseif [<pinItem>get[mn-icon]!is[blank]] %>
+										<span style="flex-shrink:0;"><$text text={{{ [<pinItem>get[mn-icon]] }}}/></span>
+									<%elseif [<pinItem>get[icon]!is[blank]] %>
+										<span style="flex-shrink:0;"><$transclude $tiddler={{{ [<pinItem>get[icon]] }}}/></span>
+									<%endif%>
+									<span style="text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><$view tiddler=<<pinItem>> field="caption"><$text text=<<pinItem>>/></$view></span>
+								</$button>
+								<%if [{$:/state/slipstream/reorder-pins}match[yes]] %>
+									<span class="mn-pin-reorder-actions" style="margin-left:auto;display:inline-flex;align-items:center;gap:0.15rem;flex-shrink:0;">
+										<%if [<prev>!is[blank]] %>
+											<$button class="tc-btn-invisible tc-btn-mini mn-pin-action-btn" tooltip={{{ [<pinItem>addprefix[Move up ]] }}} aria-label={{{ [<pinItem>addprefix[Move up ]] }}}>
+												<$action-listops $tiddler="$:/tags/Pinned" $field="list" $filter="[enlist<currentOrder>] +[insertbefore<pinItem>,<prev>]"/>
+												↑
+											</$button>
+										<%else%>
+											<span class="tc-btn-invisible tc-btn-mini mn-pin-action-btn mn-pin-action-disabled" style="opacity:0.25;cursor:default;" aria-hidden="true">↑</span>
+										<%endif%>
+										<%if [<next>!is[blank]] %>
+											<$button class="tc-btn-invisible tc-btn-mini mn-pin-action-btn" tooltip={{{ [<pinItem>addprefix[Move down ]] }}} aria-label={{{ [<pinItem>addprefix[Move down ]] }}}>
+												<%if [<nextAfter>!is[blank]] %>
+													<$action-listops $tiddler="$:/tags/Pinned" $field="list" $filter="[enlist<currentOrder>] +[insertbefore<pinItem>,<nextAfter>]"/>
+												<%else%>
+													<$action-listops $tiddler="$:/tags/Pinned" $field="list" $filter="[enlist<currentOrder>] +[insertbefore:end<pinItem>]"/>
+												<%endif%>
+												↓
+											</$button>
+										<%else%>
+											<span class="tc-btn-invisible tc-btn-mini mn-pin-action-btn mn-pin-action-disabled" style="opacity:0.25;cursor:default;" aria-hidden="true">↓</span>
+										<%endif%>
+										<$button class="tc-btn-invisible tc-btn-mini mn-pin-action-btn" tooltip={{{ [<pinItem>addprefix[Unpin ]] }}} aria-label={{{ [<pinItem>addprefix[Unpin ]] }}}>
+											<$action-listops $tiddler=<<pinItem>> $tags="-[[$:/tags/Pinned]]"/>
+											<$action-listops $tiddler="$:/tags/Pinned" $field="list" $subfilter="-[<pinItem>]"/>
+											✕
+										</$button>
+									</span>
+								<%endif%>
+							</div>
+						</$droppable>
+					</div>
+				</$let>
+			</$list>
+		</$set>
+		<%if [subfilter<.pinned-filter>count[]compare:number:gt[0]] %>
+			<$tiddler tiddler="">
+				<div class="tc-sidebar-tab-open-item mn-pin-bottom-drop-item">
+					<$droppable actions=<<pin-drop-bottom-actions>> enable=<<tv-enable-drag-and-drop>> tag="div" class="mn-pin-bottom-droppable">
+						<div class="tc-droppable-placeholder"/>
+						<div class="mn-bottom-drop-spacer"/>
+					</$droppable>
+				</div>
+			</$tiddler>
+		<%endif%>
 	</section>
 
 	<!-- Section 1b: Dedicated Open Notes Switcher (Jump between open tiddlers) -->
@@ -57,22 +144,32 @@ type: text/vnd.tiddlywiki
 				<$button message="tm-close-all-tiddlers" class="tc-btn-invisible mn-prop-label" tooltip="Close all open notes" style="font-size:0.72rem;text-transform:none;letter-spacing:normal;">Clear</$button>
 			<%endif%>
 		</h3>
-		<$list filter="[list[$:/StoryList]]" storyview="pop" emptyMessage="<p class='mn-prop-label'>No notes currently open.</p>">
+		<$list filter="[list[$:/StoryList]]" emptyMessage="<p class='mn-prop-label'>No notes currently open.</p>">
 			<div class="tc-sidebar-tab-open-item">
 				<$droppable actions=<<drop-actions>> enable=<<tv-enable-drag-and-drop>> tag="div">
 					<div class="tc-droppable-placeholder"/>
 					<div class={{{ [[mn-nav-item tc-sidebar-tab-open-row]] [<currentTiddler>match<.active-tiddler>then[mn-nav-item-active]] +[join[ ]] }}}>
-						<$button to=<<currentTiddler>> class="mn-card-title tc-btn-invisible" style="text-align:left;display:inline-flex;align-items:center;gap:0.35rem;">
+						<$button to=<<currentTiddler>> dragTiddler=<<currentTiddler>> class="mn-card-title tc-btn-invisible" style="flex:1 1 auto;text-align:left;display:inline-flex;align-items:center;justify-content:flex-start;gap:0.35rem;min-width:0;">
 							<%if [<currentTiddler>has[draft.of]] %>
-								<span class="mn-badge" style="font-size:0.62rem;padding:0.05rem 0.35rem;">Draft</span>
+								<span class="mn-badge" style="font-size:0.62rem;padding:0.05rem 0.35rem;flex-shrink:0;">Draft</span>
 							<%endif%>
-							<span><$view field="caption"><$text text=<<currentTiddler>>/></$view></span>
+							<span style="text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><$view field="caption"><$text text=<<currentTiddler>>/></$view></span>
 						</$button>
-						<$button message="tm-close-tiddler" param=<<currentTiddler>> tooltip={{$:/language/Buttons/Close/Hint}} aria-label={{$:/language/Buttons/Close/Caption}} class="tc-btn-invisible tc-btn-mini">✕</$button>
+						<$button message="tm-close-tiddler" param=<<currentTiddler>> tooltip={{$:/language/Buttons/Close/Hint}} aria-label={{$:/language/Buttons/Close/Caption}} class="tc-btn-invisible tc-btn-mini" style="margin-left:auto;">✕</$button>
 					</div>
 				</$droppable>
 			</div>
 		</$list>
+		<%if [list[$:/StoryList]count[]compare:number:gt[0]] %>
+			<$tiddler tiddler="">
+				<div class="tc-sidebar-tab-open-item mn-open-bottom-drop-item">
+					<$droppable actions=<<drop-bottom-actions>> enable=<<tv-enable-drag-and-drop>> tag="div" class="mn-open-bottom-droppable">
+						<div class="tc-droppable-placeholder"/>
+						<div class="mn-bottom-drop-spacer"/>
+					</$droppable>
+				</div>
+			</$tiddler>
+		<%endif%>
 	</section>
 
 	<!-- Section 2: Extensible Custom LeftNav Sections ($:/tags/Slipstream/LeftNav or $:/tags/ModernNotebook/LeftNav) -->

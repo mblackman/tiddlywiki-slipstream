@@ -2190,11 +2190,14 @@ body:has(.mn-app-shell).tc-body {
 	padding-left: 0.35rem !important;
 }
 
-/* Polished Open Tab (Open Tiddlers Story List) */
+/* Polished Open Tab & LeftNav Droppable Items (Story List & Pinned Shortcuts) */
+.mn-panel-left .tc-droppable-placeholder,
 .mn-sidebar-tabs-section .tc-sidebar-tab-open .tc-droppable-placeholder {
 	display: none !important;
+	pointer-events: none !important;
 }
 
+.mn-panel-left:has(.tc-dragging) .tc-droppable.tc-dragover > .tc-droppable-placeholder,
 .mn-sidebar-tabs-section .tc-sidebar-tab-open .tc-droppable.tc-dragover > .tc-droppable-placeholder {
 	display: block !important;
 	border: 2px dashed var(--mn-accent) !important;
@@ -2202,16 +2205,20 @@ body:has(.mn-app-shell).tc-body {
 	margin: 0.25rem 0 !important;
 	height: 34px !important;
 	background: var(--mn-accent-soft) !important;
+	pointer-events: none !important;
 }
 
+.mn-panel-left .tc-sidebar-tab-open-item,
 .mn-sidebar-tabs-section .tc-sidebar-tab-open-item {
 	margin: 0.15rem 0 !important;
 }
 
+.mn-panel-left .tc-sidebar-tab-open-row,
 .mn-sidebar-tabs-section .tc-sidebar-tab-open-row {
 	display: flex !important;
 	align-items: center !important;
-	justify-content: space-between !important;
+	justify-content: flex-start !important;
+	text-align: left !important;
 	gap: 0.5rem !important;
 	width: 100% !important;
 	box-sizing: border-box !important;
@@ -2222,19 +2229,35 @@ body:has(.mn-app-shell).tc-body {
 	transition: background var(--mn-transition), color var(--mn-transition) !important;
 }
 
+.mn-panel-left .tc-sidebar-tab-open-row:hover,
 .mn-sidebar-tabs-section .tc-sidebar-tab-open-row:hover {
 	background: var(--mn-bg-elevated) !important;
 }
 
+.mn-panel-left .tc-sidebar-tab-open-row.mn-nav-item-active,
 .mn-sidebar-tabs-section .tc-sidebar-tab-open-row.mn-nav-item-active {
 	background: var(--mn-accent-soft) !important;
 	color: var(--mn-accent) !important;
 	font-weight: 600 !important;
 }
 
-.mn-sidebar-tabs-section .tc-sidebar-tab-open-row .mn-card-title {
+.mn-panel-left .tc-sidebar-tab-open-row .mn-card-title,
+.mn-sidebar-tabs-section .tc-sidebar-tab-open-row .mn-card-title,
+.mn-panel-left .mn-nav-item .mn-card-title,
+.mn-app-shell .mn-nav-item .mn-card-title {
 	flex: 1 1 auto !important;
+	width: auto !important;
 	min-width: 0 !important;
+	height: auto !important;
+	min-height: auto !important;
+	padding: 0 !important;
+	margin: 0 !important;
+	border: none !important;
+	background: transparent !important;
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: flex-start !important;
+	text-align: left !important;
 	white-space: nowrap !important;
 	overflow: hidden !important;
 	text-overflow: ellipsis !important;
@@ -2242,9 +2265,12 @@ body:has(.mn-app-shell).tc-body {
 	text-decoration: none !important;
 	font-size: 0.86rem !important;
 	font-weight: inherit !important;
+	opacity: 1 !important;
+	cursor: pointer !important;
 }
 
-.mn-sidebar-tabs-section .tc-sidebar-tab-open-row button {
+.mn-panel-left .tc-sidebar-tab-open-row button:not(.mn-card-title),
+.mn-sidebar-tabs-section .tc-sidebar-tab-open-row button:not(.mn-card-title) {
 	display: inline-flex !important;
 	align-items: center !important;
 	justify-content: center !important;
@@ -2265,10 +2291,153 @@ body:has(.mn-app-shell).tc-body {
 	transition: opacity var(--mn-transition), background var(--mn-transition) !important;
 }
 
-.mn-sidebar-tabs-section .tc-sidebar-tab-open-row button:hover {
+.mn-panel-left .tc-sidebar-tab-open-row button:not(.mn-card-title):hover,
+.mn-sidebar-tabs-section .tc-sidebar-tab-open-row button:not(.mn-card-title):hover {
 	opacity: 1 !important;
 	background: var(--mn-bg-surface) !important;
 	color: var(--mn-accent) !important;
+}
+
+/* Pinned Shortcuts Reorder Mode & Action Controls */
+.mn-app-shell .mn-pin-reorder-toggle {
+	font-size: 0.72rem !important;
+	text-transform: none !important;
+	letter-spacing: normal !important;
+	padding: 0.1rem 0.35rem !important;
+	border-radius: var(--mn-radius-sm, 4px) !important;
+	cursor: pointer !important;
+	transition: background var(--mn-transition), color var(--mn-transition) !important;
+}
+
+.mn-app-shell .mn-pin-reorder-toggle:hover {
+	background: var(--mn-bg-elevated) !important;
+	color: var(--mn-accent) !important;
+}
+
+.mn-app-shell .mn-pin-reorder-toggle-active {
+	background: var(--mn-accent-soft) !important;
+	color: var(--mn-accent) !important;
+	font-weight: 600 !important;
+}
+
+.mn-app-shell .mn-pin-reorder-actions {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.15rem;
+	flex-shrink: 0;
+}
+
+.mn-app-shell .mn-pin-action-btn {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	width: 22px !important;
+	height: 22px !important;
+	min-width: 22px !important;
+	min-height: 22px !important;
+	padding: 0 !important;
+	margin: 0 !important;
+	border: none !important;
+	background: transparent !important;
+	color: inherit !important;
+	opacity: 0.65 !important;
+	border-radius: var(--mn-radius-sm, 4px) !important;
+	cursor: pointer !important;
+	font-size: 0.78rem !important;
+	flex-shrink: 0 !important;
+	transition: opacity var(--mn-transition), background var(--mn-transition), color var(--mn-transition) !important;
+}
+
+.mn-app-shell .mn-pin-action-btn:hover {
+	opacity: 1 !important;
+	background: var(--mn-bg-surface, var(--mn-bg-elevated)) !important;
+	color: var(--mn-accent) !important;
+}
+
+.mn-app-shell .mn-pin-action-disabled {
+	opacity: 0.25 !important;
+	cursor: default !important;
+	pointer-events: none;
+}
+
+/* Bottom Drop Spacer in Pinned Shortcuts & Open Notes:
+   Provides a clean drop target to place items at the end of the list without intrusive text */
+.mn-panel-left .mn-pin-bottom-drop-item,
+.mn-panel-left .mn-open-bottom-drop-item {
+	margin: 0 !important;
+}
+
+.mn-panel-left .mn-pin-bottom-droppable,
+.mn-panel-left .mn-open-bottom-droppable {
+	min-height: 10px;
+	box-sizing: border-box;
+	cursor: pointer;
+	border-radius: var(--mn-radius-sm);
+	transition: all var(--mn-transition);
+}
+
+.mn-panel-left .mn-bottom-drop-spacer {
+	height: 10px;
+	box-sizing: border-box;
+	border-radius: var(--mn-radius-sm);
+	transition: height var(--mn-transition);
+	pointer-events: none !important;
+}
+
+/* Expand bottom drop space when re-arranging items within that section */
+.mn-panel-left:has(.mn-pinned-section .tc-dragging) .mn-pin-bottom-droppable .mn-bottom-drop-spacer,
+.mn-panel-left:has(.mn-open-tiddlers-section .tc-dragging) .mn-open-bottom-droppable .mn-bottom-drop-spacer {
+	height: 28px;
+}
+
+/* Hide the spacer when hovering directly over the bottom droppable during an active drag so only the placeholder displays */
+.mn-panel-left:has(.tc-dragging) .tc-droppable.tc-dragover > .mn-bottom-drop-spacer {
+	height: 0 !important;
+	overflow: hidden !important;
+}
+
+/* Suppress no-op drop placeholders on dragged item, immediate next sibling, and bottom drop zone when item is already last */
+.mn-panel-left .tc-sidebar-tab-open-item:has(.tc-dragging) .tc-droppable,
+.mn-panel-left .tc-sidebar-tab-open-item:has(.tc-dragging) + .tc-sidebar-tab-open-item .tc-droppable,
+.mn-panel-left .tc-sidebar-tab-open-item:has(.tc-dragging) + .mn-pin-bottom-drop-item .tc-droppable,
+.mn-panel-left .tc-sidebar-tab-open-item:has(.tc-dragging) + .mn-open-bottom-drop-item .tc-droppable {
+	pointer-events: none !important;
+}
+
+.mn-panel-left .tc-dragging {
+	pointer-events: auto !important;
+}
+
+.mn-panel-left .tc-sidebar-tab-open-item:has(.tc-dragging) .tc-droppable-placeholder,
+.mn-panel-left .tc-sidebar-tab-open-item:has(.tc-dragging) + .tc-sidebar-tab-open-item .tc-droppable-placeholder,
+.mn-panel-left .tc-sidebar-tab-open-item:has(.tc-dragging) + .mn-pin-bottom-drop-item .tc-droppable-placeholder,
+.mn-panel-left .tc-sidebar-tab-open-item:has(.tc-dragging) + .mn-open-bottom-drop-item .tc-droppable-placeholder {
+	display: none !important;
+}
+
+.mn-panel-left .tc-sidebar-tab-open-item:has(.tc-dragging) + .mn-pin-bottom-drop-item .mn-bottom-drop-spacer,
+.mn-panel-left .tc-sidebar-tab-open-item:has(.tc-dragging) + .mn-open-bottom-drop-item .mn-bottom-drop-spacer {
+	height: 10px !important;
+	pointer-events: none !important;
+}
+
+/* Prevent cross-section droppable confusion:
+   When dragging within Pinned Shortcuts, Open Notes droppables are inert and do not highlight */
+.mn-panel-left:has(.mn-pinned-section .tc-dragging) .mn-open-tiddlers-section .tc-droppable {
+	pointer-events: none !important;
+}
+
+.mn-panel-left:has(.mn-pinned-section .tc-dragging) .mn-open-tiddlers-section .tc-droppable-placeholder {
+	display: none !important;
+}
+
+/* When dragging within Open Notes, Pinned Shortcuts droppables are inert and do not highlight */
+.mn-panel-left:has(.mn-open-tiddlers-section .tc-dragging) .mn-pinned-section .tc-droppable {
+	pointer-events: none !important;
+}
+
+.mn-panel-left:has(.mn-open-tiddlers-section .tc-dragging) .mn-pinned-section .tc-droppable-placeholder {
+	display: none !important;
 }
 
 /* Fallback for unshadowed vanilla Open tab items */
@@ -2523,11 +2692,11 @@ body:has(.mn-app-shell).tc-body {
 .mn-nav-item {
 	display: flex;
 	align-items: center;
-	justify-content: space-between;
+	justify-content: flex-start;
+	text-align: left;
 	gap: 0.45rem;
 	width: 100%;
 	box-sizing: border-box;
-	text-align: left;
 	padding: 0.3rem 0.5rem;
 	margin-bottom: 0.1rem;
 	border-radius: var(--mn-radius-sm);

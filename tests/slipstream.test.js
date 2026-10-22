@@ -1780,6 +1780,156 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     $tw.wiki.deleteTiddler("$:/temp/advancedsearch/input");
     $tw.wiki.deleteTiddler("$:/temp/advancedsearch/refresh");
   });
+
+  test("allows pinned items to be manually re-arranged and persists order in $:/tags/Pinned for cross-device sync", () => {
+    // 1. Setup sample pinned items
+    $tw.wiki.addTiddler({ title: "Alpha Pin", tags: ["$:/tags/Pinned"] });
+    $tw.wiki.addTiddler({ title: "Beta Pin", tags: ["$:/tags/Pinned"] });
+    $tw.wiki.addTiddler({ title: "Gamma Pin", tags: ["$:/tags/Pinned"] });
+    $tw.wiki.deleteTiddler("$:/tags/Pinned");
+    $tw.wiki.deleteTiddler("$:/state/slipstream/reorder-pins");
+
+    // 2. Render LeftNav and verify reorder toggle is present
+    let leftNavHtml = $tw.wiki.renderTiddler("text/html", "$:/plugins/mblackman/slipstream/ui/LeftNav");
+    expect(leftNavHtml).toContain("mn-pin-reorder-toggle");
+    expect(leftNavHtml).toContain("Reorder");
+    expect(leftNavHtml).toContain("Alpha Pin");
+    expect(leftNavHtml).toContain("Beta Pin");
+    expect(leftNavHtml).toContain("Gamma Pin");
+
+    // Enable reorder mode
+    $tw.wiki.addTiddler({
+      title: "$:/state/slipstream/reorder-pins",
+      text: "yes",
+    });
+    leftNavHtml = $tw.wiki.renderTiddler("text/html", "$:/plugins/mblackman/slipstream/ui/LeftNav");
+    expect(leftNavHtml).toContain("Done ✓");
+    expect(leftNavHtml).toContain("mn-pin-reorder-actions");
+    expect(leftNavHtml).toContain("mn-pin-action-btn");
+
+    // Helper to find and invoke button actions in a rendered widget tree
+    function invokeButtonWithTooltip(tiddlerTitle, tooltipPrefix) {
+      const parser = $tw.wiki.parseTiddler(tiddlerTitle);
+      const widgetNode = $tw.wiki.makeWidget(parser, {});
+      const container = $tw.fakeDocument.createElement("div");
+      widgetNode.render(container, null);
+
+      function findButtons(n, arr = []) {
+        if (n.parseTreeNode && n.parseTreeNode.type === "button") arr.push(n);
+        if (n.children) n.children.forEach((c) => findButtons(c, arr));
+        return arr;
+      }
+      const btns = findButtons(widgetNode);
+      const target = btns.find((b) => b.tooltip && b.tooltip.startsWith(tooltipPrefix));
+      if (!target) throw new Error(`Button with tooltip starting with '${tooltipPrefix}' not found`);
+      target.invokeActions(target, { preventDefault: () => {}, stopPropagation: () => {} });
+    }
+
+    // 3. Move 'Gamma Pin' UP
+    invokeButtonWithTooltip("$:/plugins/mblackman/slipstream/ui/LeftNav", "Move up Gamma Pin");
+    let pinnedTid = $tw.wiki.getTiddler("$:/tags/Pinned");
+    expect(pinnedTid).toBeDefined();
+    // Gamma was moved before Beta, so relative order should be Alpha, Gamma, Beta
+    expect(pinnedTid.fields.list.indexOf("Alpha Pin")).toBeLessThan(pinnedTid.fields.list.indexOf("Gamma Pin"));
+    expect(pinnedTid.fields.list.indexOf("Gamma Pin")).toBeLessThan(pinnedTid.fields.list.indexOf("Beta Pin"));
+
+    // 4. Move 'Alpha Pin' DOWN
+    invokeButtonWithTooltip("$:/plugins/mblackman/slipstream/ui/LeftNav", "Move down Alpha Pin");
+    pinnedTid = $tw.wiki.getTiddler("$:/tags/Pinned");
+    // Alpha was moved after Gamma, so relative order is Gamma, Alpha, Beta
+    expect(pinnedTid.fields.list.indexOf("Gamma Pin")).toBeLessThan(pinnedTid.fields.list.indexOf("Alpha Pin"));
+    expect(pinnedTid.fields.list.indexOf("Alpha Pin")).toBeLessThan(pinnedTid.fields.list.indexOf("Beta Pin"));
+
+    // 5. Drag and Drop: Test pin-drop-actions and pin-drop-bottom-actions
+    // Find droppable for Gamma Pin and drop Beta Pin onto it
+    const dragParser = $tw.wiki.parseTiddler("$:/plugins/mblackman/slipstream/ui/LeftNav");
+    const dragWidget = $tw.wiki.makeWidget(dragParser, {});
+    const dragContainer = $tw.fakeDocument.createElement("div");
+    dragWidget.render(dragContainer, null);
+
+    function findDroppables(n, arr = []) {
+      if (n.parseTreeNode && n.parseTreeNode.type === "droppable") arr.push(n);
+      if (n.children) n.children.forEach((c) => findDroppables(c, arr));
+      return arr;
+    }
+    const droppables = findDroppables(dragWidget);
+    // droppables[0] is for the first item (Gamma Pin)
+    droppables[0].performActions("Beta Pin", { preventDefault: () => {}, stopPropagation: () => {} });
+
+    pinnedTid = $tw.wiki.getTiddler("$:/tags/Pinned");
+    // Beta is now before Gamma, which is before Alpha
+    expect(pinnedTid.fields.list.indexOf("Beta Pin")).toBeLessThan(pinnedTid.fields.list.indexOf("Gamma Pin"));
+    expect(pinnedTid.fields.list.indexOf("Gamma Pin")).toBeLessThan(pinnedTid.fields.list.indexOf("Alpha Pin"));
+
+    // Drag an unpinned note onto bottom droppable
+    $tw.wiki.addTiddler({ title: "New Shortcut Note", text: "Brand new note" });
+    // Re-render to get updated bottom droppable
+    const dragWidget2 = $tw.wiki.makeWidget(dragParser, {});
+    const dragContainer2 = $tw.fakeDocument.createElement("div");
+    dragWidget2.render(dragContainer2, null);
+    const droppables2 = findDroppables(dragWidget2);
+    // The bottom drop zone is the last droppable in the pinned shortcuts section
+    const bottomDroppable = droppables2.find(
+      (d) => d.droppableActions && d.droppableActions.includes("$:/tags/Pinned") && d.droppableActions.includes("insertbefore:end")
+    );
+    expect(bottomDroppable).toBeDefined();
+    bottomDroppable.performActions("New Shortcut Note", { preventDefault: () => {}, stopPropagation: () => {} });
+
+    pinnedTid = $tw.wiki.getTiddler("$:/tags/Pinned");
+    expect(pinnedTid.fields.list[pinnedTid.fields.list.length - 1]).toBe("New Shortcut Note");
+    expect($tw.wiki.getTiddler("New Shortcut Note").fields.tags).toContain("$:/tags/Pinned");
+
+    // Also verify Open Notes has its dedicated bottom drop target
+    const openBottomDroppable = droppables2.find(
+      (d) => d.droppableActions && d.droppableActions.includes("$:/StoryList") && d.droppableActions.includes("insertbefore:end")
+    );
+    expect(openBottomDroppable).toBeDefined();
+
+    // 6. Test Unpin button
+    invokeButtonWithTooltip("$:/plugins/mblackman/slipstream/ui/LeftNav", "Unpin New Shortcut Note");
+    pinnedTid = $tw.wiki.getTiddler("$:/tags/Pinned");
+    expect(pinnedTid.fields.list).not.toContain("New Shortcut Note");
+    expect($tw.wiki.getTiddler("New Shortcut Note").fields.tags || []).not.toContain("$:/tags/Pinned");
+
+    // 7. Verify Settings ($:/plugins/mblackman/slipstream/settings) renders reorder UI
+    const settingsHtml = $tw.wiki.renderTiddler("text/html", "$:/plugins/mblackman/slipstream/settings");
+    expect(settingsHtml).toContain("Reorder Pinned Shortcuts");
+    expect(settingsHtml).toContain("Beta Pin");
+    expect(settingsHtml).toContain("Gamma Pin");
+    expect(settingsHtml).toContain("Alpha Pin");
+
+    // 8. Verify cross-device sync rule: $:/tags/Pinned is NOT an ephemeral $:/state or $:/temp tiddler,
+    // and matches the core sync filter so it is persisted to disk and synced between devices
+    const syncFilter = $tw.wiki.getTiddlerText("$:/config/SyncFilter");
+    const syncResults = $tw.wiki.filterTiddlers(syncFilter);
+    expect(syncResults).toContain("$:/tags/Pinned");
+
+    // 9. Verify cross-section isolation CSS rules exist in styles/core.css
+    const coreCss = fs.readFileSync(path.join(PLUGIN_DIR, "styles/core.css"), "utf8");
+    expect(coreCss).toContain(".mn-panel-left:has(.mn-pinned-section .tc-dragging) .mn-open-tiddlers-section .tc-droppable");
+    expect(coreCss).toContain(".mn-panel-left:has(.mn-open-tiddlers-section .tc-dragging) .mn-pinned-section .tc-droppable");
+    expect(coreCss).toContain("pointer-events: none !important");
+
+    // 10. Verify clean bottom drop spacer without text, no storyview="pop" on Open Notes, and suppression of stuck/no-op drop hints
+    const leftNavRaw = fs.readFileSync(path.join(PLUGIN_DIR, "ui/LeftNav.tid"), "utf8");
+    expect(leftNavRaw).not.toContain('storyview="pop"');
+    expect(leftNavHtml).not.toContain("Drop here to place at end");
+    expect(leftNavHtml).toContain("mn-bottom-drop-spacer");
+    expect(coreCss).toContain(".mn-panel-left:has(.tc-dragging) .tc-droppable.tc-dragover > .tc-droppable-placeholder");
+    expect(coreCss).toContain(".mn-panel-left .tc-sidebar-tab-open-item:has(.tc-dragging) .tc-droppable");
+    expect(coreCss).toContain(".mn-panel-left .tc-sidebar-tab-open-item:has(.tc-dragging) + .tc-sidebar-tab-open-item .tc-droppable");
+    expect(coreCss).toContain(".mn-panel-left .tc-sidebar-tab-open-item:has(.tc-dragging) + .mn-pin-bottom-drop-item .tc-droppable");
+    expect(coreCss).toContain(".mn-panel-left .tc-sidebar-tab-open-item:has(.tc-dragging) .tc-droppable-placeholder");
+    expect(coreCss).toContain(".mn-panel-left .tc-sidebar-tab-open-item:has(.tc-dragging) + .tc-sidebar-tab-open-item .tc-droppable-placeholder");
+
+    // Cleanup
+    $tw.wiki.deleteTiddler("Alpha Pin");
+    $tw.wiki.deleteTiddler("Beta Pin");
+    $tw.wiki.deleteTiddler("Gamma Pin");
+    $tw.wiki.deleteTiddler("New Shortcut Note");
+    $tw.wiki.deleteTiddler("$:/tags/Pinned");
+    $tw.wiki.deleteTiddler("$:/state/slipstream/reorder-pins");
+  });
 });
 
 

@@ -4,6 +4,8 @@ caption: Slipstream
 type: text/vnd.tiddlywiki
 
 \whitespace trim
+\procedure default-pinned-filter() [all[shadows+tiddlers]tag[$:/tags/Pinned]!has[draft.of]]
+\function .pinned-filter() [{$:/config/slipstream/pinned-filter}!is[blank]else<default-pinned-filter>]
 <h3>Slipstream Settings</h3>
 <p class="mn-prop-label">Configure desktop workspace modes, navigation filters, reading dimensions, and header metadata.</p>
 
@@ -66,6 +68,64 @@ type: text/vnd.tiddlywiki
 	<div class="mn-object-prop-bar">
 		<label class="mn-prop-label" style="min-width:240px;">Pinned Shortcuts Filter:</label>
 		<$edit-text tiddler="$:/config/slipstream/pinned-filter" field="text" default="[all[shadows+tiddlers]tag[$:/tags/Pinned]!has[draft.of]]" tag="input" class="mn-search-input"/>
+	</div>
+	<div style="margin:0.75rem 0;padding:0.75rem 0.9rem;border-radius:var(--mn-radius-sm);background:var(--mn-bg-subtle, var(--mn-bg-elevated));border:1px solid var(--mn-border);">
+		<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem;">
+			<span style="font-weight:600;font-size:0.84rem;">Reorder Pinned Shortcuts</span>
+			<span class="mn-prop-label"><$count filter="[subfilter<.pinned-filter>]"/> items</span>
+		</div>
+		<p class="mn-prop-label" style="margin-top:0;margin-bottom:0.6rem;line-height:1.4;">
+			Reorder pinned shortcuts below or drag-and-drop them directly in the Left Navigation sidebar. The order is automatically saved into <code>$:/tags/Pinned</code> and syncs between devices.
+		</p>
+		<$set name="currentOrder" filter="[subfilter<.pinned-filter>sortby{$:/tags/Pinned!!list}]">
+			<$list filter="[enlist<currentOrder>]" variable="pinItem" emptyMessage="<p class='mn-prop-label' style='margin:0;'>No notes currently tagged <code>$:/tags/Pinned</code>.</p>">
+				<$let
+					prev={{{ [enlist<currentOrder>before<pinItem>] }}}
+					next={{{ [enlist<currentOrder>after<pinItem>] }}}
+					nextAfter={{{ [enlist<currentOrder>after<next>] }}}
+				>
+					<div class="mn-nav-item" style="background:var(--mn-bg-surface);border:1px solid var(--mn-border);margin-bottom:0.35rem;padding:0.35rem 0.6rem;display:flex;align-items:center;justify-content:flex-start;text-align:left;">
+						<span style="display:inline-flex;align-items:center;justify-content:flex-start;gap:0.45rem;min-width:0;flex:1 1 auto;text-align:left;">
+							<%if [<pinItem>get[ss-icon]!is[blank]] %>
+								<span style="flex-shrink:0;"><$text text={{{ [<pinItem>get[ss-icon]] }}}/></span>
+							<%elseif [<pinItem>get[mn-icon]!is[blank]] %>
+								<span style="flex-shrink:0;"><$text text={{{ [<pinItem>get[mn-icon]] }}}/></span>
+							<%elseif [<pinItem>get[icon]!is[blank]] %>
+								<span style="flex-shrink:0;"><$transclude $tiddler={{{ [<pinItem>get[icon]] }}}/></span>
+							<%endif%>
+							<span style="font-weight:500;text-align:left;"><$view tiddler=<<pinItem>> field="caption"><$text text=<<pinItem>>/></$view></span>
+						</span>
+						<span style="display:inline-flex;align-items:center;gap:0.25rem;margin-left:auto;flex-shrink:0;">
+							<%if [<prev>!is[blank]] %>
+								<$button class="mn-pill-btn tc-btn-mini mn-pin-action-btn" tooltip={{{ [<pinItem>addprefix[Move up ]] }}} aria-label={{{ [<pinItem>addprefix[Move up ]] }}}>
+									<$action-listops $tiddler="$:/tags/Pinned" $field="list" $filter="[enlist<currentOrder>] +[insertbefore<pinItem>,<prev>]"/>
+									↑
+								</$button>
+							<%else%>
+								<span class="mn-pill-btn tc-btn-mini mn-pin-action-btn mn-pin-action-disabled" style="opacity:0.25;cursor:default;" aria-hidden="true">↑</span>
+							<%endif%>
+							<%if [<next>!is[blank]] %>
+								<$button class="mn-pill-btn tc-btn-mini mn-pin-action-btn" tooltip={{{ [<pinItem>addprefix[Move down ]] }}} aria-label={{{ [<pinItem>addprefix[Move down ]] }}}>
+									<%if [<nextAfter>!is[blank]] %>
+										<$action-listops $tiddler="$:/tags/Pinned" $field="list" $filter="[enlist<currentOrder>] +[insertbefore<pinItem>,<nextAfter>]"/>
+									<%else%>
+										<$action-listops $tiddler="$:/tags/Pinned" $field="list" $filter="[enlist<currentOrder>] +[insertbefore:end<pinItem>]"/>
+									<%endif%>
+									↓
+								</$button>
+							<%else%>
+								<span class="mn-pill-btn tc-btn-mini mn-pin-action-btn mn-pin-action-disabled" style="opacity:0.25;cursor:default;" aria-hidden="true">↓</span>
+							<%endif%>
+							<$button class="mn-pill-btn tc-btn-mini mn-pin-action-btn" tooltip={{{ [<pinItem>addprefix[Unpin ]] }}} aria-label={{{ [<pinItem>addprefix[Unpin ]] }}}>
+								<$action-listops $tiddler=<<pinItem>> $tags="-[[$:/tags/Pinned]]"/>
+								<$action-listops $tiddler="$:/tags/Pinned" $field="list" $subfilter="-[<pinItem>]"/>
+								✕
+							</$button>
+						</span>
+					</div>
+				</$let>
+			</$list>
+		</$set>
 	</div>
 	<div class="mn-object-prop-bar">
 		<label class="mn-prop-label" style="min-width:240px;">Sidebar Navigation Tabs:</label>
