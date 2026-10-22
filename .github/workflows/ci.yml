@@ -44,6 +44,7 @@ jobs:
             dist/slipstream-plugin.json
             build/index.html
           if-no-files-found: error
+          retention-days: 14
 
   deploy-pages:
     needs: test-and-build
