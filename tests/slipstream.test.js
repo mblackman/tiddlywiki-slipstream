@@ -443,6 +443,14 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     expect(leftNavOpenHtml).toContain("Clear");
     expect(leftNavOpenHtml).toContain("Close all open notes");
 
+    // Verify Pinned Shortcuts, Open Notes, and Mobile Pill Strip buttons fill the entire row/chip tap target
+    expect(css).toMatch(/\.mn-panel-left \.tc-sidebar-tab-open-row[^{]*\{[^}]*padding:\s*0 !important/s);
+    expect(css).toMatch(/\.mn-panel-left \.tc-sidebar-tab-open-row \.mn-card-title[^{]*\{[^}]*min-height:\s*36px !important/s);
+    expect(css).toMatch(/\.mn-panel-left \.tc-sidebar-tab-open-row \.mn-card-title[^{]*\{[^}]*padding:\s*0\.45rem 0\.65rem !important/s);
+    expect(css).toMatch(/\.mn-mobile-tab-chip\s*\{[^}]*padding:\s*0;/s);
+    expect(css).toMatch(/\.mn-mobile-tab-chip > button:first-child\s*\{[^}]*padding:\s*0\.32rem 0\.35rem 0\.32rem 0\.75rem !important/s);
+    expect(css).toMatch(/\.mn-mobile-tab-chip > button:last-child\s*\{[^}]*padding:\s*0\.32rem 0\.65rem 0\.32rem 0\.3rem !important/s);
+
     // Ensure LeftNav does NOT bind history= on its <$list storyview="pop"> widget
     // (which would cause PopStoryView.navigateTo to dispatch tm-scroll on the fixed sidebar and scroll the page to the bottom)
     const leftNavTid = fs.readFileSync(path.join(PLUGIN_DIR, "ui/LeftNav.tid"), "utf8");

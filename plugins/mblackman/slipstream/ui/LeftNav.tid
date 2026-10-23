@@ -73,7 +73,7 @@ type: text/vnd.tiddlywiki
 									to=<<pinItem>>
 									dragTiddler=<<pinItem>>
 									class="mn-card-title tc-btn-invisible"
-									style="flex:1 1 auto;width:100%;text-align:left;display:inline-flex;align-items:center;justify-content:flex-start;gap:0.45rem;min-width:0;"
+									style="flex:1 1 auto;width:100%;text-align:left;display:flex;align-items:center;justify-content:flex-start;gap:0.45rem;min-width:0;"
 								>
 									<%if [<pinItem>get[ss-icon]!is[blank]] %>
 										<span style="flex-shrink:0;"><$text text={{{ [<pinItem>get[ss-icon]] }}}/></span>
@@ -149,7 +149,7 @@ type: text/vnd.tiddlywiki
 				<$droppable actions=<<drop-actions>> enable=<<tv-enable-drag-and-drop>> tag="div">
 					<div class="tc-droppable-placeholder"/>
 					<div class={{{ [[mn-nav-item tc-sidebar-tab-open-row]] [<currentTiddler>match<.active-tiddler>then[mn-nav-item-active]] +[join[ ]] }}}>
-						<$button to=<<currentTiddler>> dragTiddler=<<currentTiddler>> class="mn-card-title tc-btn-invisible" style="flex:1 1 auto;text-align:left;display:inline-flex;align-items:center;justify-content:flex-start;gap:0.35rem;min-width:0;">
+						<$button to=<<currentTiddler>> dragTiddler=<<currentTiddler>> class="mn-card-title tc-btn-invisible" style="flex:1 1 auto;width:100%;text-align:left;display:flex;align-items:center;justify-content:flex-start;gap:0.35rem;min-width:0;">
 							<%if [<currentTiddler>has[draft.of]] %>
 								<span class="mn-badge" style="font-size:0.62rem;padding:0.05rem 0.35rem;flex-shrink:0;">Draft</span>
 							<%endif%>

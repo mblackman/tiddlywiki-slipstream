@@ -2217,13 +2217,13 @@ body:has(.mn-app-shell).tc-body {
 .mn-panel-left .tc-sidebar-tab-open-row,
 .mn-sidebar-tabs-section .tc-sidebar-tab-open-row {
 	display: flex !important;
-	align-items: center !important;
+	align-items: stretch !important;
 	justify-content: flex-start !important;
 	text-align: left !important;
-	gap: 0.5rem !important;
+	gap: 0.25rem !important;
 	width: 100% !important;
 	box-sizing: border-box !important;
-	padding: 0.45rem 0.65rem !important;
+	padding: 0 !important;
 	margin-bottom: 0.15rem !important;
 	border-radius: var(--mn-radius-sm) !important;
 	color: var(--mn-text-main) !important;
@@ -2250,12 +2250,12 @@ body:has(.mn-app-shell).tc-body {
 	width: auto !important;
 	min-width: 0 !important;
 	height: auto !important;
-	min-height: auto !important;
-	padding: 0 !important;
+	min-height: 36px !important;
+	padding: 0.45rem 0.65rem !important;
 	margin: 0 !important;
 	border: none !important;
 	background: transparent !important;
-	display: inline-flex !important;
+	display: flex !important;
 	align-items: center !important;
 	justify-content: flex-start !important;
 	text-align: left !important;
@@ -2268,6 +2268,20 @@ body:has(.mn-app-shell).tc-body {
 	font-weight: inherit !important;
 	opacity: 1 !important;
 	cursor: pointer !important;
+	box-sizing: border-box !important;
+	-webkit-tap-highlight-color: transparent !important;
+}
+
+.mn-panel-left .tc-sidebar-tab-open-row:has(> button:not(.mn-card-title)) .mn-card-title,
+.mn-sidebar-tabs-section .tc-sidebar-tab-open-row:has(> button:not(.mn-card-title)) .mn-card-title,
+.mn-panel-left .tc-sidebar-tab-open-row:has(.mn-pin-reorder-actions) .mn-card-title {
+	padding-right: 0.25rem !important;
+}
+
+.mn-panel-left .tc-sidebar-tab-open-row > button:not(.mn-card-title),
+.mn-sidebar-tabs-section .tc-sidebar-tab-open-row > button:not(.mn-card-title) {
+	align-self: center !important;
+	margin-right: 0.35rem !important;
 }
 
 .mn-panel-left .tc-sidebar-tab-open-row button:not(.mn-card-title),
@@ -2275,20 +2289,21 @@ body:has(.mn-app-shell).tc-body {
 	display: inline-flex !important;
 	align-items: center !important;
 	justify-content: center !important;
-	width: 22px !important;
-	height: 22px !important;
-	min-width: 22px !important;
-	min-height: 22px !important;
+	width: 28px !important;
+	height: 28px !important;
+	min-width: 28px !important;
+	min-height: 28px !important;
 	padding: 0 !important;
 	margin: 0 !important;
 	border: none !important;
 	background: transparent !important;
 	color: inherit !important;
 	opacity: 0.6 !important;
-	border-radius: 4px !important;
+	border-radius: 6px !important;
 	cursor: pointer !important;
 	font-size: 0.82rem !important;
 	flex-shrink: 0 !important;
+	-webkit-tap-highlight-color: transparent !important;
 	transition: opacity var(--mn-transition), background var(--mn-transition) !important;
 }
 
@@ -2324,7 +2339,9 @@ body:has(.mn-app-shell).tc-body {
 .mn-app-shell .mn-pin-reorder-actions {
 	display: inline-flex;
 	align-items: center;
+	align-self: center;
 	gap: 0.15rem;
+	margin-right: 0.35rem;
 	flex-shrink: 0;
 }
 
@@ -2332,20 +2349,21 @@ body:has(.mn-app-shell).tc-body {
 	display: inline-flex !important;
 	align-items: center !important;
 	justify-content: center !important;
-	width: 22px !important;
-	height: 22px !important;
-	min-width: 22px !important;
-	min-height: 22px !important;
+	width: 26px !important;
+	height: 26px !important;
+	min-width: 26px !important;
+	min-height: 26px !important;
 	padding: 0 !important;
 	margin: 0 !important;
 	border: none !important;
 	background: transparent !important;
 	color: inherit !important;
 	opacity: 0.65 !important;
-	border-radius: var(--mn-radius-sm, 4px) !important;
+	border-radius: var(--mn-radius-sm, 6px) !important;
 	cursor: pointer !important;
 	font-size: 0.78rem !important;
 	flex-shrink: 0 !important;
+	-webkit-tap-highlight-color: transparent !important;
 	transition: opacity var(--mn-transition), background var(--mn-transition), color var(--mn-transition) !important;
 }
 
@@ -2442,41 +2460,46 @@ body:has(.mn-app-shell).tc-body {
 }
 
 /* Fallback for unshadowed vanilla Open tab items */
-.mn-sidebar-tabs-section .tc-sidebar-tab-open-item .tc-droppable > div:not(.tc-droppable-placeholder) {
+.mn-sidebar-tabs-section .tc-sidebar-tab-open-item .tc-droppable > div:not(.tc-droppable-placeholder):not(.tc-sidebar-tab-open-row) {
 	display: flex !important;
-	align-items: center !important;
+	align-items: stretch !important;
 	justify-content: space-between !important;
-	gap: 0.5rem !important;
+	gap: 0.25rem !important;
 	width: 100% !important;
 	box-sizing: border-box !important;
-	padding: 0.45rem 0.65rem !important;
+	padding: 0 !important;
 	border-radius: var(--mn-radius-sm) !important;
 	transition: background var(--mn-transition), color var(--mn-transition) !important;
 }
 
-.mn-sidebar-tabs-section .tc-sidebar-tab-open-item .tc-droppable > div:not(.tc-droppable-placeholder):hover {
+.mn-sidebar-tabs-section .tc-sidebar-tab-open-item .tc-droppable > div:not(.tc-droppable-placeholder):not(.tc-sidebar-tab-open-row):hover {
 	background: var(--mn-bg-elevated) !important;
 }
 
 .mn-sidebar-tabs-section .tc-sidebar-tab-open-item a.tc-tiddlylink {
 	order: 1 !important;
 	flex: 1 1 auto !important;
+	display: flex !important;
+	align-items: center !important;
 	min-width: 0 !important;
+	min-height: 36px !important;
 	white-space: nowrap !important;
 	overflow: hidden !important;
 	text-overflow: ellipsis !important;
-	padding: 0 !important;
+	padding: 0.45rem 0.25rem 0.45rem 0.65rem !important;
 	font-size: 0.86rem !important;
+	box-sizing: border-box !important;
 }
 
 .mn-sidebar-tabs-section .tc-sidebar-tab-open-item button.tc-btn-mini {
 	order: 2 !important;
-	width: 22px !important;
-	height: 22px !important;
-	min-width: 22px !important;
-	min-height: 22px !important;
+	align-self: center !important;
+	width: 28px !important;
+	height: 28px !important;
+	min-width: 28px !important;
+	min-height: 28px !important;
 	padding: 0 !important;
-	margin: 0 !important;
+	margin: 0 0.35rem 0 0 !important;
 	border: none !important;
 	background: transparent !important;
 	opacity: 0.6 !important;
@@ -2720,6 +2743,26 @@ body:has(.mn-app-shell).tc-body {
 
 .mn-nav-item-active a {
 	color: var(--mn-accent) !important;
+}
+
+.mn-nav-item:has(> a.tc-tiddlylink:only-child) {
+	padding: 0;
+}
+
+.mn-nav-item > a.tc-tiddlylink:only-child {
+	display: flex;
+	align-items: center;
+	flex: 1 1 auto;
+	width: 100%;
+	min-height: 34px;
+	padding: 0.38rem 0.55rem;
+	color: inherit;
+	text-decoration: none;
+	border-bottom: none;
+	box-sizing: border-box;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .mn-nav-item .mn-card-title {
@@ -3294,14 +3337,45 @@ body:has(.mn-app-shell).tc-body {
 
 .mn-mobile-tab-chip {
 	display: inline-flex;
-	align-items: center;
-	gap: 0.35rem;
-	padding: 0.28rem 0.65rem;
+	align-items: stretch;
+	gap: 0;
+	padding: 0;
+	min-height: 32px;
 	border-radius: var(--mn-radius-pill);
 	background: var(--mn-bg-subtle);
 	border: 1px solid var(--mn-border-hairline);
 	font-size: 0.8rem;
 	white-space: nowrap;
+	box-sizing: border-box;
+}
+
+.mn-mobile-tab-chip > button:first-child {
+	display: inline-flex !important;
+	align-items: center !important;
+	padding: 0.32rem 0.35rem 0.32rem 0.75rem !important;
+	margin: 0 !important;
+	color: inherit !important;
+	font: inherit !important;
+	cursor: pointer !important;
+	-webkit-tap-highlight-color: transparent !important;
+}
+
+.mn-mobile-tab-chip > button:last-child {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	padding: 0.32rem 0.65rem 0.32rem 0.3rem !important;
+	margin: 0 !important;
+	color: inherit !important;
+	opacity: 0.65;
+	font-size: 0.78rem !important;
+	cursor: pointer !important;
+	-webkit-tap-highlight-color: transparent !important;
+}
+
+.mn-mobile-tab-chip > button:last-child:hover,
+.mn-mobile-tab-chip > button:last-child:active {
+	opacity: 1;
 }
 
 .mn-mobile-tab-chip-active {
@@ -3858,10 +3932,42 @@ body:has(.mn-app-shell).tc-body {
 		height: 18px !important;
 	}
 
-	.mn-panel-left .mn-nav-item {
-		min-height: 38px !important;
-		padding: 0.42rem 0.65rem !important;
+	.mn-panel-left .mn-nav-item:not(.tc-sidebar-tab-open-row) {
+		min-height: 40px !important;
+		padding: 0.45rem 0.65rem !important;
 		font-size: 0.88rem !important;
+	}
+
+	.mn-panel-left .mn-nav-item:has(> a.tc-tiddlylink:only-child) {
+		padding: 0 !important;
+	}
+
+	.mn-panel-left .mn-nav-item > a.tc-tiddlylink:only-child {
+		min-height: 40px !important;
+		padding: 0.45rem 0.65rem !important;
+	}
+
+	.mn-panel-left .tc-sidebar-tab-open-row {
+		padding: 0 !important;
+		min-height: 42px !important;
+	}
+
+	.mn-panel-left .tc-sidebar-tab-open-row .mn-card-title {
+		min-height: 42px !important;
+		padding: 0.5rem 0.75rem !important;
+		font-size: 0.88rem !important;
+	}
+
+	.mn-panel-left .tc-sidebar-tab-open-row:has(> button:not(.mn-card-title)) .mn-card-title,
+	.mn-panel-left .tc-sidebar-tab-open-row:has(.mn-pin-reorder-actions) .mn-card-title {
+		padding-right: 0.3rem !important;
+	}
+
+	.mn-panel-left .tc-sidebar-tab-open-row button:not(.mn-card-title) {
+		width: 34px !important;
+		height: 34px !important;
+		min-width: 34px !important;
+		min-height: 34px !important;
 	}
 
 	.mn-panel-left .mn-nav-heading button {
