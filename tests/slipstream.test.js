@@ -59,6 +59,8 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
       "$:/plugins/mblackman/slipstream/startup/sync-history.js",
       "$:/plugins/mblackman/slipstream/startup/resizer.js",
       "$:/plugins/mblackman/slipstream/ui/PinnedTiddlerBar",
+      "$:/plugins/mblackman/slipstream/palettes/SlipstreamLight",
+      "$:/plugins/mblackman/slipstream/palettes/SlipstreamDark",
       "$:/config/ui/SideBar/More/horizontal",
     ];
 
@@ -2009,6 +2011,84 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     $tw.wiki.deleteTiddler("New Shortcut Note");
     $tw.wiki.deleteTiddler("$:/tags/Pinned");
     $tw.wiki.deleteTiddler("$:/state/slipstream/reorder-pins");
+  });
+
+  test("bundles Obsidian-inspired Slipstream Light and Slipstream Dark palettes following TiddlyWiki palette best practices", () => {
+    const vanillaData = $tw.wiki.getTiddlerData("$:/palettes/Vanilla");
+    const vanillaKeys = Object.keys(vanillaData);
+
+    const lightTitle = "$:/plugins/mblackman/slipstream/palettes/SlipstreamLight";
+    const darkTitle = "$:/plugins/mblackman/slipstream/palettes/SlipstreamDark";
+
+    const lightTid = $tw.wiki.getTiddler(lightTitle);
+    const darkTid = $tw.wiki.getTiddler(darkTitle);
+
+    expect(lightTid).toBeDefined();
+    expect(lightTid.fields.name).toBe("Slipstream Light");
+    expect(lightTid.fields["color-scheme"]).toBe("light");
+    expect(lightTid.fields.type).toBe("application/x-tiddler-dictionary");
+    expect(lightTid.fields.tags).toContain("$:/tags/Palette");
+
+    expect(darkTid).toBeDefined();
+    expect(darkTid.fields.name).toBe("Slipstream Dark");
+    expect(darkTid.fields["color-scheme"]).toBe("dark");
+    expect(darkTid.fields.type).toBe("application/x-tiddler-dictionary");
+    expect(darkTid.fields.tags).toContain("$:/tags/Palette");
+
+    const lightData = $tw.wiki.getTiddlerData(lightTitle);
+    const darkData = $tw.wiki.getTiddlerData(darkTitle);
+
+    // Every index in $:/palettes/Vanilla must be defined in both palettes so no light-mode fallbacks bleed into dark mode
+    for (const key of vanillaKeys) {
+      expect(key in lightData).toBe(true);
+      expect(key in darkData).toBe(true);
+    }
+
+    // Verify Obsidian-inspired core design tokens and semantic <<colour ...>> aliases
+    expect(lightData["primary"]).toBe("#7852ee");
+    expect(lightData["background"]).toBe("#ffffff");
+    expect(lightData["page-background"]).toBe("#f2f3f5");
+    expect(lightData["foreground"]).toBe("#222222");
+    expect(lightData["muted-foreground"]).toBe("#5c5c5c");
+    expect(lightData["tag-background"]).toBe("#eeeafc");
+    expect(lightData["tag-foreground"]).toBe("#7852ee");
+    expect(lightData["tiddler-background"]).toBe("<<colour background>>");
+    expect(lightData["tiddler-link-foreground"]).toBe("<<colour primary>>");
+
+    expect(darkData["primary"]).toBe("#a882ff");
+    expect(darkData["background"]).toBe("#1e1e1e");
+    expect(darkData["page-background"]).toBe("#161616");
+    expect(darkData["foreground"]).toBe("#dadada");
+    expect(darkData["muted-foreground"]).toBe("#999999");
+    expect(darkData["tag-background"]).toBe("#2b2440");
+    expect(darkData["tag-foreground"]).toBe("#a882ff");
+    expect(darkData["tiddler-background"]).toBe("<<colour background>>");
+    expect(darkData["tiddler-link-foreground"]).toBe("<<colour primary>>");
+
+    // Verify <<colour ...>> macros resolve cleanly when rendering $:/core/stylesheets/custom-properties
+    const origPalette = $tw.wiki.getTiddlerText("$:/palette");
+    try {
+      for (const [palTitle, expectedPrimary, expectedBg] of [
+        [lightTitle, "#7852ee", "#ffffff"],
+        [darkTitle, "#a882ff", "#1e1e1e"],
+      ]) {
+        $tw.wiki.addTiddler({ title: "$:/palette", text: palTitle });
+        const renderedCss = $tw.wiki.renderText(
+          "text/plain",
+          "text/vnd.tiddlywiki",
+          "\\import [all[tiddlers+shadows]tag[$:/tags/Macro]]\n{{$:/core/stylesheets/custom-properties}}"
+        );
+        expect(renderedCss).toContain(`--tpc-primary: ${expectedPrimary};`);
+        expect(renderedCss).toContain(`--tpc-background: ${expectedBg};`);
+        expect(renderedCss).toContain(`--tpc-tiddler-background: ${expectedBg};`);
+        expect(renderedCss).toContain(`--tpc-tiddler-link-foreground: ${expectedPrimary};`);
+        expect(renderedCss).not.toContain("<<colour");
+      }
+    } finally {
+      if (origPalette) {
+        $tw.wiki.addTiddler({ title: "$:/palette", text: origPalette });
+      }
+    }
   });
 });
 

@@ -1,46 +1,152 @@
 title: $:/plugins/mblackman/slipstream/palettes/SlipstreamLight
 name: Slipstream Light
-description: Crisp alabaster and slate light palette for Slipstream
+description: Default Obsidian-inspired light palette with clean neutral surfaces and purple accents
 tags: $:/tags/Palette
 type: application/x-tiddler-dictionary
 color-scheme: light
 
+alert-background: #fbe5e7
+alert-border: #e93147
+alert-highlight: #e93147
+alert-muted-foreground: #707070
 background: #ffffff
-page-background: #f3f5f8
-foreground: #0f172a
-muted-foreground: #64748b
-primary: #2563eb
-tag-background: #e2e8f0
-tag-foreground: #1e293b
-code-background: #f8fafc
-code-border: #e2e8f0
-code-foreground: #0f172a
-blockquote-bar: #2563eb
-dropdown-background: #ffffff
-dropdown-border: #cbd5e1
-dropdown-tab-background: #f1f5f9
-dropdown-tab-background-selected: #ffffff
-modal-background: #ffffff
-modal-border: #cbd5e1
-modal-header-border: #e2e8f0
-modal-footer-background: #f8fafc
-modal-footer-border: #e2e8f0
-notification-background: #ffffff
-notification-border: #cbd5e1
-alert-background: #eff6ff
-alert-border: #bfdbfe
-alert-highlight: #1d4ed8
-alert-muted-foreground: #3b82f6
-dirty-indicator: #ef4444
-select-tag-background: #2563eb
+blockquote-bar: <<colour primary>>
+button-background: #f2f3f5
+button-border: #e0e0e0
+button-foreground: <<colour foreground>>
+code-background: #fafafa
+code-border: #e0e0e0
+code-foreground: #e93147
+diff-delete-background: #fbe5e7
+diff-delete-foreground: <<colour foreground>>
+diff-equal-background:
+diff-equal-foreground: <<colour foreground>>
+diff-insert-background: #dcffe4
+diff-insert-foreground: <<colour foreground>>
+diff-invisible-background: #fff8c5
+diff-invisible-foreground: <<colour muted-foreground>>
+dirty-indicator: #e93147
+download-background: #08b94e
+download-foreground: #ffffff
+dragger-background: <<colour primary>>
+dragger-foreground: #ffffff
+dropdown-background: <<colour background>>
+dropdown-border: #e0e0e0
+dropdown-tab-background: #f6f6f6
+dropdown-tab-background-selected: <<colour background>>
+dropzone-background: <<colour primary>>
+external-link-background: inherit
+external-link-background-hover: inherit
+external-link-background-visited: inherit
+external-link-foreground: <<colour primary>>
+external-link-foreground-hover: #8875ff
+external-link-foreground-visited: #6c46e5
+footnote-target-background: #f2effe
+foreground: #222222
+highlight-background: rgba(255, 208, 0, 0.4)
+highlight-foreground: <<colour foreground>>
+menubar-background: <<colour page-background>>
+menubar-foreground: <<colour foreground>>
+message-background: #f6f6f6
+message-border: <<colour primary>>
+message-foreground: <<colour foreground>>
+modal-backdrop: rgba(0, 0, 0, 0.5)
+modal-background: <<colour background>>
+modal-border: #e0e0e0
+modal-footer-background: #f6f6f6
+modal-footer-border: #e0e0e0
+modal-header-border: #e0e0e0
+muted-foreground: #5c5c5c
+network-activity-foreground: <<colour primary>>
+notification-background: <<colour background>>
+notification-border: <<colour primary>>
+page-background: #f2f3f5
+pre-background: #fafafa
+pre-border: #e0e0e0
+primary: #7852ee
+select-tag-background: <<colour primary>>
 select-tag-foreground: #ffffff
-tiddler-border: #e2e8f0
-tiddler-title-foreground: #0f172a
-tiddler-subtitle-foreground: #64748b
-tiddler-controls-foreground: #94a3b8
-tiddler-controls-foreground-hover: #0f172a
-tiddler-controls-foreground-selected: #2563eb
-table-border: #e2e8f0
-table-header-background: #f8fafc
-table-footer-background: #f8fafc
-untagged-background: #cbd5e1
+selection-background: rgba(120, 82, 238, 0.2)
+selection-foreground: <<colour foreground>>
+sidebar-button-foreground: <<colour muted-foreground>>
+sidebar-controls-foreground: <<colour muted-foreground>>
+sidebar-controls-foreground-hover: <<colour foreground>>
+sidebar-foreground: <<colour foreground>>
+sidebar-foreground-shadow: transparent
+sidebar-muted-foreground: #707070
+sidebar-muted-foreground-hover: <<colour foreground>>
+sidebar-tab-background: #f6f6f6
+sidebar-tab-background-selected: <<colour background>>
+sidebar-tab-border: #e0e0e0
+sidebar-tab-border-selected: #e0e0e0
+sidebar-tab-divider: #e0e0e0
+sidebar-tab-foreground: <<colour muted-foreground>>
+sidebar-tab-foreground-selected: <<colour primary>>
+sidebar-tiddler-link-foreground: #5c5c5c
+sidebar-tiddler-link-foreground-hover: <<colour primary>>
+site-title-foreground: <<colour foreground>>
+stability-deprecated: #e93147
+stability-experimental: #ec7500
+stability-legacy: #086ddd
+stability-stable: #08b94e
+static-alert-foreground: #e93147
+tab-background: #f6f6f6
+tab-background-selected: <<colour background>>
+tab-border: #e0e0e0
+tab-border-selected: #e0e0e0
+tab-divider: #e0e0e0
+tab-foreground: <<colour muted-foreground>>
+tab-foreground-selected: <<colour primary>>
+table-border: #e0e0e0
+table-footer-background: #f6f6f6
+table-header-background: #fafafa
+tag-background: #eeeafc
+tag-foreground: #7852ee
+testcase-accent-level-1: #eeeafc
+testcase-accent-level-2: #fff3c4
+testcase-accent-level-3: #dcffe4
+tiddler-background: <<colour background>>
+tiddler-border: #e0e0e0
+tiddler-controls-foreground: #ababab
+tiddler-controls-foreground-hover: <<colour foreground>>
+tiddler-controls-foreground-selected: <<colour primary>>
+tiddler-editor-background: #fafafa
+tiddler-editor-border: #e0e0e0
+tiddler-editor-border-image: #e0e0e0
+tiddler-editor-fields-even: #f6f6f6
+tiddler-editor-fields-odd: <<colour background>>
+tiddler-info-background: #fafafa
+tiddler-info-border: #e0e0e0
+tiddler-info-tab-background: #f2f3f5
+tiddler-link-background: inherit
+tiddler-link-foreground: <<colour primary>>
+tiddler-subtitle-foreground: <<colour muted-foreground>>
+tiddler-title-foreground: <<colour foreground>>
+toolbar-cancel-button: <<colour muted-foreground>>
+toolbar-close-button: <<colour muted-foreground>>
+toolbar-delete-button: #e93147
+toolbar-done-button: #08b94e
+toolbar-edit-button: <<colour muted-foreground>>
+toolbar-info-button: <<colour muted-foreground>>
+toolbar-new-button: <<colour primary>>
+toolbar-options-button: <<colour muted-foreground>>
+toolbar-save-button: #08b94e
+untagged-background: #e0e0e0
+very-muted-foreground: #ababab
+wikilist-background: <<colour page-background>>
+wikilist-button-background: #e0e0e0
+wikilist-button-foreground: <<colour foreground>>
+wikilist-button-open: #08b94e
+wikilist-button-open-hover: #06963e
+wikilist-button-remove: #e93147
+wikilist-button-remove-hover: #c52236
+wikilist-button-reveal: <<colour primary>>
+wikilist-button-reveal-hover: #6c46e5
+wikilist-droplink-dragover: #eeeafc
+wikilist-info: <<colour foreground>>
+wikilist-item: <<colour background>>
+wikilist-title: <<colour muted-foreground>>
+wikilist-title-svg: <<colour wikilist-title>>
+wikilist-toolbar-background: #f6f6f6
+wikilist-toolbar-foreground: <<colour muted-foreground>>
+wikilist-url: #ababab

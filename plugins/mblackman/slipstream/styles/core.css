@@ -8,20 +8,21 @@
   1. Design Tokens
 -----------------------------------------------------------------------------*/
 :root {
-	--mn-bg-app: var(--tpc-page-background, #f4f6f9);
+	--mn-bg-app: var(--tpc-page-background, #f2f3f5);
 	--mn-bg-surface: var(--tpc-background, #ffffff);
-	--mn-bg-elevated: color-mix(in srgb, var(--tpc-background, #ffffff) 93%, var(--tpc-foreground, #0f172a) 7%);
-	--mn-bg-subtle: color-mix(in srgb, var(--tpc-background, #ffffff) 96.5%, var(--tpc-foreground, #0f172a) 3.5%);
+	--mn-bg-elevated: color-mix(in srgb, var(--tpc-background, #ffffff) 93%, var(--tpc-foreground, #222222) 7%);
+	--mn-bg-subtle: color-mix(in srgb, var(--tpc-background, #ffffff) 96.5%, var(--tpc-foreground, #222222) 3.5%);
 	--mn-bg-card: var(--mn-bg-subtle);
-	--mn-border-hairline: color-mix(in srgb, var(--tpc-foreground, #0f172a) 6%, transparent);
-	--mn-border-subtle: color-mix(in srgb, var(--tpc-foreground, #0f172a) 9%, transparent);
-	--mn-border-strong: color-mix(in srgb, var(--tpc-foreground, #0f172a) 16%, transparent);
-	--mn-text-main: var(--tpc-foreground, #0f172a);
-	--mn-text-muted: var(--tpc-muted-foreground, #64748b);
-	--mn-accent: var(--tpc-primary, #2563eb);
-	--mn-accent-soft: color-mix(in srgb, var(--tpc-primary, #2563eb) 11%, transparent);
-	--mn-tag-bg: var(--tpc-tag-background, #e2e8f0);
-	--mn-tag-fg: var(--tpc-tag-foreground, #1e293b);
+	--mn-border-hairline: color-mix(in srgb, var(--tpc-foreground, #222222) 6%, transparent);
+	--mn-border-subtle: color-mix(in srgb, var(--tpc-foreground, #222222) 9%, transparent);
+	--mn-border-strong: color-mix(in srgb, var(--tpc-foreground, #222222) 16%, transparent);
+	--mn-text-main: var(--tpc-foreground, #222222);
+	--mn-text-muted: var(--tpc-muted-foreground, #707070);
+	--mn-accent: var(--tpc-primary, #7852ee);
+	--mn-accent-soft: color-mix(in srgb, var(--tpc-primary, #7852ee) 11%, transparent);
+	--mn-tag-bg: var(--tpc-tag-background, #eeeafc);
+	--mn-tag-fg: var(--tpc-tag-foreground, #7852ee);
+	--mn-danger: var(--tpc-alert-highlight, #e93147);
 	--mn-left-width: 272px;
 	--mn-right-width: 272px;
 	--mn-reading-width: var(--tp-tiddler-width, 840px);
@@ -993,7 +994,7 @@ body:has(.mn-app-shell).tc-body {
 }
 
 .mn-pinned-tiddler-bar .tc-btn-delete:hover {
-	color: var(--tpc-alert-color, #ef4444) !important;
+	color: var(--mn-danger, #e93147) !important;
 }
 
 .mn-pinned-tiddler-bar .tc-btn-save {
@@ -1569,9 +1570,9 @@ body:has(.mn-app-shell).tc-body {
 	font-size: 0.86em;
 	padding: 0.16rem 0.42rem;
 	border-radius: 6px;
-	background: var(--mn-bg-subtle);
-	border: 1px solid var(--mn-border-hairline);
-	color: var(--mn-text-main);
+	background: var(--tpc-code-background, var(--mn-bg-subtle));
+	border: 1px solid var(--tpc-code-border, var(--mn-border-hairline));
+	color: var(--tpc-code-foreground, var(--mn-text-main));
 	overflow-wrap: break-word;
 	word-break: break-word;
 }
@@ -1581,8 +1582,9 @@ body:has(.mn-app-shell).tc-body {
 	font-size: 0.86em;
 	padding: 1.1rem 1.25rem;
 	border-radius: var(--mn-radius-sm);
-	background: var(--mn-bg-subtle);
-	border: 1px solid var(--mn-border-hairline);
+	background: var(--tpc-pre-background, var(--mn-bg-subtle));
+	border: 1px solid var(--tpc-pre-border, var(--mn-border-hairline));
+	color: var(--mn-text-main);
 	overflow-x: auto;
 	max-width: 100%;
 	box-sizing: border-box;
@@ -1612,12 +1614,13 @@ body:has(.mn-app-shell).tc-body {
 	padding: 0;
 	border: none;
 	background: transparent;
+	color: inherit;
 }
 
 .mn-story-container .tc-tiddler-body blockquote {
 	margin: 1rem 0;
 	padding: 0.7rem 1.1rem;
-	border-left: 3px solid var(--mn-accent);
+	border-left: 3px solid var(--tpc-blockquote-bar, var(--mn-accent));
 	background: var(--mn-bg-subtle);
 	border-radius: 0 var(--mn-radius-sm) var(--mn-radius-sm) 0;
 	color: var(--mn-text-muted);
