@@ -1,6 +1,6 @@
 {
   "name": "tiddlywiki-slipstream",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Slipstream — A modern, generic 3-column desktop and mobile Zoomin layout theme and UI primitive toolkit for TiddlyWiki v5.4.0+",
   "main": "npm run build-all",
   "scripts": {

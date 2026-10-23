@@ -2,7 +2,6 @@ title: $:/plugins/mblackman/slipstream/ui/PinnedTiddlerBar
 type: text/vnd.tiddlywiki
 
 \whitespace trim
-\import [subfilter{$:/core/config/GlobalImportFilter}]
 \procedure default-wide-filter() [tag[Wide]] [field:page-width[wide]]
 \function .wide-filter() [{$:/config/slipstream/wide-filter}!is[blank]else<default-wide-filter>]
 \function .active-tiddler() [list[$:/StoryList]match{$:/HistoryList!!current-tiddler}] ~[list[$:/StoryList]first[]]
@@ -10,16 +9,11 @@ type: text/vnd.tiddlywiki
 \function .target-tiddler() [.active-tiddler[]get[draft.of]] ~[.active-tiddler[]]
 \function .is-wide() [.target-tiddler[]tag[Wide]then[yes]] ~[.target-tiddler[]field:page-width[wide]then[yes]] ~[.target-tiddler[]subfilter<.wide-filter>then[yes]else[no]]
 \function folded-state() [[$:/state/folded/]addsuffix<currentTiddler>]
-
 \procedure save-tiddler-actions()
 <$action-sendmessage $message="tm-save-tiddler" $param=<<currentTiddler>>/>
 \end
-
-<!-- Must use \define so $message$ text substitution evaluates before passing string to <$button actions=...> in $:/core/ui/Buttons/cancel and $:/core/ui/Buttons/delete -->
-\define cancel-delete-tiddler-actions(message)
-<$action-sendmessage $message="tm-$message$-tiddler" $param=<<currentTiddler>>/>
-\end
-
+\procedure slipstream-pinned-tiddler-bar()
+\define cancel-delete-tiddler-actions(message) <$action-sendmessage $message="tm-$message$-tiddler" $param=<<currentTiddler>>/>
 <%if [.active-tiddler[]!is[blank]] %>
 <$let activeTid=<<.active-tiddler>>>
 <div class={{{ [[mn-pinned-tiddler-bar mn-desktop-only]] [.is-wide[]match[yes]then[mn-pinned-wide]] +[join[ ]] }}}>
@@ -124,3 +118,5 @@ type: text/vnd.tiddlywiki
 </div>
 </$let>
 <%endif%>
+\end
+<$transclude $variable="slipstream-pinned-tiddler-bar"/>

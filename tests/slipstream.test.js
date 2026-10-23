@@ -1299,7 +1299,79 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     );
     expect(draftWideBarHtml).toContain("mn-pinned-wide");
 
+    // 4. Verify Info button in PinnedTiddlerBar (both in More dropdown and when shown directly on toolbar)
+    // targets the exact same tiddlerInfoState as the focused note in the Story River
+    $tw.wiki.deleteTiddler("Draft of 'PinnedBarNote'");
+    $tw.wiki.addTiddler({
+      title: "$:/StoryList",
+      list: ["PinnedBarNote"],
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/HistoryList",
+      "current-tiddler": "PinnedBarNote",
+    });
+
+    const layoutParser = $tw.wiki.parseTiddler("$:/plugins/mblackman/slipstream/ui/Layout");
+    const layoutWidget = $tw.wiki.makeWidget(layoutParser, {});
+    const layoutContainer = $tw.fakeDocument.createElement("div");
+    layoutWidget.render(layoutContainer, null);
+
+    function findAllNodes(node, pred, list = []) {
+      if (pred(node)) list.push(node);
+      if (node.children) {
+        for (const child of node.children) findAllNodes(child, pred, list);
+      }
+      return list;
+    }
+
+    const storyInfoReveals = findAllNodes(
+      layoutWidget,
+      (n) =>
+        n.parseTreeNode &&
+        n.parseTreeNode.type === "reveal" &&
+        (n.getAttribute("class") || "").includes("tc-tiddler-info") &&
+        n.getVariable("currentTiddler") === "PinnedBarNote"
+    );
+    expect(storyInfoReveals.length).toBe(1);
+    const expectedInfoState = storyInfoReveals[0].getAttribute("state");
+    expect(expectedInfoState).toMatch(/^\$:\/state\/popup\/tiddler-info-/);
+
+    // Find the More tiddler actions button inside PinnedTiddlerBar and open its popup
+    const moreButtons = findAllNodes(
+      layoutWidget,
+      (n) =>
+        n.parseTreeNode &&
+        n.parseTreeNode.type === "button" &&
+        n.getVariable("listItem") === "$:/core/ui/Buttons/more-tiddler-actions" &&
+        n.getVariable("currentTiddler") === "PinnedBarNote"
+    );
+    expect(moreButtons.length).toBe(2); // 1 in PinnedTiddlerBar + 1 in StoryTiddlerTemplate
+
+    const pinnedMoreBtn = moreButtons[0];
+    expect(pinnedMoreBtn.getVariable("tiddlerInfoState")).toBe(expectedInfoState);
+    const morePopupState = pinnedMoreBtn.getAttribute("popup");
+    $tw.wiki.setText(morePopupState, "text", undefined, "(10,10,10,10)");
+    layoutWidget.refresh({ [morePopupState]: true });
+
+    const pinnedInfoButtons = findAllNodes(
+      layoutWidget,
+      (n) =>
+        n.parseTreeNode &&
+        n.parseTreeNode.type === "button" &&
+        n.getVariable("listItem") === "$:/core/ui/Buttons/info" &&
+        n.getAttribute("setTo") === "yes"
+    );
+    expect(pinnedInfoButtons.length).toBeGreaterThanOrEqual(1);
+    expect(pinnedInfoButtons[0].getAttribute("set")).toBe(expectedInfoState);
+
+    // Clicking the info button in PinnedTiddlerBar opens the info panel on the focused document
+    pinnedInfoButtons[0].setTiddler();
+    expect($tw.wiki.getTiddlerText(expectedInfoState)).toBe("yes");
+    expect(storyInfoReveals[0].getAttribute("state")).toBe(expectedInfoState);
+
     // Cleanup
+    $tw.wiki.deleteTiddler(morePopupState);
+    $tw.wiki.deleteTiddler(expectedInfoState);
     $tw.wiki.deleteTiddler("PinnedBarNote");
     $tw.wiki.deleteTiddler("Draft of 'PinnedBarNote'");
   });

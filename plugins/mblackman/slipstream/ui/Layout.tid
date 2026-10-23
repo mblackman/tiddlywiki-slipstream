@@ -5,7 +5,7 @@ description: Generic 3-column centered reading workspace with configurable short
 type: text/vnd.tiddlywiki
 
 \whitespace trim
-\import [subfilter{$:/core/config/GlobalImportFilter}] [[$:/plugins/mblackman/slipstream/ui/MobileBar]]
+\import [subfilter{$:/core/config/GlobalImportFilter}] [[$:/plugins/mblackman/slipstream/ui/MobileBar]] [[$:/plugins/mblackman/slipstream/ui/PinnedTiddlerBar]]
 
 \function .breakpoint() [{$:/config/slipstream/mobile-breakpoint}!is[blank]else[1024]]
 \function .is-mobile() [{$:/info/browser/window/system/main/client/width}!is[blank]compare:number:lt<.breakpoint>then[yes]else[no]]
@@ -79,7 +79,7 @@ type: text/vnd.tiddlywiki
 
 						<main class="mn-story-container tc-story-river" role="main">
 							<%if [.is-mobile[]match[no]] :and[.desktop-mode[]match[document]] %>
-								{{$:/plugins/mblackman/slipstream/ui/PinnedTiddlerBar}}
+								<$transclude $variable="slipstream-pinned-tiddler-bar"/>
 							<%endif%>
 							<section class="story-backdrop">
 								<$list filter="[all[shadows+tiddlers]tag[$:/tags/AboveStory]!has[draft.of]]">

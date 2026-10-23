@@ -966,7 +966,7 @@ body:has(.mn-app-shell).tc-body {
 	opacity: 1 !important;
 }
 
-.mn-pinned-tiddler-bar .tc-tiddler-controls button {
+.mn-pinned-tiddler-bar .tc-tiddler-controls button:not(.tc-drop-down button) {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -980,12 +980,13 @@ body:has(.mn-app-shell).tc-body {
 	transition: background var(--mn-transition), color var(--mn-transition);
 }
 
-.mn-pinned-tiddler-bar .tc-tiddler-controls button:hover {
+.mn-pinned-tiddler-bar .tc-tiddler-controls button:not(.tc-drop-down button):hover,
+.mn-pinned-tiddler-bar .tc-tiddler-controls button:not(.tc-drop-down button).tc-selected {
 	background: var(--mn-bg-elevated);
 	color: var(--mn-text-main);
 }
 
-.mn-pinned-tiddler-bar .tc-tiddler-controls button svg {
+.mn-pinned-tiddler-bar .tc-tiddler-controls button:not(.tc-drop-down button) svg {
 	width: 16px !important;
 	height: 16px !important;
 	fill: currentColor !important;
@@ -1004,13 +1005,13 @@ body:has(.mn-app-shell).tc-body {
 	color: var(--mn-accent) !important;
 }
 
-/* In Focused Document Mode on Desktop, hide duplicate in-card controls and redundant TopBar breadcrumb */
+/* In Focused Document Mode on Desktop, hide duplicate in-card controls (while keeping the tiddler info panel close button visible) and redundant TopBar breadcrumb */
 .mn-app-shell.mn-desktop-document-mode .mn-topbar .mn-breadcrumb-sep,
 .mn-app-shell.mn-desktop-document-mode .mn-topbar .mn-breadcrumb-current {
 	display: none;
 }
 
-.mn-app-shell.mn-desktop-document-mode .mn-story-container .tc-tiddler-frame:not(.tc-tiddler-edit-frame) > .tc-tiddler-title .tc-tiddler-controls {
+.mn-app-shell.mn-desktop-document-mode .mn-story-container .tc-tiddler-frame:not(.tc-tiddler-edit-frame) > .tc-tiddler-title .tc-tiddler-controls:not(.tc-tiddler-info-controls) {
 	display: none;
 }
 
