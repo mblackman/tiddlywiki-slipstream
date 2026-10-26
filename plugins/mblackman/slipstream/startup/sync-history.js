@@ -14,6 +14,179 @@ exports.name = "slipstream-sync-history";
 exports.after = ["story"];
 exports.synchronous = true;
 
+exports.scrollToHeading = function(event, docOverride, winOverride) {
+	var doc = docOverride || (typeof document !== "undefined" ? document : null);
+	var win = winOverride || (typeof window !== "undefined" ? window : null);
+	var paramObj = (event && event.paramObject) ? event.paramObject : {};
+	var targetTitle = paramObj.tiddler || "";
+	var headingIndex = parseInt(paramObj.index || "0", 10);
+	var headingText = (paramObj.heading || "").trim().toLowerCase();
+	var parsedOccurrence = paramObj.occurrence !== undefined && paramObj.occurrence !== null && paramObj.occurrence !== ""
+		? parseInt(paramObj.occurrence, 10)
+		: NaN;
+
+	// Close mobile context sheet if open
+	if($tw.wiki.getTiddlerText("$:/state/slipstream/mobile-context-sheet") === "open") {
+		$tw.wiki.addTiddler({
+			title: "$:/state/slipstream/mobile-context-sheet",
+			text: "closed"
+		});
+	}
+
+	if(!doc || !win) {
+		return false;
+	}
+
+	// Locate the tiddler frame in the story container
+	var frames = doc.querySelectorAll(".mn-story-container .tc-tiddler-frame");
+	var targetFrame = null;
+	for(var i = 0; i < frames.length; i++) {
+		var frame = frames[i];
+		if(frame.getAttribute("data-tiddler-title") === targetTitle) {
+			targetFrame = frame;
+			break;
+		}
+	}
+	if(!targetFrame && frames.length > 0) {
+		targetFrame = frames[0];
+	}
+	if(!targetFrame) {
+		return false;
+	}
+
+	var body = targetFrame.querySelector(".tc-tiddler-body") || targetFrame;
+	var rawHeadings = body.querySelectorAll("h1, h2, h3, h4, h5, h6");
+	if(!rawHeadings || rawHeadings.length === 0) {
+		return false;
+	}
+	var allHeadings = Array.prototype.slice.call(rawHeadings);
+
+	// Exclude headings rendered inside UI widget cards/heroes (.mn-hero, .mn-card)
+	// so document outline indices align with actual prose headings
+	var docHeadings = allHeadings.filter(function(h) {
+		return !h.closest || !h.closest(".mn-hero, .mn-card");
+	});
+	if(docHeadings.length === 0) {
+		docHeadings = allHeadings;
+	}
+
+	// Determine which occurrence (0-based) of headingText is being targeted
+	var targetOccurrence = !isNaN(parsedOccurrence) && parsedOccurrence >= 0 ? parsedOccurrence : 0;
+	if(isNaN(parsedOccurrence) && targetTitle && $tw.wiki && headingIndex > 0 && headingText) {
+		var rawTiddlerText = $tw.wiki.getTiddlerText(targetTitle) || "";
+		var lines = rawTiddlerText.split(/\r?\n/);
+		var hIdx = 0;
+		var sameTextCount = 0;
+		for(var l = 0; l < lines.length; l++) {
+			var trimmedLine = lines[l].trim();
+			if(/^!+\s+/.test(trimmedLine)) {
+				if(hIdx >= headingIndex) {
+					break;
+				}
+				var cleanedLine = trimmedLine
+					.replace(/^!{1,6}\s*/, "")
+					.replace(/''|\/\/|`|~~/g, "")
+					.trim()
+					.toLowerCase();
+				if(cleanedLine === headingText) {
+					sameTextCount++;
+				}
+				hIdx++;
+			}
+		}
+		targetOccurrence = sameTextCount;
+	}
+
+	function findByOccurrence(list, text, occ) {
+		if(!text) return null;
+		var exact = [];
+		var partial = [];
+		for(var j = 0; j < list.length; j++) {
+			var hText = (list[j].textContent || "").trim().toLowerCase();
+			if(hText === text) {
+				exact.push(list[j]);
+			} else if(hText.indexOf(text) !== -1 || text.indexOf(hText) !== -1) {
+				partial.push(list[j]);
+			}
+		}
+		if(exact.length > 0) {
+			return exact[Math.min(occ, exact.length - 1)];
+		}
+		if(partial.length > 0) {
+			return partial[Math.min(occ, partial.length - 1)];
+		}
+		return null;
+	}
+
+	var targetHeading = null;
+	// 1. Direct index match on prose headings when text agrees
+	if(headingIndex >= 0 && headingIndex < docHeadings.length) {
+		var candidate = docHeadings[headingIndex];
+		var candText = (candidate.textContent || "").trim().toLowerCase();
+		if(!headingText || candText === headingText) {
+			targetHeading = candidate;
+		}
+	}
+	// 2. Occurrence-aware text match across prose headings (handles duplicate heading names like "Live Example")
+	if(!targetHeading && headingText) {
+		targetHeading = findByOccurrence(docHeadings, headingText, targetOccurrence);
+	}
+	// 3. Direct index match when partial text agrees
+	if(!targetHeading && headingIndex >= 0 && headingIndex < docHeadings.length) {
+		var candPartial = docHeadings[headingIndex];
+		var candPartialText = (candPartial.textContent || "").trim().toLowerCase();
+		if(headingText && (candPartialText.indexOf(headingText) !== -1 || headingText.indexOf(candPartialText) !== -1)) {
+			targetHeading = candPartial;
+		}
+	}
+	// 4. Fallback to occurrence-aware text match across all headings (including widget headings) or raw index
+	if(!targetHeading && headingText) {
+		targetHeading = findByOccurrence(allHeadings, headingText, targetOccurrence);
+	}
+	if(!targetHeading && headingIndex >= 0 && headingIndex < docHeadings.length) {
+		targetHeading = docHeadings[headingIndex];
+	}
+	if(!targetHeading && headingIndex >= 0 && headingIndex < allHeadings.length) {
+		targetHeading = allHeadings[headingIndex];
+	}
+	if(!targetHeading) {
+		return false;
+	}
+
+	// Compute sticky header offset (topbar + mobile pill strip or pinned tiddler bar if visible)
+	var offset = 72;
+	var topbar = doc.querySelector(".mn-topbar");
+	if(topbar) {
+		offset = topbar.getBoundingClientRect().height + 18;
+	}
+	var pillStrip = doc.querySelector(".mn-mobile-pill-strip");
+	if(pillStrip && win.getComputedStyle(pillStrip).display !== "none") {
+		offset += pillStrip.getBoundingClientRect().height;
+	}
+	var pinnedBar = doc.querySelector(".mn-pinned-tiddler-bar");
+	if(pinnedBar && win.getComputedStyle(pinnedBar).display !== "none") {
+		offset += pinnedBar.getBoundingClientRect().height;
+	}
+
+	var rect = targetHeading.getBoundingClientRect();
+	var scrollY = win.pageYOffset !== undefined ? win.pageYOffset : (doc.documentElement.scrollTop || 0);
+	var top = Math.max(0, rect.top + scrollY - offset);
+
+	try {
+		win.scrollTo({ top: top, left: 0, behavior: "smooth" });
+	} catch(e) {
+		win.scrollTo(0, top);
+	}
+
+	// Brief visual highlight on the target heading
+	$tw.utils.addClass(targetHeading, "mn-heading-highlight");
+	setTimeout(function() {
+		$tw.utils.removeClass(targetHeading, "mn-heading-highlight");
+	}, 1400);
+
+	return false;
+};
+
 exports.startup = function() {
 	$tw.wiki.addEventListener("change", function(changes) {
 		if(changes["$:/StoryList"]) {
@@ -49,103 +222,7 @@ exports.startup = function() {
 
 	if($tw.browser && $tw.rootWidget) {
 		$tw.rootWidget.addEventListener("tm-slipstream-scroll-heading", function(event) {
-			var paramObj = event.paramObject || {};
-			var targetTitle = paramObj.tiddler || "";
-			var headingIndex = parseInt(paramObj.index || "0", 10);
-			var headingText = (paramObj.heading || "").trim().toLowerCase();
-
-			// Close mobile context sheet if open
-			if($tw.wiki.getTiddlerText("$:/state/slipstream/mobile-context-sheet") === "open") {
-				$tw.wiki.addTiddler({
-					title: "$:/state/slipstream/mobile-context-sheet",
-					text: "closed"
-				});
-			}
-
-			if(typeof document === "undefined" || typeof window === "undefined") {
-				return false;
-			}
-
-			// Locate the tiddler frame in the story container
-			var frames = document.querySelectorAll(".mn-story-container .tc-tiddler-frame");
-			var targetFrame = null;
-			for(var i = 0; i < frames.length; i++) {
-				var frame = frames[i];
-				if(frame.getAttribute("data-tiddler-title") === targetTitle) {
-					targetFrame = frame;
-					break;
-				}
-			}
-			if(!targetFrame && frames.length > 0) {
-				targetFrame = frames[0];
-			}
-			if(!targetFrame) {
-				return false;
-			}
-
-			var body = targetFrame.querySelector(".tc-tiddler-body") || targetFrame;
-			var headings = body.querySelectorAll("h1, h2, h3, h4, h5, h6");
-			if(!headings || headings.length === 0) {
-				return false;
-			}
-
-			// Match by text first (with occurrence awareness), or fall back to index
-			var targetHeading = null;
-			if(headingIndex >= 0 && headingIndex < headings.length) {
-				var candidate = headings[headingIndex];
-				var candText = (candidate.textContent || "").trim().toLowerCase();
-				if(!headingText || candText === headingText || candText.indexOf(headingText) !== -1 || headingText.indexOf(candText) !== -1) {
-					targetHeading = candidate;
-				}
-			}
-			if(!targetHeading && headingText) {
-				for(var j = 0; j < headings.length; j++) {
-					var hText = (headings[j].textContent || "").trim().toLowerCase();
-					if(hText === headingText || hText.indexOf(headingText) !== -1 || headingText.indexOf(hText) !== -1) {
-						targetHeading = headings[j];
-						break;
-					}
-				}
-			}
-			if(!targetHeading && headingIndex >= 0 && headingIndex < headings.length) {
-				targetHeading = headings[headingIndex];
-			}
-			if(!targetHeading) {
-				return false;
-			}
-
-			// Compute sticky header offset (topbar + mobile pill strip or pinned tiddler bar if visible)
-			var offset = 72;
-			var topbar = document.querySelector(".mn-topbar");
-			if(topbar) {
-				offset = topbar.getBoundingClientRect().height + 18;
-			}
-			var pillStrip = document.querySelector(".mn-mobile-pill-strip");
-			if(pillStrip && window.getComputedStyle(pillStrip).display !== "none") {
-				offset += pillStrip.getBoundingClientRect().height;
-			}
-			var pinnedBar = document.querySelector(".mn-pinned-tiddler-bar");
-			if(pinnedBar && window.getComputedStyle(pinnedBar).display !== "none") {
-				offset += pinnedBar.getBoundingClientRect().height;
-			}
-
-			var rect = targetHeading.getBoundingClientRect();
-			var scrollY = window.pageYOffset !== undefined ? window.pageYOffset : (document.documentElement.scrollTop || 0);
-			var top = Math.max(0, rect.top + scrollY - offset);
-
-			try {
-				window.scrollTo({ top: top, left: 0, behavior: "smooth" });
-			} catch(e) {
-				window.scrollTo(0, top);
-			}
-
-			// Brief visual highlight on the target heading
-			$tw.utils.addClass(targetHeading, "mn-heading-highlight");
-			setTimeout(function() {
-				$tw.utils.removeClass(targetHeading, "mn-heading-highlight");
-			}, 1400);
-
-			return false;
+			return exports.scrollToHeading(event);
 		});
 
 		// Global Search & Quick Switcher Shortcut Listener (Cmd/Ctrl+K or Ctrl/Cmd+Shift+F)

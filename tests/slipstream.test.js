@@ -2089,6 +2089,191 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
         $tw.wiki.addTiddler({ title: "$:/palette", text: origPalette });
       }
     }
+
+    // Verify calmer inline code token colors (purple accent rather than alert crimson)
+    expect(lightData["code-foreground"]).toBe("#5b3ec8");
+    expect(lightData["code-background"]).toBe("#f5f4f8");
+    expect(lightData["code-border"]).toBe("#e6e4ee");
+    expect(darkData["code-foreground"]).toBe("#c4b0ff");
+    expect(darkData["code-background"]).toBe("#25232e");
+    expect(darkData["code-border"]).toBe("#383447");
+  });
+
+  test("enforces Phase 1-3 UI/UX spatial architecture, vector iconography, Option A document hierarchy, and edit mode polish", () => {
+    const coreCss = fs.readFileSync(path.join(PLUGIN_DIR, "styles/core.css"), "utf8");
+    const mobileBarRaw = fs.readFileSync(path.join(PLUGIN_DIR, "ui/MobileBar.tid"), "utf8");
+    const topBarRaw = fs.readFileSync(path.join(PLUGIN_DIR, "ui/TopBar.tid"), "utf8");
+    const pinnedBarRaw = fs.readFileSync(path.join(PLUGIN_DIR, "ui/PinnedTiddlerBar.tid"), "utf8");
+
+    // 1. MobileBar uses crisp inline vector SVGs (.mn-nav-svg) instead of OS-dependent emoji or missing U+1F5D1 glyph
+    expect(mobileBarRaw).toContain('class="mn-nav-svg"');
+    expect(mobileBarRaw).not.toContain("🗑");
+    expect(mobileBarRaw).not.toContain("🔗");
+    expect(mobileBarRaw).not.toContain("🔍");
+    expect(topBarRaw).toContain('aria-label="Toggle Navigation"');
+    expect(topBarRaw).toContain('x1="9" y1="3" x2="9" y2="21"');
+
+    // 2. Option A (Editorial / Notion-style) Focused Document Mode hierarchy:
+    // PinnedTiddlerBar acts as a compact breadcrumb/action bar in .mn-desktop-document-mode while keeping the main h2.tc-title primary
+    expect(pinnedBarRaw).toContain("mn-pinned-tag");
+    expect(coreCss).toContain(".mn-app-shell.mn-desktop-document-mode .mn-pinned-tiddler-bar .mn-pinned-date");
+    expect(coreCss).toContain(".mn-app-shell.mn-desktop-document-mode .mn-pinned-tiddler-bar .mn-pinned-tag");
+    expect(coreCss).toContain(".mn-app-shell.mn-desktop-document-mode .mn-pinned-tiddler-bar .mn-pinned-title-input");
+    expect(coreCss).toContain(".mn-app-shell.mn-desktop-document-mode .mn-panel-right .mn-inspector-focus-card");
+
+    // 3. LeftNav Recent tab timeline subitems reset text-transform so note titles are not forced into ALL CAPS
+    expect(coreCss).toMatch(/\.mn-sidebar-tabs-section\s+\.tc-menu-list-subitem\s*\{[^}]*text-transform:\s*none\s*!important/s);
+
+    // 4. Tablet breakpoint (640px-1023px) constrains reading measure and adds breathing room, and mobile drawer extends to top: 0
+    expect(coreCss).toContain("@media (min-width: 640px) and (max-width: 1023px)");
+    expect(coreCss).toMatch(/\.mn-panel-left\s*\{\s*position:\s*fixed\s*!important;\s*top:\s*0\s*!important;/s);
+
+    // 5. Modern Edit Mode toolbar (.tc-editor-toolbar), tag picker (.tc-edit-tags), and field adder (.tc-edit-field-add)
+    expect(coreCss).toContain(".mn-story-container .tc-tiddler-edit-frame .tc-editor-toolbar button");
+    expect(coreCss).toContain(".mn-story-container .tc-tiddler-edit-frame .tc-edit-tags");
+    expect(coreCss).toContain(".mn-story-container .tc-tiddler-edit-frame .tc-edit-field-add");
+
+    // 6. Keyboard :focus-visible rings and prefers-reduced-motion accessibility
+    expect(coreCss).toContain(":focus-visible");
+    expect(coreCss).toContain("@media (prefers-reduced-motion: reduce)");
+  });
+
+  test("resolves duplicate heading names in Document Outline (e.g. 'Live Example' in Slipstream UI Primitives) to the exact section occurrence", () => {
+    $tw.wiki.addTiddler({
+      title: "$:/StoryList",
+      list: ["Slipstream UI Primitives"],
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/HistoryList",
+      "current-tiddler": "Slipstream UI Primitives",
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/state/slipstream/inspector-tab",
+      text: "Outline",
+    });
+
+    const parser = $tw.wiki.parseTiddler("$:/plugins/mblackman/slipstream/ui/RightInspector");
+    const widgetNode = $tw.wiki.makeWidget(parser, {});
+    const dispatched = [];
+    widgetNode.addEventListener("tm-slipstream-scroll-heading", (event) => {
+      dispatched.push(event.paramObject);
+      return false;
+    });
+    const container = $tw.fakeDocument.createElement("div");
+    widgetNode.render(container, null);
+
+    function findOutlineButtons(node, list = []) {
+      if (node.parseTreeNode && node.parseTreeNode.type === "button") {
+        const domNode = node.domNodes && node.domNodes[0];
+        if (domNode && (domNode.getAttribute("class") || "").includes("mn-outline-item")) {
+          list.push(node);
+        }
+      }
+      if (node.children) {
+        for (const child of node.children) findOutlineButtons(child, list);
+      }
+      return list;
+    }
+
+    const outlineBtns = findOutlineButtons(widgetNode);
+    expect(outlineBtns.length).toBe(15);
+
+    const mockEvent = { preventDefault: () => {}, stopPropagation: () => {} };
+    for (const btn of outlineBtns) {
+      btn.invokeActions(btn, mockEvent);
+    }
+
+    const liveExampleEvents = dispatched.filter((p) => p.heading === "Live Example");
+    expect(liveExampleEvents.length).toBe(5);
+    expect(liveExampleEvents.map((p) => p.occurrence)).toEqual(["0", "1", "2", "3", "4"]);
+    expect(liveExampleEvents.map((p) => p.index)).toEqual(["1", "4", "7", "9", "12"]);
+
+    const syntaxEvents = dispatched.filter((p) => p.heading === "Wikitext Syntax");
+    expect(syntaxEvents.length).toBe(4);
+    expect(syntaxEvents.map((p) => p.occurrence)).toEqual(["0", "1", "2", "3"]);
+
+    // Now test the scrollToHeading handler in sync-history.js with a simulated DOM
+    // that includes widget headings (.mn-hero h2, .mn-card h3/h4) alongside the 15 prose headings
+    const syncHistory = $tw.modules.titles["$:/plugins/mblackman/slipstream/startup/sync-history.js"].exports;
+    expect(typeof syncHistory.scrollToHeading).toBe("function");
+
+    try {
+      function makeHeading(tag, text, topPx, inWidget = false) {
+        return {
+          tagName: tag.toUpperCase(),
+          textContent: text,
+          topPx,
+          className: "",
+          closest: (sel) => (inWidget && (sel.includes(".mn-hero") || sel.includes(".mn-card")) ? {} : null),
+          getBoundingClientRect: () => ({ top: topPx, height: 28 }),
+        };
+      }
+
+      const domHeadings = [
+        makeHeading("h2", "Slipstream UI Primitives", 40, true), // inside .mn-hero
+        makeHeading("h1", "1. Hero Banner (<$ss.hero>)", 100, false),
+        makeHeading("h2", "Live Example", 200, false), // Live Example #0
+        makeHeading("h2", "Project Workspace", 260, true), // inside .mn-hero
+        makeHeading("h2", "Wikitext Syntax", 340, false),
+        makeHeading("h1", "2. Responsive Card Grid (<$ss.grid>)", 450, false),
+        makeHeading("h2", "Live Example", 550, false), // Live Example #1
+        makeHeading("h4", "Component 1", 610, true), // inside .mn-card
+        makeHeading("h4", "Component 2", 620, true), // inside .mn-card
+        makeHeading("h4", "Component 3", 630, true), // inside .mn-card
+        makeHeading("h2", "Wikitext Syntax", 720, false),
+        makeHeading("h1", "3. Content Card (<$ss.card>)", 850, false),
+        makeHeading("h2", "Live Example", 950, false), // Live Example #2
+        makeHeading("h3", "Custom Information Card", 1010, true), // inside .mn-card
+        makeHeading("h1", "4. Property Pill (<$ss.prop-pill>)", 1150, false),
+        makeHeading("h2", "Live Example", 1250, false), // Live Example #3
+        makeHeading("h2", "Wikitext Syntax", 1350, false),
+        makeHeading("h1", "5. Progress Bar (<$ss.progress>)", 1480, false),
+        makeHeading("h2", "Live Example", 1580, false), // Live Example #4
+        makeHeading("h2", "Wikitext Syntax", 1700, false),
+        makeHeading("h2", "Explore More", 1820, false),
+      ];
+
+      const scrolledPositions = [];
+      const mockWin = {
+        pageYOffset: 0,
+        getComputedStyle: () => ({ display: "none" }),
+        scrollTo: (opts) => {
+          scrolledPositions.push(typeof opts === "object" ? opts.top : opts);
+        },
+      };
+      const mockDoc = {
+        documentElement: { scrollTop: 0 },
+        querySelector: () => null,
+        querySelectorAll: (sel) => {
+          if (sel === ".mn-story-container .tc-tiddler-frame") {
+            return [
+              {
+                getAttribute: () => "Slipstream UI Primitives",
+                querySelector: () => ({
+                  querySelectorAll: () => domHeadings,
+                }),
+              },
+            ];
+          }
+          return [];
+        },
+      };
+
+      for (const ev of liveExampleEvents) {
+        syncHistory.scrollToHeading({ paramObject: ev }, mockDoc, mockWin);
+      }
+
+      // Each of the 5 "Live Example" outline clicks must scroll to its distinct section top (200, 550, 950, 1250, 1580 minus offset 72)
+      expect(scrolledPositions).toEqual([
+        200 - 72,
+        550 - 72,
+        950 - 72,
+        1250 - 72,
+        1580 - 72,
+      ]);
+    } finally {
+      $tw.wiki.deleteTiddler("$:/state/slipstream/inspector-tab");
+    }
   });
 });
 

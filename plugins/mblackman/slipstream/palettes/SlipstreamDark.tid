@@ -14,9 +14,9 @@ blockquote-bar: #7f6df2
 button-background: #262626
 button-border: #363636
 button-foreground: <<colour foreground>>
-code-background: #242424
-code-border: #363636
-code-foreground: #fb464c
+code-background: #25232e
+code-border: #383447
+code-foreground: #c4b0ff
 diff-delete-background: #4c1d24
 diff-delete-foreground: <<colour foreground>>
 diff-equal-background:

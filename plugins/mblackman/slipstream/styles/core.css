@@ -915,10 +915,10 @@ body:has(.mn-app-shell).tc-body {
 }
 
 .mn-pinned-title-btn {
-	font-weight: 700;
-	font-size: 1.05rem;
-	letter-spacing: -0.02em;
-	color: var(--mn-text-main);
+	font-weight: 600;
+	font-size: 0.92rem;
+	letter-spacing: -0.015em;
+	color: var(--mn-text-muted);
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -948,16 +948,35 @@ body:has(.mn-app-shell).tc-body {
 }
 
 .mn-pinned-title-input {
-	font-weight: 700;
-	font-size: 1rem;
-	letter-spacing: -0.02em;
+	font-weight: 600;
+	font-size: 0.92rem;
+	letter-spacing: -0.015em;
 	color: var(--mn-text-main);
 	background: var(--mn-bg-subtle);
 	border: 1px solid var(--mn-border-subtle);
 	border-radius: var(--mn-radius-sm);
-	padding: 0.25rem 0.55rem;
+	padding: 0.22rem 0.55rem;
 	width: min(320px, 45vw);
 	box-sizing: border-box;
+}
+
+/* Option A (Editorial / Notion-style Document Header):
+   Keep the main in-note title, date, and tags prominent in the document flow,
+   and make the sticky PinnedTiddlerBar a clean breadcrumb & action bar without duplicate tags/dates or stacked title inputs */
+.mn-app-shell.mn-desktop-document-mode .mn-pinned-tiddler-bar .mn-pinned-date,
+.mn-app-shell.mn-desktop-document-mode .mn-pinned-tiddler-bar .mn-pinned-tag,
+.mn-app-shell.mn-desktop-document-mode .mn-pinned-tiddler-bar .mn-pinned-title-input {
+	display: none;
+}
+
+/* Hide redundant Active Context Inspector focus card on desktop when in single-note Focused Document mode */
+.mn-app-shell.mn-desktop-document-mode .mn-panel-right .mn-inspector-top-heading,
+.mn-app-shell.mn-desktop-document-mode .mn-panel-right .mn-inspector-focus-card {
+	display: none;
+}
+
+.mn-app-shell.mn-desktop-document-mode .mn-panel-right .mn-segmented-tabs {
+	margin-top: 0.15rem;
 }
 
 .mn-pinned-tiddler-bar .tc-tiddler-controls {
@@ -1122,6 +1141,7 @@ body:has(.mn-app-shell).tc-body {
 	line-height: 1.25;
 	letter-spacing: -0.028em;
 	color: var(--mn-text-main);
+	text-wrap: balance;
 }
 
 .mn-story-container .tc-titlebar h2.tc-title {
@@ -1129,6 +1149,7 @@ body:has(.mn-app-shell).tc-body {
 	font-size: inherit;
 	letter-spacing: -0.028em;
 	color: var(--mn-text-main);
+	text-wrap: balance;
 }
 
 /* Compact, Unobtrusive ViewToolbar Controls (fade in on hover like Notebook/Craft) */
@@ -1525,14 +1546,28 @@ body:has(.mn-app-shell).tc-body {
 	line-height: 1.3;
 	margin: 1.6rem 0 0.65rem;
 	border-bottom: none;
+	text-wrap: balance;
+}
+
+.mn-story-container .tc-tiddler-body h1 {
+	font-size: 1.5rem;
+	letter-spacing: -0.025em;
 }
 
 .mn-story-container .tc-tiddler-body h2 {
-	font-size: 1.3rem;
+	font-size: 1.28rem;
 }
 
 .mn-story-container .tc-tiddler-body h3 {
-	font-size: 1.08rem;
+	font-size: 1.1rem;
+	letter-spacing: -0.015em;
+}
+
+.mn-story-container .tc-tiddler-body h4 {
+	font-size: 0.96rem;
+	font-weight: 600;
+	letter-spacing: -0.01em;
+	color: var(--mn-text-muted);
 }
 
 .mn-story-container .tc-tiddler-body p,
@@ -1737,14 +1772,40 @@ body:has(.mn-app-shell).tc-body {
 /* Modern Edit Mode Frame Styling */
 .mn-story-container .tc-tiddler-edit-frame input.tc-edit-texteditor,
 .mn-story-container .tc-tiddler-edit-frame textarea.tc-edit-texteditor,
-.mn-story-container .tc-tiddler-edit-frame input[type="text"] {
+.mn-story-container .tc-tiddler-edit-frame input[type="text"],
+.mn-story-container .tc-tiddler-edit-frame input[type="search"],
+.mn-story-container .tc-tiddler-edit-frame input:not([type]) {
 	background: var(--mn-bg-subtle);
 	color: var(--mn-text-main);
 	border: 1px solid var(--mn-border-subtle);
 	border-radius: var(--mn-radius-sm);
+	box-shadow: none;
 	padding: 0.5rem 0.75rem;
 	font-family: inherit;
 	box-sizing: border-box;
+	transition: border-color var(--mn-transition), box-shadow var(--mn-transition), background var(--mn-transition);
+}
+
+.mn-story-container .tc-tiddler-edit-frame input.tc-edit-texteditor:focus,
+.mn-story-container .tc-tiddler-edit-frame textarea.tc-edit-texteditor:focus,
+.mn-story-container .tc-tiddler-edit-frame input[type="text"]:focus,
+.mn-story-container .tc-tiddler-edit-frame input[type="search"]:focus,
+.mn-story-container .tc-tiddler-edit-frame input:not([type]):focus {
+	outline: none;
+	background: var(--mn-bg-surface);
+	border-color: var(--mn-accent);
+	box-shadow: 0 0 0 3px var(--mn-accent-soft);
+}
+
+.mn-story-container .tc-tiddler-edit-frame input.tc-titlebar.tc-edit-texteditor {
+	width: 100%;
+	font-size: 1.6rem;
+	font-weight: 700;
+	letter-spacing: -0.025em;
+	line-height: 1.25;
+	padding: 0.55rem 0.85rem;
+	margin-bottom: 0.5rem;
+	border-radius: var(--mn-radius-md);
 }
 
 .mn-story-container .tc-tiddler-edit-frame textarea.tc-edit-texteditor {
@@ -1752,6 +1813,135 @@ body:has(.mn-app-shell).tc-body {
 	font-size: 0.92rem;
 	line-height: 1.6;
 	padding: 0.85rem 1rem;
+}
+
+/* Modern Editor Formatting Toolbar (.tc-editor-toolbar) */
+.mn-story-container .tc-tiddler-edit-frame .tc-editor-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.22rem;
+	padding: 0.35rem 0.5rem;
+	margin: 0.45rem 0 0.75rem;
+	background: var(--mn-bg-subtle);
+	border: 1px solid var(--mn-border-hairline);
+	border-radius: var(--mn-radius-sm);
+}
+
+.mn-story-container .tc-tiddler-edit-frame .tc-editor-toolbar button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 30px;
+	height: 30px;
+	padding: 0 0.35rem;
+	margin: 0;
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: 6px;
+	color: var(--mn-text-muted);
+	fill: currentColor;
+	cursor: pointer;
+	transition: background var(--mn-transition), color var(--mn-transition), border-color var(--mn-transition);
+}
+
+.mn-story-container .tc-tiddler-edit-frame .tc-editor-toolbar button:hover,
+.mn-story-container .tc-tiddler-edit-frame .tc-editor-toolbar button:focus-visible {
+	background: var(--mn-bg-elevated);
+	color: var(--mn-text-main);
+	fill: currentColor;
+}
+
+.mn-story-container .tc-tiddler-edit-frame .tc-editor-toolbar button.tc-selected,
+.mn-story-container .tc-tiddler-edit-frame .tc-editor-toolbar button:active {
+	background: var(--mn-accent-soft);
+	color: var(--mn-accent);
+	fill: currentColor;
+}
+
+.mn-story-container .tc-tiddler-edit-frame .tc-editor-toolbar button svg {
+	width: 15px !important;
+	height: 15px !important;
+	fill: currentColor !important;
+}
+
+/* Modern Tag Picker & Field Adder in Edit Mode */
+.mn-story-container .tc-tiddler-edit-frame .tc-edit-tags {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.35rem;
+	padding: 0.45rem 0.65rem;
+	margin: 0.35rem 0 0.65rem;
+	background: var(--mn-bg-subtle);
+	border: 1px solid var(--mn-border-hairline);
+	border-radius: var(--mn-radius-md);
+	box-shadow: none;
+}
+
+.mn-story-container .tc-tiddler-edit-frame .tc-edit-tags .tc-tag-list-item {
+	margin: 0 !important;
+}
+
+.mn-story-container .tc-tiddler-edit-frame .tc-edit-add-tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	flex: 1 1 200px;
+}
+
+.mn-story-container .tc-tiddler-edit-frame .tc-add-tag-name input.tc-edit-texteditor {
+	background: var(--mn-bg-surface);
+	padding: 0.32rem 0.65rem;
+	font-size: 0.84rem;
+}
+
+.mn-story-container .tc-tiddler-edit-frame .tc-add-tag-button button,
+.mn-story-container .tc-tiddler-edit-frame .tc-edit-field-add-button button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.32rem 0.75rem;
+	border-radius: var(--mn-radius-pill);
+	border: 1px solid var(--mn-border-subtle);
+	background: var(--mn-bg-surface);
+	color: var(--mn-text-main);
+	font-size: 0.8rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background var(--mn-transition), color var(--mn-transition), border-color var(--mn-transition);
+}
+
+.mn-story-container .tc-tiddler-edit-frame .tc-add-tag-button button:hover,
+.mn-story-container .tc-tiddler-edit-frame .tc-edit-field-add-button button:hover {
+	background: var(--mn-accent-soft);
+	color: var(--mn-accent);
+	border-color: var(--mn-accent);
+}
+
+.mn-story-container .tc-tiddler-edit-frame .tc-edit-type-selector,
+.mn-story-container .tc-tiddler-edit-frame .tc-edit-fields {
+	margin-top: 0.85rem;
+	font-size: 0.84rem;
+	color: var(--mn-text-muted);
+}
+
+.mn-story-container .tc-tiddler-edit-frame .tc-edit-field-add {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.45rem;
+	margin-top: 0.65rem;
+	padding: 0.55rem 0.75rem;
+	background: var(--mn-bg-subtle);
+	border: 1px solid var(--mn-border-hairline);
+	border-radius: var(--mn-radius-md);
+}
+
+.mn-story-container .tc-tiddler-edit-frame .tc-edit-field-add input.tc-edit-texteditor {
+	background: var(--mn-bg-surface);
+	padding: 0.35rem 0.65rem;
+	font-size: 0.84rem;
 }
 
 /* Sidebar Header (Pinned Toolbar with Visible Overflow for Floating Dropdowns) */
@@ -2579,6 +2769,9 @@ body:has(.mn-app-shell).tc-body {
 .mn-sidebar-tabs-section .tc-menu-list-subitem {
 	padding-left: 0.5rem !important;
 	margin: 0.15rem 0 !important;
+	text-transform: none !important;
+	letter-spacing: normal !important;
+	font-weight: 400 !important;
 }
 
 .mn-sidebar-tabs-section .tc-menu-list-subitem a.tc-tiddlylink,
@@ -2590,6 +2783,8 @@ body:has(.mn-app-shell).tc-body {
 	color: var(--mn-text-main);
 	font-size: 0.84rem;
 	font-weight: normal;
+	text-transform: none;
+	letter-spacing: normal;
 	text-decoration: none;
 	border-bottom: none;
 	white-space: nowrap;
@@ -3452,6 +3647,13 @@ body:has(.mn-app-shell).tc-body {
 	line-height: 1;
 }
 
+.mn-mobile-nav-icon-wrap .mn-nav-svg {
+	width: 18px;
+	height: 18px;
+	stroke: currentColor;
+	flex-shrink: 0;
+}
+
 .mn-mobile-nav-btn-primary .mn-mobile-nav-icon-wrap {
 	width: 32px;
 	height: 32px;
@@ -3461,10 +3663,12 @@ body:has(.mn-app-shell).tc-body {
 	box-shadow: 0 2px 8px color-mix(in srgb, var(--mn-accent) 40%, transparent);
 }
 
-.mn-mobile-nav-btn-primary .mn-mobile-nav-icon-wrap .mn-nav-icon {
+.mn-mobile-nav-btn-primary .mn-mobile-nav-icon-wrap .mn-nav-icon,
+.mn-mobile-nav-btn-primary .mn-mobile-nav-icon-wrap .mn-nav-svg {
 	font-size: 1.25rem;
 	font-weight: 400;
 	color: var(--mn-bg-surface);
+	stroke: var(--mn-bg-surface);
 }
 
 .mn-mobile-nav-btn-save {
@@ -3481,10 +3685,12 @@ body:has(.mn-app-shell).tc-body {
 	box-shadow: 0 2px 8px color-mix(in srgb, var(--mn-accent) 40%, transparent);
 }
 
-.mn-mobile-nav-btn-save .mn-mobile-nav-icon-wrap .mn-nav-icon {
+.mn-mobile-nav-btn-save .mn-mobile-nav-icon-wrap .mn-nav-icon,
+.mn-mobile-nav-btn-save .mn-mobile-nav-icon-wrap .mn-nav-svg {
 	font-size: 1.2rem;
 	font-weight: 800;
 	color: var(--mn-bg-surface);
+	stroke: var(--mn-bg-surface);
 }
 
 .mn-mobile-nav-btn-cancel {
@@ -3522,8 +3728,15 @@ body:has(.mn-app-shell).tc-body {
 	display: none;
 	position: fixed;
 	inset: 0;
-	z-index: 400;
-	background: rgba(15, 23, 42, 0.4);
+	z-index: 465;
+	background: rgba(15, 23, 42, 0.45);
+	backdrop-filter: blur(2px);
+	-webkit-backdrop-filter: blur(2px);
+}
+
+body:has(.mn-app-shell.mn-is-mobile.mn-left-open),
+body:has(.mn-app-shell .mn-backdrop) {
+	overflow: hidden;
 }
 
 /* Slide-Up Bottom Sheet for Zoomed Tiddler Options */
@@ -3555,6 +3768,7 @@ body:has(.mn-app-shell).tc-body {
 	height: 82dvh;
 	max-height: 82dvh;
 	overflow-y: auto;
+	overflow-x: hidden;
 	overscroll-behavior: contain;
 	box-shadow: var(--mn-shadow-sheet);
 	box-sizing: border-box;
@@ -3576,6 +3790,8 @@ body:has(.mn-app-shell).tc-body {
 	grid-template-columns: repeat(2, 1fr);
 	gap: 0.6rem;
 	margin: 1rem 0;
+	width: 100%;
+	box-sizing: border-box;
 }
 
 @media (max-width: 380px) {
@@ -3589,6 +3805,7 @@ body:has(.mn-app-shell).tc-body {
 	display: flex;
 	align-items: stretch;
 	justify-content: stretch;
+	min-width: 0;
 	min-height: 48px;
 	padding: 0;
 	background: transparent;
@@ -3615,6 +3832,7 @@ body:has(.mn-app-shell).tc-body {
 	display: flex;
 	flex: 1 1 100%;
 	width: 100%;
+	min-width: 0;
 	height: 100%;
 	align-items: stretch;
 	justify-content: stretch;
@@ -3640,13 +3858,14 @@ body:has(.mn-app-shell).tc-body {
 	flex-direction: row !important;
 	align-items: center !important;
 	justify-content: flex-start !important;
-	gap: 0.65rem !important;
+	gap: 0.55rem !important;
 	width: 100% !important;
+	min-width: 0 !important;
 	height: 100% !important;
 	min-height: 48px;
-	padding: 0.65rem 0.85rem !important;
+	padding: 0.6rem 0.75rem !important;
 	margin: 0;
-	font-size: 0.84rem !important;
+	font-size: 0.82rem !important;
 	font-weight: 500 !important;
 	background: var(--mn-bg-subtle);
 	border: 1px solid var(--mn-border-hairline);
@@ -3654,6 +3873,7 @@ body:has(.mn-app-shell).tc-body {
 	color: var(--mn-text-main);
 	cursor: pointer;
 	box-sizing: border-box;
+	overflow: hidden;
 	text-decoration: none;
 	text-align: left !important;
 	-webkit-tap-highlight-color: transparent;
@@ -3771,7 +3991,7 @@ body:has(.mn-app-shell).tc-body {
 
 	.mn-panel-left {
 		position: fixed !important;
-		top: var(--mn-topbar-height) !important;
+		top: 0 !important;
 		left: 0 !important;
 		bottom: var(--mn-bottombar-height) !important;
 		height: auto !important;
@@ -3783,6 +4003,7 @@ body:has(.mn-app-shell).tc-body {
 		display: flex !important;
 		flex-direction: column !important;
 		overflow: visible !important;
+		padding-top: env(safe-area-inset-top, 0px) !important;
 		padding-bottom: 0 !important;
 		transition: transform var(--mn-transition), opacity var(--mn-transition);
 	}
@@ -3807,7 +4028,7 @@ body:has(.mn-app-shell).tc-body {
 	.mn-app-shell .mn-story-container.tc-story-river {
 		background: var(--mn-bg-surface);
 		min-height: calc(100dvh - var(--mn-topbar-height) - var(--mn-bottombar-height));
-		padding: 0.65rem 0.85rem calc(var(--mn-bottombar-height) + 2.5rem);
+		padding: 0.65rem 0.95rem calc(var(--mn-bottombar-height) + env(safe-area-inset-bottom, 0px) + 4.5rem);
 		width: 100%;
 		overflow-anchor: none;
 	}
@@ -3832,7 +4053,7 @@ body:has(.mn-app-shell).tc-body {
 		font-size: 1.45rem;
 	}
 
-	/* Hide top-right toolbar clutter in mobile reading mode (use thumb-zone bottom bar instead), but keep info box close button visible */
+	/* Hide top-right toolbar clutter in mobile reading & edit modes (use thumb-zone bottom bar instead), while keeping info box close button visible */
 	.mn-story-container .tc-tiddler-frame:not(.tc-tiddler-edit-frame) .tc-tiddler-controls:not(.tc-tiddler-info-controls) {
 		display: none;
 	}
@@ -3842,9 +4063,10 @@ body:has(.mn-app-shell).tc-body {
 		opacity: 1;
 	}
 
-	/* In mobile edit mode, show controls inside draft frame as well */
+	.mn-story-container .tc-tiddler-edit-frame .tc-tiddler-title.tc-tiddler-edit-title,
+	.mn-story-container .tc-tiddler-edit-frame > .tc-tiddler-title,
 	.mn-story-container .tc-tiddler-edit-frame .tc-tiddler-controls {
-		display: inline-flex;
+		display: none !important;
 	}
 
 	.mn-story-container .tc-tiddler-edit-frame textarea.tc-edit-texteditor {
@@ -3852,6 +4074,21 @@ body:has(.mn-app-shell).tc-body {
 		border: 1px solid var(--mn-border-subtle);
 		border-radius: var(--mn-radius-md);
 		padding: 0.75rem 0.85rem;
+	}
+
+	/* Minimum 44x44px touch targets on mobile topbar & pill strip controls */
+	.mn-topbar .mn-pill-btn {
+		min-width: 40px;
+		min-height: 40px;
+		padding: 0.35rem 0.65rem;
+	}
+
+	.mn-mobile-tab-chip {
+		min-height: 36px;
+	}
+
+	.mn-mobile-tab-chip > button:last-child {
+		min-width: 32px;
 	}
 
 	/* Suppress any zooming or scaling on mobile tiddlers */
@@ -3981,4 +4218,41 @@ body:has(.mn-app-shell).tc-body {
 		justify-content: center !important;
 	}
 }
+
+/* Tablet Reading Measure & Adaptive Gutters (640px - 1023px) */
+@media (min-width: 640px) and (max-width: 1023px) {
+	.mn-app-shell .mn-story-container,
+	.mn-app-shell .mn-story-container.tc-story-river {
+		padding: 1.5rem 2.25rem calc(var(--mn-bottombar-height) + env(safe-area-inset-bottom, 0px) + 4.5rem);
+	}
+
+	.mn-app-shell .mn-story-container .tc-tiddler-frame {
+		width: min(100%, var(--mn-reading-width, 840px)) !important;
+		max-width: min(100%, var(--mn-reading-width, 840px)) !important;
+		padding: 1rem 0.5rem 2.5rem !important;
+	}
+}
+
+/* Keyboard Focus-Visible Rings & Reduced Motion Accessibility */
+.mn-app-shell .mn-pill-btn:focus-visible,
+.mn-app-shell .mn-btn-primary:focus-visible,
+.mn-app-shell .mn-mobile-nav-btn:focus-visible,
+.mn-app-shell .mn-nav-item a:focus-visible,
+.mn-app-shell .mn-nav-item button:focus-visible,
+.mn-app-shell .mn-pinned-title-btn:focus-visible,
+.mn-app-shell .mn-search-scope-pill:focus-visible,
+.mn-app-shell .mn-search-close-btn:focus-visible {
+	outline: 2px solid var(--mn-accent);
+	outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.mn-app-shell,
+	.mn-app-shell * {
+		transition-duration: 0.01ms !important;
+		animation-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
+
 

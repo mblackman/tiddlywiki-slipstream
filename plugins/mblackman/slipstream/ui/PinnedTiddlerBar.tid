@@ -66,7 +66,7 @@ type: text/vnd.tiddlywiki
 					<span class="mn-prop-label mn-pinned-date"><$view tiddler=<<activeTid>> field="modified" format="relativedate"/></span>
 				<%endif%>
 				<$list filter="[<activeTid>tags[]!is[system]!match[Wide]limit[3]]">
-					<span class="tc-tag-label"><$text text=<<currentTiddler>>/></span>
+					<span class="tc-tag-label mn-pinned-tag"><$text text=<<currentTiddler>>/></span>
 				</$list>
 			</div>
 			<div class="mn-pinned-right">

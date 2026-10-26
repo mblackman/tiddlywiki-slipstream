@@ -69,6 +69,7 @@ type: text/vnd.tiddlywiki
 									relDepth={{{ [<rawLevel>subtract<minLevel>add[1]max[1]min[4]] }}}
 									headingIdx={{{ [<headingCounter>subtract[1]] }}}
 									cleanText={{{ [<headingLine>search-replace:g:regexp[^!{1,6}\s*],[]search-replace:g[''],[]search-replace:g[//],[]search-replace:g[`],[]search-replace:g[~~],[]trim[]] }}}
+									occurrence={{{ [<activeTiddler>get[text]splitregexp[\n]trim[]regexp[^!+\s+]first<headingCounter>] :map[search-replace:g:regexp[^!{1,6}\s*],[]search-replace:g[''],[]search-replace:g[//],[]search-replace:g[`],[]search-replace:g[~~],[]trim[]] :filter[match<cleanText>] +[count[]subtract[1]] }}}
 								>
 									<$button
 										class={{{ [[mn-nav-item mn-outline-item tc-btn-invisible]] [[mn-outline-depth-]addsuffix<relDepth>] [[mn-outline-level-]addsuffix<rawLevel>] +[join[ ]] }}}
@@ -78,6 +79,8 @@ type: text/vnd.tiddlywiki
 											$message="tm-slipstream-scroll-heading"
 											tiddler=<<activeTiddler>>
 											index=<<headingIdx>>
+											occurrence=<<occurrence>>
+											level=<<rawLevel>>
 											heading=<<cleanText>>
 										/>
 										<span class="mn-outline-marker"/>

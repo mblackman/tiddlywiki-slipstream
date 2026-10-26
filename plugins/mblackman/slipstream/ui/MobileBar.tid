@@ -25,24 +25,45 @@ type: text/vnd.tiddlywiki
 	<%if [.is-draft[]match[yes]] %>
 		<!-- Draft / Edit Mode Controls -->
 		<$button message="tm-cancel-tiddler" param=<<.active-tiddler>> set="$:/state/slipstream/mobile-action-sheet" setTo="closed" class="mn-mobile-nav-btn mn-mobile-nav-btn-cancel" tooltip="Cancel changes">
-			<span class="mn-mobile-nav-icon-wrap"><span class="mn-nav-icon">✕</span></span>
+			<span class="mn-mobile-nav-icon-wrap" aria-hidden="true">
+				<svg class="mn-nav-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+					<line x1="18" y1="6" x2="6" y2="18"/>
+					<line x1="6" y1="6" x2="18" y2="18"/>
+				</svg>
+			</span>
 			<span class="mn-nav-label">Cancel</span>
 		</$button>
 
 		<$button message="tm-save-tiddler" param=<<.active-tiddler>> set="$:/state/slipstream/mobile-action-sheet" setTo="closed" class="mn-mobile-nav-btn mn-mobile-nav-btn-save" tooltip="Save note changes">
-			<span class="mn-mobile-nav-icon-wrap"><span class="mn-nav-icon">✓</span></span>
+			<span class="mn-mobile-nav-icon-wrap" aria-hidden="true">
+				<svg class="mn-nav-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+					<polyline points="20 6 9 17 4 12"/>
+				</svg>
+			</span>
 			<span class="mn-nav-label">Save</span>
 		</$button>
 
 		<$button message="tm-delete-tiddler" param=<<.active-tiddler>> set="$:/state/slipstream/mobile-action-sheet" setTo="closed" class="mn-mobile-nav-btn mn-mobile-nav-btn-danger" tooltip="Discard draft">
-			<span class="mn-mobile-nav-icon-wrap"><span class="mn-nav-icon">🗑</span></span>
+			<span class="mn-mobile-nav-icon-wrap" aria-hidden="true">
+				<svg class="mn-nav-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<polyline points="3 6 5 6 21 6"/>
+					<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+					<line x1="10" y1="11" x2="10" y2="17"/>
+					<line x1="14" y1="11" x2="14" y2="17"/>
+				</svg>
+			</span>
 			<span class="mn-nav-label">Discard</span>
 		</$button>
 	<%elseif [.has-active[]match[yes]] %>
 		<!-- Active Note Reading Controls -->
 		<!-- 1. Instant 1-Tap Edit -->
 		<$button message="tm-edit-tiddler" param=<<.active-tiddler>> class="mn-mobile-nav-btn" tooltip="Edit this note">
-			<span class="mn-mobile-nav-icon-wrap"><span class="mn-nav-icon">✎</span></span>
+			<span class="mn-mobile-nav-icon-wrap" aria-hidden="true">
+				<svg class="mn-nav-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M12 20h9"/>
+					<path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+				</svg>
+			</span>
 			<span class="mn-nav-label">Edit</span>
 		</$button>
 
@@ -53,8 +74,11 @@ type: text/vnd.tiddlywiki
 			class={{{ [[mn-mobile-nav-btn]] [{$:/state/slipstream/mobile-context-sheet}match[open]then[mn-mobile-nav-btn-active]] +[join[ ]] }}}
 			tooltip="Note Context (Backlinks, Outline, Fields)"
 		>
-			<span class="mn-mobile-nav-icon-wrap">
-				<span class="mn-nav-icon">🔗</span>
+			<span class="mn-mobile-nav-icon-wrap" aria-hidden="true">
+				<svg class="mn-nav-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+					<line x1="15" y1="3" x2="15" y2="21"/>
+				</svg>
 				<%if [.backlinks-count[]compare:number:gt[0]] %>
 					<span class="mn-mobile-badge"><$text text=<<.backlinks-count>>/></span>
 				<%endif%>
@@ -64,7 +88,12 @@ type: text/vnd.tiddlywiki
 
 		<!-- 3. Primary Center Quick Capture -->
 		<$button message="tm-new-tiddler" class="mn-mobile-nav-btn mn-mobile-nav-btn-primary" tooltip="New note">
-			<span class="mn-mobile-nav-icon-wrap"><span class="mn-nav-icon">＋</span></span>
+			<span class="mn-mobile-nav-icon-wrap" aria-hidden="true">
+				<svg class="mn-nav-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+					<line x1="12" y1="5" x2="12" y2="19"/>
+					<line x1="5" y1="12" x2="19" y2="12"/>
+				</svg>
+			</span>
 			<span class="mn-nav-label">New</span>
 		</$button>
 
@@ -75,7 +104,12 @@ type: text/vnd.tiddlywiki
 			class={{{ [[mn-mobile-nav-btn]] [{$:/state/slipstream/mobile-search}match[open]then[mn-mobile-nav-btn-active]] +[join[ ]] }}}
 			tooltip="Search notes"
 		>
-			<span class="mn-mobile-nav-icon-wrap"><span class="mn-nav-icon">🔍</span></span>
+			<span class="mn-mobile-nav-icon-wrap" aria-hidden="true">
+				<svg class="mn-nav-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<circle cx="11" cy="11" r="8"/>
+					<line x1="21" y1="21" x2="16.65" y2="16.65"/>
+				</svg>
+			</span>
 			<span class="mn-nav-label">Search</span>
 		</$button>
 
@@ -86,23 +120,45 @@ type: text/vnd.tiddlywiki
 			class={{{ [[mn-mobile-nav-btn]] [{$:/state/slipstream/mobile-action-sheet}match[open]then[mn-mobile-nav-btn-active]] +[join[ ]] }}}
 			tooltip="More note actions"
 		>
-			<span class="mn-mobile-nav-icon-wrap"><span class="mn-nav-icon">•••</span></span>
+			<span class="mn-mobile-nav-icon-wrap" aria-hidden="true">
+				<svg class="mn-nav-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+					<circle cx="12" cy="12" r="1.2" fill="currentColor"/>
+					<circle cx="19" cy="12" r="1.2" fill="currentColor"/>
+					<circle cx="5" cy="12" r="1.2" fill="currentColor"/>
+				</svg>
+			</span>
 			<span class="mn-nav-label">More</span>
 		</$button>
 	<%else%>
 		<!-- Empty Story River Fallback Controls -->
 		<$button set="$:/state/slipstream/left-panel" setTo="yes" class="mn-mobile-nav-btn" tooltip="Open navigation">
-			<span class="mn-mobile-nav-icon-wrap"><span class="mn-nav-icon">☰</span></span>
+			<span class="mn-mobile-nav-icon-wrap" aria-hidden="true">
+				<svg class="mn-nav-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<line x1="3" y1="12" x2="21" y2="12"/>
+					<line x1="3" y1="6" x2="21" y2="6"/>
+					<line x1="3" y1="18" x2="21" y2="18"/>
+				</svg>
+			</span>
 			<span class="mn-nav-label">Navigate</span>
 		</$button>
 
 		<$button message="tm-new-tiddler" class="mn-mobile-nav-btn mn-mobile-nav-btn-primary" tooltip="New note">
-			<span class="mn-mobile-nav-icon-wrap"><span class="mn-nav-icon">＋</span></span>
+			<span class="mn-mobile-nav-icon-wrap" aria-hidden="true">
+				<svg class="mn-nav-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+					<line x1="12" y1="5" x2="12" y2="19"/>
+					<line x1="5" y1="12" x2="19" y2="12"/>
+				</svg>
+			</span>
 			<span class="mn-nav-label">New</span>
 		</$button>
 
 		<$button set="$:/state/slipstream/mobile-search" setTo="open" class="mn-mobile-nav-btn" tooltip="Search notes">
-			<span class="mn-mobile-nav-icon-wrap"><span class="mn-nav-icon">🔍</span></span>
+			<span class="mn-mobile-nav-icon-wrap" aria-hidden="true">
+				<svg class="mn-nav-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<circle cx="11" cy="11" r="8"/>
+					<line x1="21" y1="21" x2="16.65" y2="16.65"/>
+				</svg>
+			</span>
 			<span class="mn-nav-label">Search</span>
 		</$button>
 	<%endif%>
