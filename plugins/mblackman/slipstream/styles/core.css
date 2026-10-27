@@ -5,24 +5,32 @@
 =============================================================================*/
 
 /*-----------------------------------------------------------------------------
-  1. Design Tokens
+  1. Design Tokens & Suite Orchestrator Contract
 -----------------------------------------------------------------------------*/
-:root {
+:root,
+.mn-app-shell {
 	--mn-bg-app: var(--tpc-page-background, #f2f3f5);
 	--mn-bg-surface: var(--tpc-background, #ffffff);
 	--mn-bg-elevated: color-mix(in srgb, var(--tpc-background, #ffffff) 93%, var(--tpc-foreground, #222222) 7%);
 	--mn-bg-subtle: color-mix(in srgb, var(--tpc-background, #ffffff) 96.5%, var(--tpc-foreground, #222222) 3.5%);
 	--mn-bg-card: var(--mn-bg-subtle);
-	--mn-border-hairline: color-mix(in srgb, var(--tpc-foreground, #222222) 6%, transparent);
-	--mn-border-subtle: color-mix(in srgb, var(--tpc-foreground, #222222) 9%, transparent);
-	--mn-border-strong: color-mix(in srgb, var(--tpc-foreground, #222222) 16%, transparent);
+	--mn-bg-hover: color-mix(in srgb, var(--tpc-foreground, #222222) 5.5%, var(--tpc-background, #ffffff));
+	--mn-bg-active: color-mix(in srgb, var(--tpc-foreground, #222222) 9%, var(--tpc-background, #ffffff));
+	--mn-border-hairline: color-mix(in srgb, var(--tpc-foreground, #222222) 7%, transparent);
+	--mn-border-subtle: color-mix(in srgb, var(--tpc-foreground, #222222) 13%, transparent);
+	--mn-border-strong: color-mix(in srgb, var(--tpc-foreground, #222222) 22%, transparent);
 	--mn-text-main: var(--tpc-foreground, #222222);
 	--mn-text-muted: var(--tpc-muted-foreground, #707070);
+	--mn-fg-primary: var(--mn-text-main);
+	--mn-fg-secondary: color-mix(in srgb, var(--mn-text-main) 72%, var(--mn-text-muted) 28%);
+	--mn-fg-muted: color-mix(in srgb, var(--mn-text-main) 58%, var(--mn-text-muted) 42%);
 	--mn-accent: var(--tpc-primary, #7852ee);
+	--mn-accent-hover: color-mix(in srgb, var(--mn-accent) 86%, var(--mn-text-main));
 	--mn-accent-soft: color-mix(in srgb, var(--tpc-primary, #7852ee) 11%, transparent);
 	--mn-tag-bg: var(--tpc-tag-background, #eeeafc);
 	--mn-tag-fg: var(--tpc-tag-foreground, #7852ee);
 	--mn-danger: var(--tpc-alert-highlight, #e93147);
+	--mn-scrim: rgba(15, 23, 42, 0.45);
 	--mn-left-width: 272px;
 	--mn-right-width: 272px;
 	--mn-reading-width: var(--tp-tiddler-width, 840px);
@@ -38,10 +46,149 @@
 	--mn-radius-pill: 9999px;
 	--mn-shadow-tiddler: 0 12px 32px -8px rgba(15, 23, 42, 0.055), 0 2px 6px -1px rgba(15, 23, 42, 0.025);
 	--mn-shadow-card: 0 4px 16px -4px rgba(15, 23, 42, 0.035), 0 1px 3px -1px rgba(15, 23, 42, 0.015);
+	--mn-shadow-popover: 0 12px 32px -4px rgba(15, 23, 42, 0.16), 0 4px 12px -2px rgba(15, 23, 42, 0.08);
 	--mn-shadow-sheet: 0 -8px 30px rgba(15, 23, 42, 0.16);
 	--mn-transition: var(--tp-animation-duration, 180ms) cubic-bezier(0.2, 0, 0, 1);
 	--mn-font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 	--mn-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+	/*-------------------------------------------------------------------------
+	  TW5 Productivity Suite Token Contract (--suite-* & --tw-suite-*)
+	-------------------------------------------------------------------------*/
+	--suite-bg-canvas: var(--mn-bg-app);
+	--suite-surface-primary: var(--mn-bg-surface);
+	--suite-surface-card: var(--mn-bg-card);
+	--suite-surface-subtle: var(--mn-bg-subtle);
+	--suite-surface-elevated: var(--mn-bg-elevated);
+	--suite-surface-input: var(--mn-bg-surface);
+	--suite-surface-hover: var(--mn-bg-hover);
+	--suite-surface-active: var(--mn-bg-active);
+	--suite-surface-selected: var(--mn-accent-soft);
+	--suite-surface-dropzone: color-mix(in srgb, var(--mn-accent) 8%, var(--mn-bg-subtle));
+	--suite-scrim: var(--mn-scrim);
+
+	--suite-fg-primary: var(--mn-fg-primary);
+	--suite-fg-secondary: var(--mn-fg-secondary);
+	--suite-fg-muted: var(--mn-fg-muted);
+	--suite-fg-on-accent: #ffffff;
+
+	--suite-border-width: 1px;
+	--suite-border-width-accent: 3px;
+	--suite-border-hairline: var(--mn-border-hairline);
+	--suite-border-subtle: var(--mn-border-subtle);
+	--suite-border-strong: var(--mn-border-strong);
+
+	--suite-radius-xs: 6px;
+	--suite-radius-sm: 8px;
+	--suite-radius-md: 10px;
+	--suite-radius-lg: 14px;
+	--suite-radius-xl: 18px;
+	--suite-radius-pill: 9999px;
+
+	--suite-shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+	--suite-shadow-sm: var(--mn-shadow-card);
+	--suite-shadow-md: 0 6px 16px -4px rgba(15, 23, 42, 0.10), 0 2px 6px -1px rgba(15, 23, 42, 0.05);
+	--suite-shadow-lg: var(--mn-shadow-popover);
+	--suite-focus-ring: 0 0 0 3px color-mix(in srgb, var(--mn-accent) 28%, transparent);
+
+	--suite-space-1: 0.25rem;
+	--suite-space-2: 0.5rem;
+	--suite-space-3: 0.75rem;
+	--suite-space-4: 1rem;
+	--suite-space-5: 1.25rem;
+	--suite-space-6: 1.5rem;
+	--suite-space-8: 2rem;
+
+	--suite-card-padding-sm: 0.625rem 0.75rem;
+	--suite-card-padding-md: 0.875rem 1rem;
+	--suite-card-padding-lg: 1.125rem 1.25rem;
+	--suite-card-gap: 0.75rem;
+	--suite-section-gap: 1.25rem;
+
+	--suite-control-height-sm: 30px;
+	--suite-control-height-md: 36px;
+	--suite-control-height-lg: 44px;
+	--suite-touch-target: 36px;
+
+	--suite-measure-reading: 65ch;
+	--suite-width-reading: var(--mn-reading-width);
+	--suite-width-wide: var(--mn-wide-width);
+
+	--suite-font-sans: var(--mn-font-sans);
+	--suite-font-mono: var(--mn-font-mono);
+
+	--suite-text-xs: 0.75rem;
+	--suite-text-sm: 0.84rem;
+	--suite-text-base: 0.9375rem;
+	--suite-text-lg: 1.125rem;
+	--suite-text-xl: 1.375rem;
+
+	--suite-tracking-label: 0.04em;
+	--suite-leading-tight: 1.25;
+	--suite-leading-normal: 1.5;
+	--suite-leading-relaxed: 1.68;
+
+	--suite-accent: var(--mn-accent);
+	--suite-accent-hover: var(--mn-accent-hover);
+	--suite-accent-bg: var(--mn-accent-soft);
+	--suite-accent-border: color-mix(in srgb, var(--mn-accent) 30%, transparent);
+
+	--suite-status-success-accent: #10b981;
+	--suite-status-success-fg: color-mix(in srgb, #059669 82%, var(--mn-fg-primary));
+	--suite-status-success-bg: color-mix(in srgb, #10b981 13%, var(--mn-bg-surface));
+	--suite-status-success-border: color-mix(in srgb, #10b981 32%, transparent);
+
+	--suite-status-warning-accent: #f59e0b;
+	--suite-status-warning-fg: color-mix(in srgb, #d97706 82%, var(--mn-fg-primary));
+	--suite-status-warning-bg: color-mix(in srgb, #f59e0b 14%, var(--mn-bg-surface));
+	--suite-status-warning-border: color-mix(in srgb, #f59e0b 35%, transparent);
+
+	--suite-status-danger-accent: var(--mn-danger);
+	--suite-status-danger-fg: color-mix(in srgb, var(--mn-danger) 85%, var(--mn-fg-primary));
+	--suite-status-danger-bg: color-mix(in srgb, var(--mn-danger) 12%, var(--mn-bg-surface));
+	--suite-status-danger-border: color-mix(in srgb, var(--mn-danger) 32%, transparent);
+
+	--suite-status-info-accent: #3b82f6;
+	--suite-status-info-fg: color-mix(in srgb, #2563eb 82%, var(--mn-fg-primary));
+	--suite-status-info-bg: color-mix(in srgb, #3b82f6 12%, var(--mn-bg-surface));
+	--suite-status-info-border: color-mix(in srgb, #3b82f6 30%, transparent);
+
+	--tw-suite-bg-canvas: var(--suite-bg-canvas);
+	--tw-suite-surface-primary: var(--suite-surface-primary);
+	--tw-suite-surface-card: var(--suite-surface-card);
+	--tw-suite-surface-subtle: var(--suite-surface-subtle);
+	--tw-suite-surface-elevated: var(--suite-surface-elevated);
+	--tw-suite-surface-hover: var(--suite-surface-hover);
+	--tw-suite-surface-active: var(--suite-surface-active);
+	--tw-suite-surface-dropzone: var(--suite-surface-dropzone);
+	--tw-suite-fg-primary: var(--suite-fg-primary);
+	--tw-suite-fg-secondary: var(--suite-fg-secondary);
+	--tw-suite-fg-muted: var(--suite-fg-muted);
+	--tw-suite-border-subtle: var(--suite-border-subtle);
+	--tw-suite-border-strong: var(--suite-border-strong);
+	--tw-suite-radius-sm: var(--suite-radius-sm);
+	--tw-suite-radius-md: var(--suite-radius-md);
+	--tw-suite-radius-lg: var(--suite-radius-lg);
+	--tw-suite-radius-pill: var(--suite-radius-pill);
+	--tw-suite-accent: var(--suite-accent);
+}
+
+@media (max-width: 640px) {
+	:root,
+	.mn-app-shell {
+		--suite-control-height-sm: 36px;
+		--suite-control-height-md: 44px;
+		--suite-touch-target: 44px;
+		--suite-card-padding-md: 0.75rem 0.875rem;
+		--suite-card-padding-lg: 0.875rem 1rem;
+		--suite-card-gap: 0.625rem;
+		--suite-section-gap: 1rem;
+	}
+}
+
+.mn-app-shell .suite-tabular-nums,
+.mn-tabular-nums {
+	font-variant-numeric: tabular-nums;
 }
 
 /* Responsive Utility Classes */
@@ -1586,8 +1733,8 @@ body:has(.mn-app-shell).tc-body {
 	margin: 1.6rem 0;
 }
 
-.mn-story-container .tc-tiddler-body a.tc-tiddlylink,
-.mn-story-container .tc-tiddler-body a.tc-tiddlylink-external {
+.mn-story-container .tc-tiddler-body a.tc-tiddlylink:not([class*="-btn"]):not([class*="-card"]):not([class*="-item"]):not([class*="-pill"]):not([class*="-chip"]):not([class*="-tile"]),
+.mn-story-container .tc-tiddler-body a.tc-tiddlylink-external:not([class*="-btn"]):not([class*="-card"]):not([class*="-item"]):not([class*="-pill"]):not([class*="-chip"]):not([class*="-tile"]) {
 	color: var(--mn-accent);
 	font-weight: 500;
 	text-decoration: none;
@@ -1595,8 +1742,8 @@ body:has(.mn-app-shell).tc-body {
 	transition: border-color var(--mn-transition);
 }
 
-.mn-story-container .tc-tiddler-body a.tc-tiddlylink:hover,
-.mn-story-container .tc-tiddler-body a.tc-tiddlylink-external:hover {
+.mn-story-container .tc-tiddler-body a.tc-tiddlylink:not([class*="-btn"]):not([class*="-card"]):not([class*="-item"]):not([class*="-pill"]):not([class*="-chip"]):not([class*="-tile"]):hover,
+.mn-story-container .tc-tiddler-body a.tc-tiddlylink-external:not([class*="-btn"]):not([class*="-card"]):not([class*="-item"]):not([class*="-pill"]):not([class*="-chip"]):not([class*="-tile"]):hover {
 	border-bottom-color: var(--mn-accent);
 }
 
@@ -1769,32 +1916,47 @@ body:has(.mn-app-shell).tc-body {
 	border-radius: 5px;
 }
 
-/* Modern Edit Mode Frame Styling */
-.mn-story-container .tc-tiddler-edit-frame input.tc-edit-texteditor,
-.mn-story-container .tc-tiddler-edit-frame textarea.tc-edit-texteditor,
+/* Modern View & Edit Mode Form Control Normalization
+   Neutralizes legacy TiddlyWiki/Snowwhite square borders, inset shadows, andeditor backgrounds
+   on in-tiddler inputs, textareas, and selects while letting plugin classes override as needed. */
+.mn-story-container .tc-tiddler-frame input.tc-edit-texteditor,
+.mn-story-container .tc-tiddler-frame textarea.tc-edit-texteditor,
+.mn-story-container .tc-tiddler-frame select.tc-edit-texteditor,
 .mn-story-container .tc-tiddler-edit-frame input[type="text"],
 .mn-story-container .tc-tiddler-edit-frame input[type="search"],
 .mn-story-container .tc-tiddler-edit-frame input:not([type]) {
-	background: var(--mn-bg-subtle);
-	color: var(--mn-text-main);
-	border: 1px solid var(--mn-border-subtle);
-	border-radius: var(--mn-radius-sm);
+	background-color: var(--suite-surface-input, var(--mn-bg-surface));
+	color: var(--suite-fg-primary, var(--mn-text-main));
+	border: 1px solid var(--suite-border-subtle, var(--mn-border-subtle));
+	border-radius: var(--suite-radius-sm, var(--mn-radius-sm));
 	box-shadow: none;
-	padding: 0.5rem 0.75rem;
+	padding: 0.45rem 0.7rem;
 	font-family: inherit;
 	box-sizing: border-box;
-	transition: border-color var(--mn-transition), box-shadow var(--mn-transition), background var(--mn-transition);
+	transition: border-color var(--mn-transition), box-shadow var(--mn-transition), background-color var(--mn-transition);
 }
 
-.mn-story-container .tc-tiddler-edit-frame input.tc-edit-texteditor:focus,
-.mn-story-container .tc-tiddler-edit-frame textarea.tc-edit-texteditor:focus,
+.mn-story-container .tc-tiddler-frame input.tc-edit-texteditor:focus,
+.mn-story-container .tc-tiddler-frame textarea.tc-edit-texteditor:focus,
+.mn-story-container .tc-tiddler-frame select.tc-edit-texteditor:focus,
 .mn-story-container .tc-tiddler-edit-frame input[type="text"]:focus,
 .mn-story-container .tc-tiddler-edit-frame input[type="search"]:focus,
 .mn-story-container .tc-tiddler-edit-frame input:not([type]):focus {
 	outline: none;
-	background: var(--mn-bg-surface);
-	border-color: var(--mn-accent);
-	box-shadow: 0 0 0 3px var(--mn-accent-soft);
+	background-color: var(--suite-surface-input, var(--mn-bg-surface));
+	border-color: var(--suite-accent, var(--mn-accent));
+	box-shadow: var(--suite-focus-ring, 0 0 0 3px var(--mn-accent-soft));
+}
+
+.mn-story-container .tc-tiddler-edit-frame input.tc-edit-texteditor,
+.mn-story-container .tc-tiddler-edit-frame textarea.tc-edit-texteditor {
+	background-color: var(--mn-bg-subtle);
+	padding: 0.5rem 0.75rem;
+}
+
+.mn-story-container .tc-tiddler-edit-frame input.tc-edit-texteditor:focus,
+.mn-story-container .tc-tiddler-edit-frame textarea.tc-edit-texteditor:focus {
+	background-color: var(--mn-bg-surface);
 }
 
 .mn-story-container .tc-tiddler-edit-frame input.tc-titlebar.tc-edit-texteditor {
@@ -3030,8 +3192,8 @@ body:has(.mn-app-shell).tc-body {
 }
 
 .mn-field-remove-btn:hover {
-	background: color-mix(in srgb, var(--mn-danger, #ef4444) 15%, transparent);
-	color: var(--mn-danger, #ef4444);
+	background: var(--suite-status-danger-bg);
+	color: var(--suite-status-danger-accent);
 }
 
 .mn-field-value-input {
@@ -3209,14 +3371,14 @@ body:has(.mn-app-shell).tc-body {
 }
 
 .mn-card {
-	background: var(--mn-bg-subtle);
-	border: 1px solid var(--mn-border-hairline);
-	border-radius: var(--mn-radius-card);
-	padding: 1.25rem 1.4rem;
-	box-shadow: var(--mn-shadow-card);
+	background: var(--suite-surface-card, var(--mn-bg-subtle));
+	border: 1px solid var(--suite-border-subtle, var(--mn-border-hairline));
+	border-radius: var(--suite-radius-md, var(--mn-radius-card));
+	padding: var(--suite-card-padding-lg, 1.125rem 1.25rem);
+	box-shadow: var(--suite-shadow-sm, var(--mn-shadow-card));
 	display: flex;
 	flex-direction: column;
-	gap: 0.75rem;
+	gap: var(--suite-space-3, 0.75rem);
 	transition: transform var(--mn-transition), box-shadow var(--mn-transition), border-color var(--mn-transition);
 }
 
@@ -3225,7 +3387,7 @@ body:has(.mn-app-shell).tc-body {
 }
 
 .mn-card:hover {
-	border-color: var(--mn-border-subtle);
+	border-color: var(--suite-border-strong, var(--mn-border-subtle));
 }
 
 .mn-card-accented:hover {
@@ -3258,6 +3420,7 @@ body:has(.mn-app-shell).tc-body {
 	border-radius: var(--mn-radius-pill);
 	font-size: 0.73rem;
 	font-weight: 600;
+	font-variant-numeric: tabular-nums;
 	background: var(--mn-accent-soft);
 	color: var(--mn-accent);
 }
@@ -3268,9 +3431,10 @@ body:has(.mn-app-shell).tc-body {
 	gap: 0.35rem;
 	padding: 0.22rem 0.65rem;
 	background: var(--mn-bg-surface);
-	border: 1px solid var(--mn-border-hairline);
+	border: 1px solid var(--suite-border-subtle, var(--mn-border-hairline));
 	border-radius: var(--mn-radius-pill);
 	font-size: 0.78rem;
+	font-variant-numeric: tabular-nums;
 }
 
 .mn-prop-select {
@@ -3378,6 +3542,7 @@ body:has(.mn-app-shell).tc-body {
 	color: var(--mn-accent);
 	font-size: 0.68rem;
 	font-weight: 700;
+	font-variant-numeric: tabular-nums;
 	line-height: 1;
 }
 
@@ -3703,7 +3868,7 @@ body:has(.mn-app-shell).tc-body {
 
 .mn-mobile-nav-btn-danger:hover,
 .mn-mobile-nav-btn-danger:active {
-	color: var(--mn-danger, #ef4444);
+	color: var(--suite-status-danger-accent);
 }
 
 .mn-mobile-badge {
@@ -3718,6 +3883,7 @@ body:has(.mn-app-shell).tc-body {
 	color: var(--mn-bg-surface);
 	font-size: 0.62rem;
 	font-weight: 700;
+	font-variant-numeric: tabular-nums;
 	line-height: 15px;
 	text-align: center;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
@@ -3919,12 +4085,12 @@ body:has(.mn-app-shell .mn-backdrop) {
 
 .mn-sheet-action-item:has(button[aria-label*="delete" i]) button,
 .mn-sheet-action-item:has(button[title*="delete" i]) button {
-	color: var(--mn-danger, #ef4444);
+	color: var(--suite-status-danger-accent);
 }
 
 .mn-sheet-action-item:has(button[aria-label*="delete" i]) button svg,
 .mn-sheet-action-item:has(button[title*="delete" i]) button svg {
-	color: var(--mn-danger, #ef4444);
+	color: var(--suite-status-danger-accent);
 }
 
 /* Tiddler Info Box Styling (.tc-tiddler-info) */

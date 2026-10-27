@@ -74,7 +74,7 @@ type: text/vnd.tiddlywiki
 \end
 
 \function .snippet(tid, q)
-[<tid>!field:plugin-type[plugin]!field:plugin-type[theme]get[text]split[\n]limit[400]trim[]!is[blank]!regexp[^!+\s+]search:title<q>first[]]
+[<tid>!field:plugin-type[plugin]!field:plugin-type[theme]!field:type[text/css]get[text]split[\n]limit[400]trim[]!is[blank]!regexp[^!+\s+]search:title<q>first[]]
 :map[search-replace:g:regexp<clean-snippet-prefix>,[]search-replace:g[''],[]search-replace:g[//],[]search-replace:g[`],[]search-replace:g[~~],[]trim[]]
 :and[split[]first[105]join[]]
 \end

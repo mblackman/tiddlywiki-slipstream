@@ -6,6 +6,8 @@ type: application/x-tiddler-dictionary
 color-scheme: light
 
 alert-background: #fbe5e7
+alert-banner-background: #fbe5e7
+alert-banner-foreground: #b91c1c
 alert-border: #e93147
 alert-highlight: #e93147
 alert-muted-foreground: #707070
@@ -61,6 +63,8 @@ network-activity-foreground: <<colour primary>>
 notification-background: <<colour background>>
 notification-border: <<colour primary>>
 page-background: #f2f3f5
+positive-alert-banner-background: #dcffe4
+positive-alert-banner-foreground: #065f46
 pre-background: #fafafa
 pre-border: #e0e0e0
 primary: #7852ee
