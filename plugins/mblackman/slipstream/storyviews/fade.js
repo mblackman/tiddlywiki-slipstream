@@ -389,8 +389,47 @@ FadeStoryView.prototype.remove = function(widget) {
 		return;
 	}
 
-	// Reveal adjacent tiddler in story river
-	var toWidget = widget.previousSibling() || widget.nextSibling();
+	// Reveal target tiddler when closing the active tiddler:
+	// In "previous" mode (default), prefer the most recently visited open tiddler from history;
+	// in "story" mode (or if no history match exists), reveal the adjacent tiddler in the story river.
+	var toWidget = null;
+	var wiki = this.listWidget.wiki;
+	var closeTargetMode = wiki ? (wiki.getTiddlerText("$:/config/slipstream/close-tiddler-target", "previous") || "previous").trim() : "previous";
+	if(closeTargetMode !== "story" && wiki && this.listWidget.historyTitle) {
+		var closedBaseTitle = (closedTitle && closedTitle.indexOf("Draft of '") === 0)
+			? closedTitle.substring(10, closedTitle.length - 1)
+			: closedTitle;
+		var historyList = wiki.getTiddlerDataCached(this.listWidget.historyTitle, []);
+		if(Array.isArray(historyList)) {
+			for(var h = historyList.length - 1; h >= 0; h--) {
+				var hTitle = historyList[h] && historyList[h].title;
+				if(!hTitle || hTitle === closedTitle || hTitle === closedBaseTitle) {
+					continue;
+				}
+				var candidateIdx = this.listWidget.findListItem(0, hTitle);
+				if(candidateIdx === undefined) {
+					if(hTitle.indexOf("Draft of '") === 0) {
+						var origTitle = hTitle.substring(10, hTitle.length - 1);
+						if(origTitle !== closedTitle && origTitle !== closedBaseTitle) {
+							candidateIdx = this.listWidget.findListItem(0, origTitle);
+						}
+					} else {
+						var draftTitle = "Draft of '" + hTitle + "'";
+						if(draftTitle !== closedTitle) {
+							candidateIdx = this.listWidget.findListItem(0, draftTitle);
+						}
+					}
+				}
+				if(candidateIdx !== undefined && this.listWidget.children[candidateIdx] !== widget) {
+					toWidget = this.listWidget.children[candidateIdx];
+					break;
+				}
+			}
+		}
+	}
+	if(!toWidget) {
+		toWidget = widget.previousSibling() || widget.nextSibling();
+	}
 	var toWidgetDomNode = toWidget && toWidget.findFirstDomNode();
 	var toWidgetTitle = toWidget && toWidget.parseTreeNode ? toWidget.parseTreeNode.itemTitle : null;
 

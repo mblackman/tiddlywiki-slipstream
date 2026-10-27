@@ -36,6 +36,13 @@ type: text/vnd.tiddlywiki
 			<option value="classic">Classic (Standard vertical river)</option>
 		</$select>
 	</div>
+	<div class="mn-object-prop-bar">
+		<label class="mn-prop-label" style="min-width:240px;">When Closing a Note:</label>
+		<$select tiddler="$:/config/slipstream/close-tiddler-target" default="previous" class="mn-prop-select">
+			<option value="previous">Return to Previously Opened Note (Default: navigation history)</option>
+			<option value="story">Adjacent Note in Story List (Current river order)</option>
+		</$select>
+	</div>
 </div>
 
 <div class="mn-card" style="margin-bottom:1rem;">

@@ -187,34 +187,153 @@ exports.scrollToHeading = function(event, docOverride, winOverride) {
 	return false;
 };
 
+exports.resolveNextActiveTiddler = function(wiki, closedTitle, storyList, previousStoryList) {
+	wiki = wiki || $tw.wiki;
+	storyList = storyList || wiki.getTiddlerList("$:/StoryList");
+	if(!storyList || storyList.length === 0) {
+		return "";
+	}
+	if(closedTitle) {
+		// 1. If closedTitle was a non-draft and its draft is in StoryList, transition to draft
+		var draftTitle = "Draft of '" + closedTitle + "'";
+		if(storyList.indexOf(draftTitle) !== -1) {
+			return draftTitle;
+		}
+		// 2. If closedTitle was a draft that was just saved/canceled, transition to original note
+		if(closedTitle.indexOf("Draft of '") === 0) {
+			var origTitle = closedTitle.substring(10, closedTitle.length - 1);
+			if(storyList.indexOf(origTitle) !== -1) {
+				return origTitle;
+			}
+		}
+	}
+
+	var closeTargetMode = (wiki.getTiddlerText("$:/config/slipstream/close-tiddler-target", "previous") || "previous").trim();
+
+	// 3. When configured to return to previously opened note ("previous"), walk backwards through $:/HistoryList
+	if(closeTargetMode !== "story") {
+		var closedBaseTitle = (closedTitle && closedTitle.indexOf("Draft of '") === 0)
+			? closedTitle.substring(10, closedTitle.length - 1)
+			: closedTitle;
+		var historyList = wiki.getTiddlerDataCached("$:/HistoryList", []);
+		if(Array.isArray(historyList)) {
+			for(var i = historyList.length - 1; i >= 0; i--) {
+				var entryTitle = historyList[i] && historyList[i].title;
+				if(!entryTitle || entryTitle === closedTitle || entryTitle === closedBaseTitle) {
+					continue;
+				}
+				if(storyList.indexOf(entryTitle) !== -1) {
+					return entryTitle;
+				}
+				// If history entry was a draft whose saved note is now in StoryList (or vice-versa)
+				if(entryTitle.indexOf("Draft of '") === 0) {
+					var entryOrig = entryTitle.substring(10, entryTitle.length - 1);
+					if(entryOrig !== closedTitle && entryOrig !== closedBaseTitle && storyList.indexOf(entryOrig) !== -1) {
+						return entryOrig;
+					}
+				} else {
+					var entryDraft = "Draft of '" + entryTitle + "'";
+					if(entryDraft !== closedTitle && storyList.indexOf(entryDraft) !== -1) {
+						return entryDraft;
+					}
+				}
+			}
+		}
+	}
+
+	// 4. Fallback or "story" mode: adjacent note in StoryList (or first open note)
+	if(closeTargetMode === "story" && closedTitle && Array.isArray(previousStoryList)) {
+		var oldIdx = previousStoryList.indexOf(closedTitle);
+		if(oldIdx !== -1) {
+			// Prefer the previous sibling in the story river (matching FadeStoryView.remove), or next sibling
+			for(var p = oldIdx - 1; p >= 0; p--) {
+				if(storyList.indexOf(previousStoryList[p]) !== -1) {
+					return previousStoryList[p];
+				}
+			}
+			for(var n = oldIdx + 1; n < previousStoryList.length; n++) {
+				if(storyList.indexOf(previousStoryList[n]) !== -1) {
+					return previousStoryList[n];
+				}
+			}
+		}
+	}
+
+	return storyList[0];
+};
+
+exports.popClosedFromHistory = function(historyData, closedTitle, nextCurrent) {
+	if(!Array.isArray(historyData)) {
+		return nextCurrent ? [{ title: nextCurrent }] : [];
+	}
+	var closedBaseTitle = (closedTitle && closedTitle.indexOf("Draft of '") === 0)
+		? closedTitle.substring(10, closedTitle.length - 1)
+		: closedTitle;
+	var closedDraftTitle = closedBaseTitle ? ("Draft of '" + closedBaseTitle + "'") : "";
+	var trimmed = historyData.slice();
+	// Pop trailing entries matching the closed tiddler (and its draft/base counterpart)
+	// so the stack naturally unwinds back to the previously opened note
+	while(trimmed.length > 0) {
+		var topTitle = trimmed[trimmed.length - 1] && trimmed[trimmed.length - 1].title;
+		if(topTitle === closedTitle || (closedBaseTitle && topTitle === closedBaseTitle) || (closedDraftTitle && topTitle === closedDraftTitle)) {
+			trimmed.pop();
+		} else {
+			break;
+		}
+	}
+	if(nextCurrent) {
+		var newTop = trimmed.length > 0 ? (trimmed[trimmed.length - 1] && trimmed[trimmed.length - 1].title) : "";
+		if(newTop !== nextCurrent) {
+			trimmed.push({ title: nextCurrent });
+		}
+	}
+	return trimmed;
+};
+
 exports.startup = function() {
+	var lastStoryList = $tw.wiki.getTiddlerList("$:/StoryList");
+
 	$tw.wiki.addEventListener("change", function(changes) {
 		if(changes["$:/StoryList"]) {
+			var prevStoryList = lastStoryList;
 			var storyList = $tw.wiki.getTiddlerList("$:/StoryList");
+			lastStoryList = storyList;
 			var historyTid = $tw.wiki.getTiddler("$:/HistoryList");
 			var current = historyTid ? (historyTid.fields["current-tiddler"] || "") : "";
 			if(current && storyList.indexOf(current) === -1) {
-				var nextCurrent = "";
-				// 1. If current was a non-draft and its draft is in StoryList, transition to draft
-				var draftTitle = "Draft of '" + current + "'";
-				if(storyList.indexOf(draftTitle) !== -1) {
-					nextCurrent = draftTitle;
-				} else if(current.indexOf("Draft of '") === 0) {
-					// 2. If current was a draft that was just saved/canceled, transition to original note
-					var origTitle = current.substring(10, current.length - 1);
-					if(storyList.indexOf(origTitle) !== -1) {
-						nextCurrent = origTitle;
-					}
+				var nextCurrent = exports.resolveNextActiveTiddler($tw.wiki, current, storyList, prevStoryList);
+				var isDraftTransition = (nextCurrent === "Draft of '" + current + "'") ||
+					(current.indexOf("Draft of '") === 0 && nextCurrent === current.substring(10, current.length - 1));
+				var closeTargetMode = ($tw.wiki.getTiddlerText("$:/config/slipstream/close-tiddler-target", "previous") || "previous").trim();
+				if(!isDraftTransition && closeTargetMode !== "story") {
+					var historyData = $tw.wiki.getTiddlerData("$:/HistoryList", []);
+					var updatedHistory = exports.popClosedFromHistory(historyData, current, nextCurrent);
+					$tw.wiki.setTiddlerData("$:/HistoryList", updatedHistory, { "current-tiddler": nextCurrent });
+				} else {
+					$tw.wiki.setText("$:/HistoryList", "current-tiddler", null, nextCurrent);
 				}
-				if(!nextCurrent) {
-					nextCurrent = storyList.length > 0 ? storyList[0] : "";
-				}
-				$tw.wiki.setText("$:/HistoryList", "current-tiddler", null, nextCurrent);
 			} else if(current) {
 				// If current is still in StoryList, check if a draft of current was newly opened
 				var activeDraft = "Draft of '" + current + "'";
 				if(storyList.indexOf(activeDraft) !== -1) {
 					$tw.wiki.setText("$:/HistoryList", "current-tiddler", null, activeDraft);
+				} else {
+					// Clean up any closed non-active tiddlers from $:/HistoryList so closing a later tiddler won't try to return to a closed one
+					var existingHistory = $tw.wiki.getTiddlerDataCached("$:/HistoryList", []);
+					if(Array.isArray(existingHistory) && existingHistory.length > 0) {
+						var filteredHistory = existingHistory.filter(function(item) {
+							var t = item && item.title;
+							if(!t) return false;
+							if(storyList.indexOf(t) !== -1) return true;
+							if(t.indexOf("Draft of '") === 0) {
+								return storyList.indexOf(t.substring(10, t.length - 1)) !== -1;
+							}
+							return storyList.indexOf("Draft of '" + t + "'") !== -1;
+						});
+						if(filteredHistory.length !== existingHistory.length) {
+							$tw.wiki.setTiddlerData("$:/HistoryList", filteredHistory, { "current-tiddler": current });
+						}
+					}
 				}
 			}
 		}

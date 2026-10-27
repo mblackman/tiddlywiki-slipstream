@@ -2263,7 +2263,7 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
         syncHistory.scrollToHeading({ paramObject: ev }, mockDoc, mockWin);
       }
 
-      // Each of the 5 "Live Example" outline clicks must scroll to its distinct section top (200, 550, 950, 1250, 1580 minus offset 72)
+      //Each of the 5 "Live Example" outline clicks must scroll to its distinct section top (200, 550, 950, 1250, 1580 minus offset 72)
       expect(scrolledPositions).toEqual([
         200 - 72,
         550 - 72,
@@ -2273,6 +2273,175 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
       ]);
     } finally {
       $tw.wiki.deleteTiddler("$:/state/slipstream/inspector-tab");
+    }
+  });
+
+  test("returns to previously opened tiddler on close by default, and respects $:/config/slipstream/close-tiddler-target setting", async () => {
+    const views = {};
+    $tw.modules.applyMethods("storyview", views);
+    const FadeStoryView = views.fade;
+    FadeStoryView.clearSavedPositions();
+
+    const origWindow = global.window;
+    const origSandboxWindow = $tw.utils.sandbox ? $tw.utils.sandbox.window : undefined;
+    let currentScrollY = 0;
+    const mockWindow = {
+      get pageYOffset() { return currentScrollY; },
+      scrollTo: jest.fn((opts) => {
+        if (typeof opts === "object" && typeof opts.top === "number") {
+          currentScrollY = opts.top;
+        } else if (typeof opts === "number") {
+          currentScrollY = opts;
+        }
+      }),
+      addEventListener: jest.fn(),
+    };
+    global.window = mockWindow;
+    if ($tw.utils.sandbox) {
+      $tw.utils.sandbox.window = mockWindow;
+    }
+
+    try {
+      // 1. Verify Settings UI renders the "When Closing a Note" selector bound to $:/config/slipstream/close-tiddler-target
+      const settingsHtml = $tw.wiki.renderTiddler("text/html", "$:/plugins/mblackman/slipstream/settings");
+      expect(settingsHtml).toContain("When Closing a Note:");
+      expect(settingsHtml).toContain("Return to Previously Opened Note");
+      expect(settingsHtml).toContain("Adjacent Note in Story List");
+
+      // 2. Test sync-history.js and FadeStoryView in default "previous" mode (navigation history stack)
+      $tw.wiki.deleteTiddler("$:/config/slipstream/close-tiddler-target");
+
+      // Suppose StoryList has [Note A, Note B, Note C]
+      // User opened Note A, then Note C (skipping Note B in navigation history)
+      $tw.wiki.addTiddler({
+        title: "$:/StoryList",
+        list: ["Note A", "Note B", "Note C"],
+      });
+      $tw.wiki.setTiddlerData(
+        "$:/HistoryList",
+        [{ title: "Note A" }, { title: "Note C" }],
+        { "current-tiddler": "Note C" }
+      );
+      await new Promise((resolve) => setTimeout(resolve, 40));
+
+      function createMockNode() {
+        const styles = { display: "none" };
+        return {
+          nodeType: 1,
+          style: {
+            get display() { return styles.display; },
+            set display(v) { styles.display = v; },
+            removeProperty: (p) => { delete styles[p]; },
+            setProperty: (p, v) => { styles[p] = v; },
+          },
+          className: "",
+        };
+      }
+
+      const nodeA = createMockNode();
+      const nodeB = createMockNode();
+      const nodeC = createMockNode();
+
+      const makeListWidget = () => {
+        const lw = {
+          wiki: $tw.wiki,
+          historyTitle: "$:/HistoryList",
+          children: [
+            {
+              parseTreeNode: { itemTitle: "Note A" },
+              findFirstDomNode: () => nodeA,
+              previousSibling: () => null,
+              nextSibling: () => lw.children[1],
+              removeChildDomNodes: jest.fn(),
+            },
+            {
+              parseTreeNode: { itemTitle: "Note B" },
+              findFirstDomNode: () => nodeB,
+              previousSibling: () => lw.children[0],
+              nextSibling: () => lw.children[2],
+              removeChildDomNodes: jest.fn(),
+            },
+            {
+              parseTreeNode: { itemTitle: "Note C" },
+              findFirstDomNode: () => nodeC,
+              previousSibling: () => lw.children[1],
+              nextSibling: () => null,
+              removeChildDomNodes: jest.fn(),
+            },
+          ],
+          findListItem: (start, title) => {
+            for (let i = start; i < lw.children.length; i++) {
+              if (lw.children[i].parseTreeNode.itemTitle === title) return i;
+            }
+            return undefined;
+          },
+        };
+        return lw;
+      };
+
+      const lwPrev = makeListWidget();
+      const storyViewPrev = new FadeStoryView(lwPrev);
+      expect(storyViewPrev.currentTiddlerTitle).toBe("Note C");
+      expect(nodeC.style.display).toBe("block");
+      expect(nodeA.style.display).toBe("none");
+      expect(nodeB.style.display).toBe("none");
+
+      // Close Note C in FadeStoryView: should reveal Note A (previously opened), NOT Note B (adjacent sibling)
+      storyViewPrev.remove(lwPrev.children[2]);
+      expect(storyViewPrev.currentTiddlerTitle).toBe("Note A");
+      expect(nodeA.style.display).toBe("block");
+      expect(nodeB.style.display).toBe("none");
+
+      // Also verify sync-history.js updates $:/HistoryList!!current-tiddler to Note A when Note C is removed from $:/StoryList
+      $tw.wiki.addTiddler({
+        title: "$:/StoryList",
+        list: ["Note A", "Note B"],
+      });
+      await new Promise((resolve) => setTimeout(resolve, 40));
+
+      let historyTid = $tw.wiki.getTiddler("$:/HistoryList");
+      expect(historyTid.fields["current-tiddler"]).toBe("Note A");
+
+      // 3. Test "story" mode (Adjacent Note in Story List / previous river behavior)
+      $tw.wiki.addTiddler({
+        title: "$:/config/slipstream/close-tiddler-target",
+        text: "story",
+      });
+      $tw.wiki.addTiddler({
+        title: "$:/StoryList",
+        list: ["Note A", "Note B", "Note C"],
+      });
+      $tw.wiki.setTiddlerData(
+        "$:/HistoryList",
+        [{ title: "Note A" }, { title: "Note C" }],
+        { "current-tiddler": "Note C" }
+      );
+      await new Promise((resolve) => setTimeout(resolve, 40));
+
+      const lwStory = makeListWidget();
+      const storyViewStory = new FadeStoryView(lwStory);
+      expect(storyViewStory.currentTiddlerTitle).toBe("Note C");
+
+      // Close Note C in "story" mode: should reveal Note B (previousSibling in StoryList)
+      storyViewStory.remove(lwStory.children[2]);
+      expect(storyViewStory.currentTiddlerTitle).toBe("Note B");
+      expect(nodeB.style.display).toBe("block");
+
+      $tw.wiki.addTiddler({
+        title: "$:/StoryList",
+        list: ["Note A", "Note B"],
+      });
+      await new Promise((resolve) => setTimeout(resolve, 40));
+
+      historyTid = $tw.wiki.getTiddler("$:/HistoryList");
+      expect(historyTid.fields["current-tiddler"]).toBe("Note B");
+    } finally {
+      $tw.wiki.deleteTiddler("$:/config/slipstream/close-tiddler-target");
+      global.window = origWindow;
+      if ($tw.utils.sandbox) {
+        $tw.utils.sandbox.window = origSandboxWindow;
+      }
+      FadeStoryView.clearSavedPositions();
     }
   });
 });
