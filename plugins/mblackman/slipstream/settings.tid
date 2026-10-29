@@ -23,14 +23,14 @@ type: text/vnd.tiddlywiki
 	<h4 class="mn-nav-heading">Workspace & Reading Modes</h4>
 	<div class="mn-object-prop-bar">
 		<label class="mn-prop-label" style="min-width:240px;">Desktop Workspace Mode:</label>
-		<$select tiddler="$:/config/slipstream/desktop-mode" default="document" class="mn-prop-select">
+		<$select tiddler="$:/config/slipstream/desktop-mode" default="document" class="mn-select">
 			<option value="document">Focused Document (Default: single note with pinned header and sidebar switcher)</option>
 			<option value="river">Story River (Traditional multi-note vertical river)</option>
 		</$select>
 	</div>
 	<div class="mn-object-prop-bar">
 		<label class="mn-prop-label" style="min-width:240px;">Storyview Transition:</label>
-		<$select tiddler="$:/config/slipstream/storyview-override" default="auto" class="mn-prop-select">
+		<$select tiddler="$:/config/slipstream/storyview-override" default="auto" class="mn-select">
 			<option value="auto">Automatic (Cross-fade in Focused Document and mobile; classic in Story River)</option>
 			<option value="fade">Cross-Fade (Smooth transition between active notes)</option>
 			<option value="classic">Classic (Standard vertical river)</option>
@@ -38,7 +38,7 @@ type: text/vnd.tiddlywiki
 	</div>
 	<div class="mn-object-prop-bar">
 		<label class="mn-prop-label" style="min-width:240px;">When Closing a Note:</label>
-		<$select tiddler="$:/config/slipstream/close-tiddler-target" default="previous" class="mn-prop-select">
+		<$select tiddler="$:/config/slipstream/close-tiddler-target" default="previous" class="mn-select">
 			<option value="previous">Return to Previously Opened Note (Default: navigation history)</option>
 			<option value="story">Adjacent Note in Story List (Current river order)</option>
 		</$select>
@@ -76,7 +76,7 @@ type: text/vnd.tiddlywiki
 		<label class="mn-prop-label" style="min-width:240px;">Pinned Shortcuts Filter:</label>
 		<$edit-text tiddler="$:/config/slipstream/pinned-filter" field="text" default="[all[shadows+tiddlers]tag[$:/tags/Pinned]!has[draft.of]]" tag="input" class="mn-search-input"/>
 	</div>
-	<div style="margin:0.75rem 0;padding:0.75rem 0.9rem;border-radius:var(--mn-radius-sm);background:var(--mn-bg-subtle, var(--mn-bg-elevated));border:1px solid var(--mn-border);">
+	<div style="margin:0.75rem 0;padding:0.75rem 0.9rem;border-radius:var(--mn-radius-sm);background:var(--mn-bg-subtle, var(--mn-bg-elevated));border:1px solid var(--mn-border-subtle);">
 		<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem;">
 			<span style="font-weight:600;font-size:0.84rem;">Reorder Pinned Shortcuts</span>
 			<span class="mn-prop-label"><$count filter="[subfilter<.pinned-filter>]"/> items</span>
@@ -91,7 +91,7 @@ type: text/vnd.tiddlywiki
 					next={{{ [enlist<currentOrder>after<pinItem>] }}}
 					nextAfter={{{ [enlist<currentOrder>after<next>] }}}
 				>
-					<div class="mn-nav-item" style="background:var(--mn-bg-surface);border:1px solid var(--mn-border);margin-bottom:0.35rem;padding:0.35rem 0.6rem;display:flex;align-items:center;justify-content:flex-start;text-align:left;">
+					<div class="mn-nav-item" style="background:var(--mn-bg-surface);border:1px solid var(--mn-border-subtle);margin-bottom:0.35rem;padding:0.35rem 0.6rem;display:flex;align-items:center;justify-content:flex-start;text-align:left;">
 						<span style="display:inline-flex;align-items:center;justify-content:flex-start;gap:0.45rem;min-width:0;flex:1 1 auto;text-align:left;">
 							<%if [<pinItem>get[ss-icon]!is[blank]] %>
 								<span style="flex-shrink:0;"><$text text={{{ [<pinItem>get[ss-icon]] }}}/></span>
@@ -136,7 +136,7 @@ type: text/vnd.tiddlywiki
 	</div>
 	<div class="mn-object-prop-bar">
 		<label class="mn-prop-label" style="min-width:240px;">Sidebar Navigation Tabs:</label>
-		<$select tiddler="$:/config/slipstream/sidebar-tabs-style" default="wrap" class="mn-prop-select">
+		<$select tiddler="$:/config/slipstream/sidebar-tabs-style" default="wrap" class="mn-select">
 			<option value="wrap">Wrapping Pills (Default: wraps tabs across lines)</option>
 			<option value="scroll">Scrollable Strip (Single horizontal scrolling line)</option>
 		</$select>

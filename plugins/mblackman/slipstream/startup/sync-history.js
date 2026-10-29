@@ -171,9 +171,10 @@ exports.scrollToHeading = function(event, docOverride, winOverride) {
 	var rect = targetHeading.getBoundingClientRect();
 	var scrollY = win.pageYOffset !== undefined ? win.pageYOffset : (doc.documentElement.scrollTop || 0);
 	var top = Math.max(0, rect.top + scrollY - offset);
+	var prefersReducedMotion = typeof win.matchMedia === "function" && win.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 	try {
-		win.scrollTo({ top: top, left: 0, behavior: "smooth" });
+		win.scrollTo({ top: top, left: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
 	} catch(e) {
 		win.scrollTo(0, top);
 	}
@@ -346,6 +347,12 @@ exports.startup = function() {
 
 		// Global Search & Quick Switcher Shortcut Listener (Cmd/Ctrl+K or Ctrl/Cmd+Shift+F)
 		if(typeof document !== "undefined" && typeof window !== "undefined") {
+			document.addEventListener("focusin", function(event) {
+				var target = event && event.target;
+				if(target && target.classList && target.classList.contains("mn-field-input-name") && !target.getAttribute("list")) {
+					target.setAttribute("list", "mn-existing-fields-list");
+				}
+			});
 			document.addEventListener("keydown", function(event) {
 				var isCmdOrCtrl = event.metaKey || event.ctrlKey;
 				var keyLower = (event.key || "").toLowerCase();

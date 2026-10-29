@@ -71,6 +71,26 @@ type: text/vnd.tiddlywiki
 			</div>
 			<div class="mn-pinned-right">
 				<$button
+					class={{{ [[mn-pill-btn mn-wide-toggle-btn]] [.is-wide[]match[yes]then[mn-pill-btn-subtle-active]] +[join[ ]] }}}
+					tooltip={{{ [.is-wide[]match[yes]then[Switch to standard reading width]else[Expand note to wide layout]] }}}
+					aria-label="Toggle wide layout"
+				>
+					<%if [.is-wide[]match[yes]] %>
+						<$action-listops $tiddler=<<activeTid>> $tags="-[[Wide]]"/>
+						<%if [<activeTid>field:page-width[wide]] %>
+							<$action-deletefield $tiddler=<<activeTid>> page-width/>
+						<%endif%>
+					<%else%>
+						<$action-listops $tiddler=<<activeTid>> $tags="[[Wide]]"/>
+					<%endif%>
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						<polyline points="15 3 21 3 21 9"/>
+						<polyline points="9 21 3 21 3 15"/>
+						<line x1="21" y1="3" x2="14" y2="10"/>
+						<line x1="3" y1="21" x2="10" y2="14"/>
+					</svg>
+				</$button>
+				<$button
 					class={{{ [[mn-pill-btn mn-pin-btn]] [<activeTid>tag[$:/tags/Pinned]then[mn-pill-btn-subtle-active]] +[join[ ]] }}}
 					tooltip={{{ [<activeTid>tag[$:/tags/Pinned]then[Unpin note from shortcuts]else[Pin note to shortcuts]] }}}
 					aria-label="Pin note"

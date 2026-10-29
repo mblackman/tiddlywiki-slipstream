@@ -70,7 +70,7 @@ type: text/vnd.tiddlywiki
 
 					<!-- Three-Zone Workspace Grid -->
 					<div class="mn-workspace-grid">
-						<aside class="mn-panel-left">
+						<aside class="mn-panel-left" aria-label="Workspace navigation">
 							{{$:/plugins/mblackman/slipstream/ui/LeftNav}}
 							<div class="mn-resizer mn-resizer-left" data-side="left" title="Drag to resize sidebar (Double-click to reset)" aria-label="Resize left sidebar" role="separator" aria-orientation="vertical" aria-valuenow={{{ [.left-width[]search-replace[px],[]] }}} aria-valuemin="180" aria-valuemax="650" tabindex="0">
 								<div class="mn-resizer-handle"></div>
@@ -100,7 +100,7 @@ type: text/vnd.tiddlywiki
 							</section>
 						</main>
 
-						<aside class="mn-panel-right">
+						<aside class="mn-panel-right" aria-label="Note context inspector">
 							<div class="mn-resizer mn-resizer-right" data-side="right" title="Drag to resize context inspector (Double-click to reset)" aria-label="Resize right sidebar" role="separator" aria-orientation="vertical" aria-valuenow={{{ [.right-width[]search-replace[px],[]] }}} aria-valuemin="180" aria-valuemax="650" tabindex="0">
 								<div class="mn-resizer-handle"></div>
 							</div>

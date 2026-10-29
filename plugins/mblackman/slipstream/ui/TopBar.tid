@@ -173,6 +173,8 @@ type: text/vnd.tiddlywiki
 <$tiddler tiddler=<<itemTid>>>
 	<$button
 		to=<<itemTid>>
+		role="option"
+		aria-selected={{{ [<itemTid>match<activeSel>then[true]else[false]] }}}
 		class={{{ [[mn-nav-item mn-search-result-item tc-btn-invisible]] [<itemTid>match<activeSel>then[mn-search-item-selected]] +[join[ ]] }}}
 	>
 		<div class="mn-search-result-main">
@@ -519,8 +521,22 @@ type: text/vnd.tiddlywiki
 		<%endif%>
 	</div>
 
-	<!-- TopBar Right Controls: Desktop Right Inspector Toggle vs Mobile Pin Button -->
+	<!-- TopBar Right Controls: Desktop New Note + Right Inspector Toggle vs Mobile Pin Button -->
 	<div class="mn-topbar-right">
+		<!-- Desktop-Only: Quick New Note Action -->
+		<$button
+			message="tm-new-tiddler"
+			class="mn-pill-btn mn-desktop-only mn-topbar-new-btn"
+			tooltip="Create a new note"
+			aria-label="Create a new note"
+		>
+			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+				<line x1="12" y1="5" x2="12" y2="19"/>
+				<line x1="5" y1="12" x2="19" y2="12"/>
+			</svg>
+			<span>New</span>
+		</$button>
+
 		<!-- Desktop-Only: Right Context Inspector Toggle -->
 		<$button
 			set="$:/state/slipstream/right-panel"

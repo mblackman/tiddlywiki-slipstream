@@ -168,7 +168,7 @@ type: text/vnd.tiddlywiki
 <%if [{$:/state/slipstream/mobile-context-sheet}match[open]then<.has-active>match[yes]then<.is-draft>match[no]] %>
 	<div class="mn-backdrop">
 		<$button set="$:/state/slipstream/mobile-context-sheet" setTo="closed" class="mn-backdrop-dismiss tc-btn-invisible" aria-label="Close context sheet"/>
-		<section class="mn-bottom-sheet">
+		<section class="mn-bottom-sheet" role="dialog" aria-modal="true" aria-label="Note Context">
 			<$let zoomedTiddler=<<.active-tiddler>>>
 				<$tiddler tiddler=<<zoomedTiddler>>>
 					<header class="mn-card-header mn-bottom-sheet-header">
@@ -194,7 +194,7 @@ type: text/vnd.tiddlywiki
 <%if [{$:/state/slipstream/mobile-action-sheet}match[open]then<.has-active>match[yes]then<.is-draft>match[no]] %>
 	<div class="mn-backdrop">
 		<$button set="$:/state/slipstream/mobile-action-sheet" setTo="closed" class="mn-backdrop-dismiss tc-btn-invisible" aria-label="Close options sheet"/>
-		<section class="mn-bottom-sheet">
+		<section class="mn-bottom-sheet" role="dialog" aria-modal="true" aria-label="Note Actions">
 			<$let zoomedTiddler=<<.active-tiddler>>>
 				<$tiddler tiddler=<<zoomedTiddler>>>
 					<$let targetTemplate={{{ [<currentTiddler>] :cascade[all[shadows+tiddlers]tag[$:/tags/StoryTiddlerTemplateFilter]!is[draft]get[text]] :and[has[title]else[$:/core/ui/ViewTemplate]] }}}>

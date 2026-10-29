@@ -19,6 +19,9 @@ var activeStoryView = null;
 
 // Modern mobile note apps (Obsidian, Apple Notes, Bear, Craft) use 120-150ms for note transitions
 function getAnimationDuration(wiki) {
+	if(typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+		return 0;
+	}
 	var animDuration = $tw.utils.getAnimationDuration();
 	if(typeof animDuration === "number" && animDuration === 0) {
 		return 0;

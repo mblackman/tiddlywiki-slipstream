@@ -158,16 +158,17 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
     expect(html).toContain("mn-prop-pill");
     expect(html).toContain("mn-progress-track");
 
-    // Verify clean desktop TopBar: center search & right inspector toggle present,
-    // but no redundant New Note, settings cog, doc/river toggle, or mobile search button
+    // Verify clean desktop TopBar: center search, New Note button, & right inspector toggle present,
+    // but no redundant settings cog, doc/river toggle, or mobile search button
     const topBarHtml = $tw.wiki.renderTiddler(
       "text/html",
       "$:/plugins/mblackman/slipstream/ui/TopBar"
     );
     expect(topBarHtml).toContain("mn-search-input");
+    expect(topBarHtml).toContain("mn-topbar-new-btn");
+    expect(topBarHtml).toContain("Create a new note");
     expect(topBarHtml).toContain("Toggle Right Context Inspector");
     expect(topBarHtml).not.toContain("Toggle Workspace View Mode");
-    expect(topBarHtml).not.toContain("+ New Note");
     expect(topBarHtml).not.toContain("Open Control Panel");
     expect(topBarHtml).not.toContain("Search notes");
 
@@ -2443,6 +2444,111 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
       }
       FadeStoryView.clearSavedPositions();
     }
+  });
+
+  test("enforces MASTER.md design system tokens, oklab surface progression, and UX enhancements", () => {
+    const css = $tw.wiki.getTiddlerText(
+      "$:/plugins/mblackman/slipstream/styles/core.css"
+    );
+
+    // 1. MASTER.md Token & Color Mixing Contract
+    expect(css).toContain("color-scheme: light dark;");
+    expect(css).toContain("accent-color: var(--suite-accent);");
+    expect(css).not.toContain("color-mix(in srgb");
+    expect(css).toContain(
+      "--mn-bg-card: color-mix(in oklab, var(--tpc-background, #ffffff) 96.5%, var(--tpc-foreground, #222222) 3.5%);"
+    );
+    expect(css).toContain(
+      "--mn-bg-subtle: color-mix(in oklab, var(--tpc-background, #ffffff) 93.5%, var(--tpc-foreground, #222222) 6.5%);"
+    );
+    expect(css).toContain(
+      "--mn-bg-elevated: color-mix(in oklab, var(--tpc-background, #ffffff) 90.5%, var(--tpc-foreground, #222222) 9.5%);"
+    );
+    expect(css).toContain("--suite-border-control: var(--mn-border-control);");
+    expect(css).toContain("--tw-suite-border-control: var(--suite-border-control);");
+    expect(css).toContain("--suite-row-padding-y: 0.5rem;");
+    expect(css).toContain('data-suite-density="compact"');
+    expect(css).toContain('data-suite-density="touch"');
+    expect(css).toContain('data-suite-density="editorial"');
+    expect(css).toContain("@media (prefers-contrast: more)");
+    expect(css).toContain("@media (forced-colors: active)");
+
+    // 2. Settings select styling & defined border tokens
+    const settingsRaw = $tw.wiki.getTiddlerText(
+      "$:/plugins/mblackman/slipstream/settings"
+    );
+    expect(settingsRaw).toContain('class="mn-select"');
+    expect(settingsRaw).not.toContain("var(--mn-border)");
+
+    // 3. PinnedTiddlerBar 1-click Wide Width toggle
+    $tw.wiki.addTiddler({
+      title: "$:/StoryList",
+      list: ["Welcome to Slipstream"],
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/HistoryList",
+      "current-tiddler": "Welcome to Slipstream",
+    });
+    const pinnedBarHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/PinnedTiddlerBar"
+    );
+    expect(pinnedBarHtml).toContain("mn-wide-toggle-btn");
+    expect(pinnedBarHtml).toContain("Toggle wide layout");
+
+    // 4. Collapsible LeftNav sections (Pinned Shortcuts & Open Notes)
+    $tw.wiki.deleteTiddler("$:/state/slipstream/fold-pinned");
+    $tw.wiki.deleteTiddler("$:/state/slipstream/fold-open");
+    let leftNavHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/LeftNav"
+    );
+    expect(leftNavHtml).toContain("mn-nav-heading-toggle");
+    expect(leftNavHtml).toContain('aria-expanded="true"');
+    expect(leftNavHtml).toContain("mn-pin-bottom-droppable");
+    expect(leftNavHtml).toContain("mn-open-bottom-droppable");
+
+    // Fold both sections and verify list bodies are collapsed
+    $tw.wiki.addTiddler({
+      title: "$:/state/slipstream/fold-pinned",
+      text: "yes",
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/state/slipstream/fold-open",
+      text: "yes",
+    });
+    leftNavHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/LeftNav"
+    );
+    expect(leftNavHtml).toContain('aria-expanded="false"');
+    expect(leftNavHtml).not.toContain("mn-pin-bottom-droppable");
+    expect(leftNavHtml).not.toContain("mn-open-bottom-droppable");
+    $tw.wiki.deleteTiddler("$:/state/slipstream/fold-pinned");
+    $tw.wiki.deleteTiddler("$:/state/slipstream/fold-open");
+
+    // 5. RightInspector segmented tab count badges & existing field suggestions
+    $tw.wiki.addTiddler({
+      title: "$:/StoryList",
+      list: ["Slipstream UI Primitives"],
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/HistoryList",
+      "current-tiddler": "Slipstream UI Primitives",
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/state/slipstream/inspector-tab",
+      text: "Fields",
+    });
+    const inspectorHtml = $tw.wiki.renderTiddler(
+      "text/html",
+      "$:/plugins/mblackman/slipstream/ui/RightInspector"
+    );
+    expect(inspectorHtml).toContain('role="tablist"');
+    expect(inspectorHtml).toContain('role="tab"');
+    expect(inspectorHtml).toContain("mn-inspector-tab-count");
+    expect(inspectorHtml).toContain('id="mn-existing-fields-list"');
+    expect(inspectorHtml).toContain("mn-field-suggestion-chip");
   });
 });
 
