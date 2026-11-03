@@ -1854,7 +1854,32 @@ describe("Slipstream Plugin ($:/plugins/mblackman/slipstream)", () => {
       },
     ]);
 
+    // 7. Regression: searching when a matching tiddler has very large body text (>150k chars) or long lines does not throw RangeError in .snippet
+    $tw.wiki.addTiddler({
+      title: "Large MultiLine Tiddler",
+      text: "! Intro Heading\nLine mentioning james in a very large tiddler.\n" + "x".repeat(200000),
+    });
+    $tw.wiki.addTiddler({
+      title: "Large SingleLine Tiddler",
+      text: "Single huge line mentioning james " + "y".repeat(200000),
+    });
+    $tw.wiki.addTiddler({
+      title: "$:/temp/volatile/slipstream/global-search",
+      text: "james",
+    });
+    expect(() => {
+      topHtml = $tw.wiki.renderTiddler(
+        "text/html",
+        "$:/plugins/mblackman/slipstream/ui/TopBar"
+      );
+    }).not.toThrow();
+    expect(topHtml).toContain("Large MultiLine Tiddler");
+    expect(topHtml).toContain("Line mentioning james in a very large tiddler.");
+    expect(topHtml).toContain("Large SingleLine Tiddler");
+
     // Cleanup
+    $tw.wiki.deleteTiddler("Large MultiLine Tiddler");
+    $tw.wiki.deleteTiddler("Large SingleLine Tiddler");
     $tw.wiki.deleteTiddler("$:/temp/volatile/slipstream/global-search");
     $tw.wiki.deleteTiddler("$:/state/slipstream/search-open");
     $tw.wiki.deleteTiddler("$:/state/slipstream/search-scope");

@@ -9,6 +9,8 @@ type: text/vnd.tiddlywiki
 \function .active-title() [.active-tiddler[]get[draft.title]] ~[.active-tiddler[]get[caption]] ~[.active-tiddler[]]
 
 \procedure clean-snippet-prefix() ^[#\*\>]+\s*
+\procedure max-snippet-source() ^([\s\S]{1,32000})[\s\S]*$
+\procedure max-snippet-len() ^(.{105}).*$
 \procedure f-all-titles() [all[tiddlers]!is[system]!has[draft.of]search:title,caption<q>sort[title]limit[8]]
 \procedure f-only-titles() [all[tiddlers]!is[system]!has[draft.of]search:title,caption<q>sort[title]limit[12]]
 \procedure f-tags() [all[tiddlers]!is[system]!has[draft.of]search:tags<q>sort[title]limit[12]]
@@ -33,8 +35,8 @@ type: text/vnd.tiddlywiki
 
 \function .raw-query() [{$:/temp/volatile/slipstream/global-search}trim[]]
 \function .search-scope() [{$:/state/slipstream/search-scope}!is[blank]else[all]]
-\function .prefix-char() [.raw-query[]split[]first[]]
-\function .prefix-arg() [.raw-query[]split[]butfirst[]join[]trim[]]
+\function .prefix-char() [.raw-query[]prefix[#]then[#]] ~[.raw-query[]prefix[@]then[@]] ~[.raw-query[]prefix[>]then[>]]
+\function .prefix-arg() [.raw-query[]removeprefix[#]trim[]] ~[.raw-query[]removeprefix[@]trim[]] ~[.raw-query[]removeprefix[>]trim[]]
 \function .field-name() [.prefix-arg[]split[:]first[]trim[]]
 \function .field-val() [.prefix-arg[]split[:]butfirst[]join[:]trim[]]
 
@@ -74,9 +76,8 @@ type: text/vnd.tiddlywiki
 \end
 
 \function .snippet(tid, q)
-[<tid>!field:plugin-type[plugin]!field:plugin-type[theme]!field:type[text/css]get[text]split[\n]limit[400]trim[]!is[blank]!regexp[^!+\s+]search:title<q>first[]]
-:map[search-replace:g:regexp<clean-snippet-prefix>,[]search-replace:g[''],[]search-replace:g[//],[]search-replace:g[`],[]search-replace:g[~~],[]trim[]]
-:and[split[]first[105]join[]]
+[<tid>!field:plugin-type[plugin]!field:plugin-type[theme]!field:type[text/css]get[text]search-replace:g:regexp<max-snippet-source>,[$1]splitregexp[\n]limit[400]trim[]!is[blank]!regexp[^!+\s+]search:title<q>first[]]
+:map[search-replace:g:regexp<clean-snippet-prefix>,[]search-replace:g[''],[]search-replace:g[//],[]search-replace:g[`],[]search-replace:g[~~],[]trim[]search-replace:g:regexp<max-snippet-len>,[$1]]
 \end
 
 \function .is-dropdown-open()
